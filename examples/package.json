@@ -1,0 +1,27 @@
+{
+  "name": "@syllst/examples",
+  "version": "0.1.0",
+  "description": "Example syllabi and pipeline demonstrations for syllst",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@syllst/core": "workspace:*",
+    "@syllst/processor": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/mdast": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "examples"
+  }
+}
