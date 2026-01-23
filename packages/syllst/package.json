@@ -1,0 +1,65 @@
+{
+  "name": "@syllst/core",
+  "version": "0.1.0",
+  "description": "Syllabus Syntax Tree (syllst) - Unist-based type definitions and validation schemas for language learning syllabi",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./types": {
+      "types": "./src/types/index.ts",
+      "default": "./src/types/index.ts"
+    },
+    "./schemas": {
+      "types": "./src/schemas/index.ts",
+      "default": "./src/schemas/index.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "packages/syllst"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@types/unist": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "keywords": [
+    "syllabus",
+    "unist",
+    "syntax-tree",
+    "types",
+    "language-learning",
+    "curriculum",
+    "ast",
+    "validation",
+    "zod"
+  ],
+  "homepage": "https://github.com/fustilio/syllst#readme",
+  "bugs": {
+    "url": "https://github.com/fustilio/syllst/issues"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,9 @@
+packages:
+  - 'packages/*'
+
+catalog:
+  '@changesets/cli': ^2.27.9
+  typescript: ^5.9.3
+  vitest: ^4.0.18
+  zod: ^4.3.6
+  '@types/unist': ^3.0.3
