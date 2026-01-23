@@ -9,26 +9,61 @@ This directory contains example syllabi and usage patterns for syllst.
 
 ## Example MDX Files
 
-### Basic Lesson (`basic-lesson.mdx`)
+### Complete Course Example
+
+#### Thai Food Course (`thai-food-course/`)
+A **complete, real-world course structure** demonstrating:
+- **`meta.mdx`** - Full SyllabusRoot with rich metadata
+  - Course overview and objectives
+  - Key concepts and cultural context
+  - Lesson structure outline
+  - Prerequisites and metadata
+- **`lessons/lesson-*.mdx`** - Multiple lesson files
+  - Progressive lesson ordering
+  - Vocabulary sets with transliteration
+  - Exercises and examples
+  - Cultural notes
+- **`index.ts`** - Course configuration and paths
+- **`README.md`** - Course documentation
+
+This is the most comprehensive example, showing how a real course is structured.
+
+### Simple Course Structure
+
+#### Course Syllabus (`course-syllabus.mdx`)
+A basic course/syllabus root demonstrating:
+- SyllabusRoot structure with metadata
+- Course-level information (language, source, version)
+- Course overview and description
+
+#### Chapter (`chapter-foundation.mdx`)
+A chapter/module structure showing:
+- ChapterNode with metadata
+- Chapter organization and ordering
+- Difficulty and CEFR level assignment
+
+### Lesson Examples
+
+#### Basic Lesson (`basic-lesson.mdx`)
 A simple lesson demonstrating:
 - Grammar rules with nested examples
 - Vocabulary sets with multiple items
 - Fill-in-blank and translation exercises
 
-### Dialogue Lesson (`dialogue-lesson.mdx`)
+#### Dialogue Lesson (`dialogue-lesson.mdx`)
 A lesson showcasing:
 - Dialogue nodes with multiple turns
 - Speaker participants
 - Cultural notes
 - Shopping context
 
-### Character Lesson (`character-lesson.mdx`)
+#### Character Lesson (`character-lesson.mdx`)
 An alphabet learning lesson with:
 - Character sets (vowels and consonants)
 - Character items with transliteration
 - Example sets
 
-### Complex Lesson (`complex-lesson.mdx`)
+#### Complex Lesson (`complex-lesson.mdx`)
 An advanced lesson featuring:
 - Complex grammar rules with multiple examples
 - Advanced vocabulary
@@ -66,6 +101,34 @@ if (!validation.valid) {
   console.error('Validation errors:', validation.errors);
 }
 ```
+
+## Course Structure Hierarchy
+
+The syllst structure follows this hierarchy:
+
+```
+SyllabusRoot (Course)
+  └── ChapterNode (Module/Chapter)
+      └── LessonAstNode (Lesson/Unit)
+          └── Content Nodes (Grammar, Vocabulary, Exercises, etc.)
+```
+
+### Structure Levels
+
+1. **SyllabusRoot** - Top-level course structure
+   - Contains course metadata (language, source, version)
+   - Contains chapters as children
+   - Example: `course-syllabus.mdx`
+
+2. **ChapterNode** - Organizational unit
+   - Groups related lessons
+   - Contains lessons as children
+   - Example: `chapter-foundation.mdx`
+
+3. **LessonAstNode** - Individual lesson
+   - Contains learning content
+   - Grammar, vocabulary, exercises, dialogues
+   - Example: `basic-lesson.mdx`
 
 ## Pipeline Overview
 
