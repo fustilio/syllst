@@ -1,18 +1,61 @@
 {
   "name": "@syllst/processor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "MDX parsing and transformation pipeline for syllst",
   "license": "MIT",
   "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./builders": {
+      "types": "./src/builders/index.ts",
+      "default": "./src/builders/index.ts"
+    },
+    "./plugins": {
+      "types": "./src/plugins/index.ts",
+      "default": "./src/plugins/index.ts"
+    },
+    "./validators": {
+      "types": "./src/validators/index.ts",
+      "default": "./src/validators/index.ts"
+    },
+    "./utils": {
+      "types": "./src/utils/index.ts",
+      "default": "./src/utils/index.ts"
+    },
+    "./config": {
+      "types": "./src/config/index.ts",
+      "default": "./src/config/index.ts"
+    }
+  },
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "test": "vitest"
   },
   "dependencies": {
-    "@syllst/core": "workspace:*"
+    "@syllst/core": "workspace:*",
+    "remark": "catalog:",
+    "remark-directive": "catalog:",
+    "remark-frontmatter": "catalog:",
+    "remark-gfm": "catalog:",
+    "remark-mdx": "catalog:",
+    "remark-parse": "catalog:",
+    "unified": "catalog:",
+    "unist-util-visit": "catalog:",
+    "unist-util-visit-parents": "catalog:",
+    "vfile": "catalog:",
+    "yaml": "catalog:",
+    "uuid": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/mdast": "catalog:",
+    "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
@@ -20,5 +63,13 @@
     "type": "git",
     "url": "https://github.com/fustilio/syllst.git",
     "directory": "packages/syllst-processor"
-  }
+  },
+  "keywords": [
+    "syllabus",
+    "mdx",
+    "unist",
+    "processor",
+    "language-learning",
+    "curriculum"
+  ]
 }

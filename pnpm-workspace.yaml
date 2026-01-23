@@ -2,8 +2,22 @@ packages:
   - 'packages/*'
 
 catalog:
-  '@changesets/cli': ^2.27.9
   typescript: ^5.9.3
   vitest: ^4.0.18
   zod: ^4.3.6
   '@types/unist': ^3.0.3
+  '@types/node': ^22.0.0
+  '@types/mdast': ^4.0.0
+  remark: ^15.0.1
+  'remark-directive': ^4.0.0
+  'remark-frontmatter': ^5.0.0
+  'remark-gfm': ^4.0.1
+  'remark-mdx': ^3.1.1
+  'remark-parse': ^11.0.0
+  unified: ^11.0.5
+  'unist-util-visit': ^5.1.0
+  'unist-util-visit-parents': ^6.0.2
+  vfile: ^6.0.3
+  yaml: ^2.8.2
+  uuid: ^13.0.0
+  '@changesets/cli': ^2.29.8
