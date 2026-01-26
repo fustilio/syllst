@@ -6,3 +6,4 @@
 export * from './mdx-parser';
 export * from './unist-transformer';
 export * from './syllabus-builder';
+export * from './course-builder';

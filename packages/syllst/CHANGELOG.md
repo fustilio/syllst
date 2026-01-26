@@ -1,4 +1,4 @@
-# @syllst/processor
+# @syllst/core
 
 ## 0.2.0
 
@@ -11,14 +11,3 @@
 - Add course statistics and indices
 - Remove deprecated transliteration and language-specific fields
 - Add migration codemod and ecosystem documentation
-
-### Patch Changes
-
-- Updated dependencies
-  - @syllst/core@0.2.0
-
-## 0.1.1
-
-### Patch Changes
-
-- add implementation

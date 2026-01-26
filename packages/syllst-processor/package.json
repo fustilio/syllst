@@ -1,6 +1,6 @@
 {
   "name": "@syllst/processor",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "MDX parsing and transformation pipeline for syllst",
   "license": "MIT",
   "type": "module",
@@ -30,6 +30,10 @@
     "./config": {
       "types": "./src/config/index.ts",
       "default": "./src/config/index.ts"
+    },
+    "./codemods": {
+      "types": "./src/codemods/index.ts",
+      "default": "./src/codemods/index.ts"
     }
   },
   "scripts": {

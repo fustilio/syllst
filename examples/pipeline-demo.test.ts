@@ -9,24 +9,16 @@
 
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { buildLessonFromMDX } from '@syllst/processor';
 import { validateLesson } from '@syllst/processor/validators';
 import type { LessonAstNode } from '@syllst/core/types';
 
-// Get examples directory - works in both ESM and CommonJS
-const EXAMPLES_DIR = (() => {
-  try {
-    // ESM: use import.meta.url
-    if (typeof import.meta !== 'undefined' && import.meta.url) {
-      return new URL('.', import.meta.url).pathname;
-    }
-  } catch {
-    // Fallback for CommonJS
-  }
-  // Fallback: assume we're in the examples directory
-  return __dirname || '.';
-})();
+// Get examples directory - ESM-compatible
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const EXAMPLES_DIR = __dirname;
 
 function loadExample(name: string): string {
   return readFileSync(join(EXAMPLES_DIR, `${name}.mdx`), 'utf-8');

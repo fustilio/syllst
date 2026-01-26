@@ -1,6 +1,6 @@
 {
   "name": "@syllst/examples",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Example syllabi and pipeline demonstrations for syllst",
   "license": "MIT",
   "type": "module",

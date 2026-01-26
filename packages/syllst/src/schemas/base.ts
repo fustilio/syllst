@@ -34,6 +34,25 @@ export const PositionSchema = z.object({
 export const DataSchema = z.record(z.string(), z.unknown());
 
 // ============================================================================
+// Transcription Types (v0.2.0)
+// ============================================================================
+
+/**
+ * Transcription object schema - for multiple transcription systems
+ */
+export const TranscriptionObjectSchema = z
+  .object({
+    primary: z.string().min(1),
+    ipa: z.string().optional(),
+  })
+  .catchall(z.string().optional());
+
+/**
+ * Transcription schema - simple string or object with multiple systems
+ */
+export const TranscriptionSchema = z.union([z.string(), TranscriptionObjectSchema]);
+
+// ============================================================================
 // Syllabus-Specific Enums
 // ============================================================================
 
@@ -212,3 +231,5 @@ export type ZodLessonMetadata = z.infer<typeof LessonMetadataSchema>;
 export type ZodCharacterMnemonic = z.infer<typeof CharacterMnemonicSchema>;
 export type ZodCharacterTransliteration = z.infer<typeof CharacterTransliterationSchema>;
 export type ZodExerciseItem = z.infer<typeof ExerciseItemSchema>;
+export type ZodTranscription = z.infer<typeof TranscriptionSchema>;
+export type ZodTranscriptionObject = z.infer<typeof TranscriptionObjectSchema>;

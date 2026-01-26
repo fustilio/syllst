@@ -70,7 +70,7 @@ The pattern **यह (X) है** means "This is (X)".
 
   it('should transform vocab item with all attributes', async () => {
     const content = `
-::vocab{id="vocab-test" word="देश" translation="country" partOfSpeech="noun" gender="masculine" notes="Common word"}
+::vocab{id="vocab-test" word="देश" transcription="desh" translation="country" partOfSpeech="noun" notes="Common word" category="geography"}
 ::
 `;
 
@@ -83,10 +83,11 @@ The pattern **यह (X) है** means "This is (X)".
         foundVocab = true;
         expect(node.id).toBe('vocab-test');
         expect(node.word).toBe('देश');
+        expect(node.transcription).toBe('desh');
         expect(node.translation).toBe('country');
         expect(node.partOfSpeech).toBe('noun');
-        expect(node.gender).toBe('masculine');
         expect(node.notes).toBe('Common word');
+        expect(node.category).toBe('geography');
         expect(node.value).toBe('देश'); // Literal compatibility
       }
     });

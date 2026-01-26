@@ -13,16 +13,14 @@ import {
   GrammarDifficultySchema,
   CharacterTypeSchema,
   PhoneticCategorySchema,
-  VoicingTypeSchema,
   ExerciseTypeSchema,
   ContentFormatSchema,
-  GrammaticalGenderSchema,
   SyllabusSourceInfoSchema,
   LessonMetadataSchema,
   CharacterMnemonicSchema,
-  CharacterTransliterationSchema,
   CharacterVariantSchema,
   ExerciseItemSchema,
+  TranscriptionSchema,
 } from './base';
 import { ExtensionsMapSchema } from './extensions';
 
@@ -37,10 +35,13 @@ export const VocabularyItemNodeSchema = z.object({
   type: z.literal('vocabularyItem'),
   id: z.string().min(1),
   word: z.string().min(1),
-  transliteration: z.string().optional(),
+  transcription: TranscriptionSchema.optional(),
   translation: z.string().min(1),
+  definition: z.string().optional(),
+  preview: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
   partOfSpeech: z.string().optional(),
-  gender: GrammaticalGenderSchema.optional(),
   notes: z.string().optional(),
   example: z.string().optional(),
   related: z.array(z.string()).optional(),
@@ -59,10 +60,11 @@ export const CharacterItemNodeSchema = z.object({
   char: z.string().min(1),
   name: z.string().min(1),
   nativeName: z.string().optional(),
-  transliteration: z.union([CharacterTransliterationSchema, z.string()]),
+  transcription: TranscriptionSchema.optional(),
   charType: CharacterTypeSchema,
-  phoneticCategory: PhoneticCategorySchema.optional(),
-  voicing: VoicingTypeSchema.optional(),
+  preview: z.string().optional(),
+  category: z.string().optional(),
+  tags: z.array(z.string()).optional(),
   mnemonic: z.union([CharacterMnemonicSchema, z.string()]).optional(),
   exampleWords: z.array(z.string()).optional(),
   variants: z.array(CharacterVariantSchema).optional(),
@@ -81,7 +83,7 @@ export const ExampleNodeSchema = z.object({
   type: z.literal('example'),
   id: z.string().min(1),
   text: z.string().min(1),
-  transliteration: z.string().optional(),
+  transcription: TranscriptionSchema.optional(),
   translation: z.string().min(1),
   literalTranslation: z.string().optional(),
   notes: z.string().optional(),
@@ -148,9 +150,9 @@ export const DialogueTurnNodeSchema = z.object({
   speakerId: z.string().min(1),
   text: z.string().min(1),
   genderVariants: GenderVariantsSchema.optional(),
-  transliteration: z.string().optional(),
+  transcription: TranscriptionSchema.optional(),
   translation: z.string().min(1),
-  glostSentences: z.array(z.unknown()).optional(), // GLOSTSentence[] - using unknown to avoid dependency
+  glostSentences: z.array(z.unknown()).optional(), // GLOST types in @syllst/processor
   value: z.string(),
   extensions: ExtensionsMapSchema.optional(),
   data: DataSchema.optional(),
@@ -473,3 +475,67 @@ export type ZodGenderVariants = z.infer<typeof GenderVariantsSchema>;
 export type ZodSyllabusNode = z.infer<typeof SyllabusNodeSchema>;
 export type ZodSyllabusParent = z.infer<typeof SyllabusParentSchema>;
 export type ZodSyllabusLeaf = z.infer<typeof SyllabusLeafSchema>;
+
+// ============================================================================
+// Course Bundle Schemas (v0.2.0)
+// ============================================================================
+
+/**
+ * CEFR range schema
+ */
+export const CEFRRangeSchema = z.object({
+  min: CEFRLevelSchema,
+  max: CEFRLevelSchema,
+});
+
+/**
+ * Course manifest schema
+ */
+export const CourseManifestSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+  version: z.string().min(1),
+  language: z.string().min(2).max(10),
+  sourceLanguage: z.string().min(2).max(10).optional(),
+  bundledAt: z.string().datetime(),
+  lessonOrder: z.array(z.string().min(1)),
+  source: SyllabusSourceInfoSchema.optional(),
+  description: z.string().optional(),
+  cefrRange: CEFRRangeSchema.optional(),
+  prerequisites: z.array(z.string()).optional(),
+  objectives: z.array(z.string()).optional(),
+});
+
+/**
+ * Course statistics schema
+ */
+export const CourseStatisticsSchema = z.object({
+  totalLessons: z.number().int().nonnegative(),
+  totalVocabularyItems: z.number().int().nonnegative(),
+  uniqueVocabularyItems: z.number().int().nonnegative(),
+  totalGrammarRules: z.number().int().nonnegative(),
+  totalExercises: z.number().int().nonnegative(),
+  estimatedTotalTime: z.number().nonnegative(),
+  cefrLevelCoverage: z.record(CEFRLevelSchema, z.number().int().nonnegative()).optional(),
+  difficultyDistribution: z.record(GrammarDifficultySchema, z.number().int().nonnegative()).optional(),
+  exerciseTypeDistribution: z.record(ExerciseTypeSchema, z.number().int().nonnegative()).optional(),
+});
+
+/**
+ * Course bundle schema (for validation)
+ * Note: Index types use Map which can't be validated with Zod,
+ * so we validate the serializable form (with arrays instead of Maps)
+ */
+export const CourseBundleSchema = z.object({
+  type: z.literal('courseBundle'),
+  manifest: CourseManifestSchema,
+  lessons: z.array(LessonAstNodeSchema),
+  statistics: CourseStatisticsSchema,
+  extensions: ExtensionsMapSchema.optional(),
+  data: DataSchema.optional(),
+});
+
+// Type exports for course bundle
+export type ZodCourseManifest = z.infer<typeof CourseManifestSchema>;
+export type ZodCourseStatistics = z.infer<typeof CourseStatisticsSchema>;
+export type ZodCourseBundle = z.infer<typeof CourseBundleSchema>;

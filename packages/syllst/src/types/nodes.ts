@@ -18,6 +18,40 @@ export type { Data, Position };
 export type { ExtensionsMap, NodeExtension } from './extensions';
 
 // ============================================================================
+// Transcription Types (v0.2.0)
+// ============================================================================
+
+/**
+ * Transcription object for multiple transcription systems
+ *
+ * @example
+ * ```typescript
+ * // Simple string
+ * transcription: "khâao"
+ *
+ * // Multiple systems
+ * transcription: {
+ *   primary: "khâao",
+ *   ipa: "/kʰâːw/",
+ *   rtgs: "khao"
+ * }
+ * ```
+ */
+export interface TranscriptionObject {
+  /** Primary/default transcription */
+  primary: string;
+  /** IPA (International Phonetic Alphabet) */
+  ipa?: string;
+  /** Additional transcription systems (rtgs, paiboon, pinyin, hepburn, etc.) */
+  [system: string]: string | undefined;
+}
+
+/**
+ * Transcription type - simple string or object with multiple systems
+ */
+export type Transcription = string | TranscriptionObject;
+
+// ============================================================================
 // Syllabus-Specific Node Types
 // ============================================================================
 
@@ -328,14 +362,23 @@ export interface VocabularyItemNode extends UnistLiteral {
   id: string;
   /** Word/phrase in target language */
   word: string;
-  /** Transliteration (if applicable) */
-  transliteration?: string;
+  /**
+   * Transcription/pronunciation
+   * Can be a simple string or object with multiple transcription systems
+   */
+  transcription?: Transcription;
   /** Translation in learner's language */
   translation: string;
+  /** Longer explanation/definition */
+  definition?: string;
+  /** Display text for cards/previews */
+  preview?: string;
+  /** Category for filtering */
+  category?: string;
+  /** Tags for discovery */
+  tags?: string[];
   /** Part of speech */
   partOfSpeech?: string;
-  /** Grammatical gender (for gendered languages) */
-  gender?: 'masculine' | 'feminine' | 'neuter';
   /** Usage notes */
   notes?: string;
   /** Example sentence */
@@ -391,22 +434,6 @@ export interface CharacterMnemonic {
 }
 
 /**
- * Transliteration variants for a character
- */
-export interface CharacterTransliteration {
-  /** Primary/default transliteration */
-  primary: string;
-  /** IPA (International Phonetic Alphabet) */
-  ipa?: string;
-  /** National/official romanization */
-  national?: string;
-  /** ISO standard romanization (e.g., ISO 9984 for Georgian) */
-  iso?: string;
-  /** Additional transliteration schemes */
-  [key: string]: string | undefined;
-}
-
-/**
  * Character set node
  *
  * Collection of characters for alphabet/script learning.
@@ -450,14 +477,19 @@ export interface CharacterItemNode extends UnistLiteral {
   name: string;
   /** Name in native script (e.g., "ანი", "กอไก่") */
   nativeName?: string;
-  /** Transliteration variants */
-  transliteration: CharacterTransliteration | string;
+  /**
+   * Transcription/pronunciation
+   * Can be a simple string or object with multiple transcription systems
+   */
+  transcription?: Transcription;
   /** Character type */
   charType: CharacterType;
-  /** Phonetic category (for consonants) */
-  phoneticCategory?: PhoneticCategory;
-  /** Voicing (for consonants) */
-  voicing?: VoicingType;
+  /** Display text for cards/previews */
+  preview?: string;
+  /** Category for filtering */
+  category?: string;
+  /** Tags for discovery */
+  tags?: string[];
   /** Memory aid/mnemonic */
   mnemonic?: CharacterMnemonic | string;
   /** Example words using this character */
@@ -517,8 +549,11 @@ export interface ExampleNode extends UnistLiteral {
   id: string;
   /** Text in target language */
   text: string;
-  /** Transliteration (if applicable) */
-  transliteration?: string;
+  /**
+   * Transcription/pronunciation of the example
+   * Can be a simple string or object with multiple transcription systems
+   */
+  transcription?: Transcription;
   /** Translation in learner's language */
   translation: string;
   /** Word-by-word gloss */
@@ -594,12 +629,20 @@ export interface DialogueTurnNode extends UnistLiteral {
   text: string;
   /** Pre-parsed gender variants */
   genderVariants?: GenderVariants;
-  /** Transliteration (if applicable) */
-  transliteration?: string;
+  /**
+   * Transcription/pronunciation of the dialogue turn
+   * Can be a simple string or object with multiple transcription systems
+   */
+  transcription?: Transcription;
   /** Translation in learner's language */
   translation: string;
-  /** GLOST sentences for this turn (when using full GLOST integration) */
-  glostSentences?: unknown[]; // GLOSTSentence[] - using unknown to avoid dependency
+  /**
+   * GLOST sentences for this turn (when using full GLOST integration)
+   * Type is `unknown[]` to avoid core dependency on GLOST types.
+   * Use `@syllst/glost` (future) for type-safe GLOST integration.
+   * @see https://github.com/fustilio/glost for GLOST specification
+   */
+  glostSentences?: unknown[];
   /** The value (same as text for Unist Literal compatibility) */
   value: string;
   /** External format extensions (SCORM, xAPI, CMI5, etc.) */
@@ -918,4 +961,208 @@ export function isParentNode(node: UnistNode): node is SyllabusParent {
  */
 export function isLeafNode(node: UnistNode): node is SyllabusLeaf {
   return !isParentNode(node);
+}
+
+// ============================================================================
+// Course Bundle Types (v0.2.0)
+// ============================================================================
+
+/**
+ * Vocabulary index entry - tracks vocabulary items across lessons
+ */
+export interface VocabularyIndexEntry {
+  /** Vocabulary item ID */
+  id: string;
+  /** Word in target language */
+  word: string;
+  /** Translation */
+  translation: string;
+  /** Transcription (if available) */
+  transcription?: Transcription;
+  /** Lesson IDs where this word appears */
+  lessonIds: string[];
+  /** First lesson where this word is introduced */
+  firstAppearance: string;
+  /** Category for filtering */
+  category?: string;
+  /** Tags for discovery */
+  tags?: string[];
+}
+
+/**
+ * Vocabulary index for a course bundle
+ */
+export interface VocabularyIndex {
+  /** All vocabulary entries indexed by word */
+  byWord: Map<string, VocabularyIndexEntry>;
+  /** All vocabulary entries indexed by ID */
+  byId: Map<string, VocabularyIndexEntry>;
+  /** Vocabulary grouped by category */
+  byCategory: Map<string, VocabularyIndexEntry[]>;
+  /** Vocabulary grouped by lesson */
+  byLesson: Map<string, VocabularyIndexEntry[]>;
+}
+
+/**
+ * Grammar rule index entry - tracks grammar rules across lessons
+ */
+export interface GrammarRuleIndexEntry {
+  /** Grammar rule ID */
+  id: string;
+  /** Rule title */
+  title: string;
+  /** Brief explanation */
+  explanation: string;
+  /** Lesson IDs where this rule is taught */
+  lessonIds: string[];
+  /** First lesson where this rule is introduced */
+  firstAppearance: string;
+  /** IDs of related grammar rules */
+  relatedRules?: string[];
+  /** IDs of rules that should be learned first */
+  prerequisites?: string[];
+}
+
+/**
+ * Grammar rule index for a course bundle
+ */
+export interface GrammarRuleIndex {
+  /** All rules indexed by ID */
+  byId: Map<string, GrammarRuleIndexEntry>;
+  /** Rules grouped by lesson */
+  byLesson: Map<string, GrammarRuleIndexEntry[]>;
+  /** Dependency graph (rule ID -> prerequisite rule IDs) */
+  dependencies: Map<string, string[]>;
+}
+
+/**
+ * Exercise index entry - tracks exercises across lessons
+ */
+export interface ExerciseIndexEntry {
+  /** Exercise ID */
+  id: string;
+  /** Exercise type */
+  exerciseType: ExerciseType;
+  /** Lesson ID containing this exercise */
+  lessonId: string;
+  /** Difficulty level */
+  difficulty?: GrammarDifficulty;
+  /** Grammar rules this exercise tests */
+  testsRules?: string[];
+}
+
+/**
+ * Exercise index for a course bundle
+ */
+export interface ExerciseIndex {
+  /** All exercises indexed by ID */
+  byId: Map<string, ExerciseIndexEntry>;
+  /** Exercises grouped by type */
+  byType: Map<ExerciseType, ExerciseIndexEntry[]>;
+  /** Exercises grouped by lesson */
+  byLesson: Map<string, ExerciseIndexEntry[]>;
+  /** Exercises grouped by difficulty */
+  byDifficulty: Map<GrammarDifficulty, ExerciseIndexEntry[]>;
+}
+
+/**
+ * Course indices - aggregated indices across all lessons
+ */
+export interface CourseIndices {
+  /** Vocabulary index */
+  vocabulary: VocabularyIndex;
+  /** Grammar rule index */
+  grammarRules: GrammarRuleIndex;
+  /** Exercise index */
+  exercises: ExerciseIndex;
+}
+
+/**
+ * Course statistics - aggregated statistics across all lessons
+ */
+export interface CourseStatistics {
+  /** Total number of lessons */
+  totalLessons: number;
+  /** Total vocabulary items (including duplicates across lessons) */
+  totalVocabularyItems: number;
+  /** Unique vocabulary items (deduplicated by word) */
+  uniqueVocabularyItems: number;
+  /** Total grammar rules */
+  totalGrammarRules: number;
+  /** Total exercises */
+  totalExercises: number;
+  /** Estimated total time in minutes */
+  estimatedTotalTime: number;
+  /** CEFR level coverage (level -> number of lessons) */
+  cefrLevelCoverage: Partial<Record<CEFRLevel, number>>;
+  /** Difficulty distribution (difficulty -> number of lessons) */
+  difficultyDistribution: Partial<Record<GrammarDifficulty, number>>;
+  /** Exercise type distribution (type -> count) */
+  exerciseTypeDistribution: Partial<Record<ExerciseType, number>>;
+}
+
+/**
+ * Course manifest - describes the course bundle contents
+ */
+export interface CourseManifest {
+  /** Unique course ID */
+  id: string;
+  /** Course title */
+  title: string;
+  /** Course version (semver) */
+  version: string;
+  /** Target language code (ISO 639-1) */
+  language: string;
+  /** Source language code (learner's language) */
+  sourceLanguage?: string;
+  /** When the bundle was created */
+  bundledAt: string; // ISO 8601 timestamp
+  /** Ordered list of lesson IDs */
+  lessonOrder: string[];
+  /** Source information */
+  source?: SyllabusSourceInfo;
+  /** Course description */
+  description?: string;
+  /** Course-level CEFR range */
+  cefrRange?: {
+    min: CEFRLevel;
+    max: CEFRLevel;
+  };
+  /** Course prerequisites (other course IDs) */
+  prerequisites?: string[];
+  /** Course learning objectives */
+  objectives?: string[];
+}
+
+/**
+ * Course bundle - a packaged collection of lessons with indices and statistics
+ */
+export interface CourseBundle {
+  type: 'courseBundle';
+  /** Course manifest */
+  manifest: CourseManifest;
+  /** Lessons in order */
+  lessons: LessonAstNode[];
+  /** Course indices for quick lookups */
+  indices: CourseIndices;
+  /** Aggregated course statistics */
+  statistics: CourseStatistics;
+  /** Optional syllabus root (if bundling from existing syllabus) */
+  syllabusRoot?: SyllabusRoot;
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
+  extensions?: ExtensionsMap;
+  /** Additional metadata */
+  data?: Data;
+}
+
+/**
+ * Type guard for CourseBundle
+ */
+export function isCourseBundle(node: unknown): node is CourseBundle {
+  return (
+    typeof node === 'object' &&
+    node !== null &&
+    'type' in node &&
+    (node as CourseBundle).type === 'courseBundle'
+  );
 }

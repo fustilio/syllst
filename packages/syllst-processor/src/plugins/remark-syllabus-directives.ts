@@ -15,7 +15,6 @@ import type {
   CharacterItemNode,
   CharacterType,
   PhoneticCategory,
-  VoicingType,
   ExampleSetNode,
   ExampleNode,
   ExerciseNode,
@@ -23,6 +22,8 @@ import type {
   DialogueTurnNode,
   DialogueParticipant,
   GenderVariants,
+  Transcription,
+  TranscriptionObject,
 } from '@syllst/core/types';
 
 /**
@@ -34,6 +35,72 @@ interface DirectiveNode {
   attributes?: Record<string, string>;
   children?: any[];
   data?: any;
+}
+
+// ============================================================================
+// Attribute Parsing Helpers (v0.2.0)
+// ============================================================================
+
+/**
+ * Parse transcription attribute - handles both string and JSON object formats
+ *
+ * @example
+ * parseTranscription("khâao") // returns "khâao"
+ * parseTranscription('{"primary": "khâao", "ipa": "/kʰâːw/"}') // returns { primary: "khâao", ipa: "/kʰâːw/" }
+ */
+function parseTranscription(value: string | undefined): Transcription | undefined {
+  if (!value) return undefined;
+
+  // Try to parse as JSON object
+  if (value.startsWith('{')) {
+    try {
+      const parsed = JSON.parse(value);
+      if (typeof parsed === 'object' && parsed.primary) {
+        return parsed as TranscriptionObject;
+      }
+    } catch {
+      // Not valid JSON, treat as string
+    }
+  }
+
+  return value;
+}
+
+/**
+ * Extract data:* attributes from directive attributes
+ *
+ * @example
+ * extractDataAttributes({ "data:tone": "falling", "data:class": "low", word: "ข้าว" })
+ * // returns { tone: "falling", class: "low" }
+ */
+function extractDataAttributes(attributes: Record<string, string> | undefined): Record<string, unknown> | undefined {
+  if (!attributes) return undefined;
+
+  const data: Record<string, unknown> = {};
+  let hasData = false;
+
+  for (const [key, value] of Object.entries(attributes)) {
+    if (key.startsWith('data:')) {
+      const dataKey = key.slice(5); // Remove 'data:' prefix
+      // Try to parse value as JSON for complex types
+      try {
+        data[dataKey] = JSON.parse(value);
+      } catch {
+        data[dataKey] = value;
+      }
+      hasData = true;
+    }
+  }
+
+  return hasData ? data : undefined;
+}
+
+/**
+ * Parse comma-separated tags
+ */
+function parseTags(value: string | undefined): string[] | undefined {
+  if (!value) return undefined;
+  return value.split(',').map(t => t.trim()).filter(t => t);
 }
 
 /**
@@ -99,30 +166,47 @@ function transformVocabularySet(directive: DirectiveNode): Partial<VocabularySet
 
 /**
  * Transform leaf directive to VocabularyItemNode
+ *
+ * Syntax:
+ * - ::vocab{word="ข้าว" transcription="khâao" translation="rice"}
+ * - ::vocab{word="ข้าว" transcription='{"primary": "khâao", "ipa": "/kʰâːw/"}' translation="rice"}
+ *
+ * Supports data:* attributes for language-specific extensions:
+ * - ::vocab{word="ข้าว" transcription="khâao" translation="rice" data:tone="falling" data:consonantClass="low"}
  */
 function transformVocabularyItem(directive: DirectiveNode): Partial<VocabularyItemNode> {
   const {
     id = `vocab-${Math.random().toString(36).substr(2, 9)}`,
     word = '',
     translation = '',
-    transliteration,
+    transcription,
+    definition,
+    preview,
+    category,
+    tags,
     partOfSpeech,
-    gender,
     notes,
     example,
   } = directive.attributes || {};
+
+  // Extract data:* attributes
+  const dataAttrs = extractDataAttributes(directive.attributes);
 
   return {
     type: 'vocabularyItem',
     id,
     word,
-    transliteration,
+    transcription: parseTranscription(transcription),
     translation,
+    definition,
+    preview,
+    category,
+    tags: parseTags(tags),
     partOfSpeech,
-    gender: gender as 'masculine' | 'feminine' | 'neuter' | undefined,
     notes,
     example,
     value: word, // For Literal compatibility
+    data: dataAttrs,
   };
 }
 
@@ -131,7 +215,7 @@ function transformVocabularyItem(directive: DirectiveNode): Partial<VocabularyIt
  *
  * Usage:
  * :::character-set{id="basic-vowels" title="Basic Vowels" charType="vowel"}
- * ::character{char="ა" name="Ani" transliteration="a" charType="vowel"}
+ * ::character{char="ა" name="Ani" transcription="a" charType="vowel"}
  * ::
  * :::
  */
@@ -163,17 +247,15 @@ function transformCharacterSet(directive: DirectiveNode): Partial<CharacterSetNo
 /**
  * Transform leaf directive to CharacterItemNode
  *
- * Usage:
- * ::character{char="ა" name="Ani" nativeName="ანი" transliteration="a" charType="vowel"}
- * ::
+ * Syntax:
+ * - ::character{char="ა" name="Ani" transcription="a" charType="vowel"}
+ * - ::character{char="ა" name="Ani" transcription='{"primary": "a", "ipa": "/ɑ/"}' charType="vowel"}
  *
- * For consonants with additional properties:
- * ::character{char="ბ" name="Bani" transliteration="b" charType="consonant" phoneticCategory="stop" voicing="voiced"}
- * ::
+ * Supports data:* attributes for language-specific extensions:
+ * - ::character{char="ბ" name="Bani" transcription="b" charType="consonant" data:phoneticCategory="stop" data:voicing="voiced"}
  *
  * With mnemonic:
- * ::character{char="ა" name="Ani" transliteration="a" charType="vowel" mnemonic="Looks like an 'a' rotated"}
- * ::
+ * ::character{char="ა" name="Ani" transcription="a" charType="vowel" mnemonic="Looks like an 'a' rotated"}
  */
 function transformCharacterItem(directive: DirectiveNode): Partial<CharacterItemNode> {
   const {
@@ -181,28 +263,19 @@ function transformCharacterItem(directive: DirectiveNode): Partial<CharacterItem
     char = '',
     name = '',
     nativeName,
-    transliteration = '',
-    ipa,
-    national,
-    iso,
+    transcription,
     charType = 'consonant',
-    phoneticCategory,
-    voicing,
+    preview,
+    category,
+    tags,
     mnemonic,
     exampleWords,
     notes,
     audioPath,
   } = directive.attributes || {};
 
-  // Build transliteration object if multiple schemes provided
-  const transliterationValue = (ipa || national || iso)
-    ? {
-        primary: transliteration,
-        ipa,
-        national,
-        iso,
-      }
-    : transliteration;
+  // Extract data:* attributes
+  const dataAttrs = extractDataAttributes(directive.attributes);
 
   // Parse example words if provided as comma-separated string
   const parsedExampleWords = exampleWords
@@ -215,15 +288,17 @@ function transformCharacterItem(directive: DirectiveNode): Partial<CharacterItem
     char,
     name,
     nativeName,
-    transliteration: transliterationValue,
+    transcription: parseTranscription(transcription),
     charType: charType as CharacterType,
-    phoneticCategory: phoneticCategory as PhoneticCategory | undefined,
-    voicing: voicing as VoicingType | undefined,
+    preview,
+    category,
+    tags: parseTags(tags),
     mnemonic,
     exampleWords: parsedExampleWords,
     notes,
     audioPath,
     value: char, // For Literal compatibility
+    data: dataAttrs,
   };
 }
 
@@ -264,7 +339,7 @@ function transformExample(directive: DirectiveNode): Partial<ExampleNode> {
     id = `example-${Math.random().toString(36).substr(2, 9)}`,
     text = '',
     translation = '',
-    transliteration,
+    transcription,
     notes,
     literalTranslation,
   } = directive.attributes || {};
@@ -272,16 +347,20 @@ function transformExample(directive: DirectiveNode): Partial<ExampleNode> {
   // Extract illustrates from attributes
   const illustrates = directive.attributes?.illustrates?.split(',').map(s => s.trim());
 
+  // Extract data attributes (data:* prefix)
+  const data = extractDataAttributes(directive.attributes);
+
   return {
     type: 'example',
     id,
     text,
-    transliteration,
+    transcription: parseTranscription(transcription),
     translation,
     literalTranslation,
     notes,
     illustrates,
     value: text, // For Literal compatibility
+    ...(data && { data }),
   };
 }
 
@@ -687,22 +766,24 @@ function transformDialogue(directive: DirectiveNode): Partial<DialogueNode> {
 
 /**
  * Extract turn content from a list of nodes (children or siblings)
+ *
+ * Supports `transcription:` annotations
  */
-function extractTurnContent(nodes: any[]): { text: string; translation: string; transliteration?: string } {
+function extractTurnContent(nodes: any[]): { text: string; translation: string; transcription?: string } {
   let text = '';
   let translation = '';
-  let transliteration: string | undefined;
+  let transcription: string | undefined;
 
   for (const child of nodes) {
     if (child.type === 'paragraph') {
       const content = extractTextContent(child);
       if (content.startsWith('#')) {
-        // Parse annotation: # en-US: Hello or # transliteration: ...
+        // Parse annotation: # en-US: Hello or # transcription: ...
         const match = content.match(/^#\s*(\S+):\s*(.+)$/);
         if (match) {
           const [, annotationType, value] = match;
-          if (annotationType === 'transliteration') {
-            transliteration = value ?? '';
+          if (annotationType === 'transcription') {
+            transcription = value ?? '';
           } else {
             // Treat as translation (e.g., "en-US: Hello")
             translation = value ?? '';
@@ -714,13 +795,13 @@ function extractTurnContent(nodes: any[]): { text: string; translation: string; 
       }
     } else if (child.type === 'heading') {
       // In markdown, # starts a heading - we use this for annotations
-      // Parse annotation: # en-US: Hello or # transliteration: ...
+      // Parse annotation: # en-US: Hello or # transcription: ...
       const content = extractTextContent(child);
       const match = content.match(/^(\S+):\s*(.+)$/);
       if (match) {
         const [, annotationType, value] = match;
-        if (annotationType === 'transliteration') {
-          transliteration = value ?? '';
+        if (annotationType === 'transcription') {
+          transcription = value ?? '';
         } else {
           // Treat as translation (e.g., "en-US: Hello")
           translation = value ?? '';
@@ -734,7 +815,7 @@ function extractTurnContent(nodes: any[]): { text: string; translation: string; 
     }
   }
 
-  return { text, translation, transliteration };
+  return { text, translation, transcription };
 }
 
 /**
@@ -759,7 +840,7 @@ function transformDialogueTurnWithSiblings(
     content = extractTurnContent(siblingContent);
   }
 
-  const { text, translation, transliteration } = content;
+  const { text, translation, transcription } = content;
 
   // Parse gender variants
   const { hasVariants, variants, masculine } = parseGenderVariants(text);
@@ -769,7 +850,7 @@ function transformDialogueTurnWithSiblings(
     speakerId: speaker,
     text,
     genderVariants: hasVariants ? variants : undefined,
-    transliteration,
+    transcription,
     translation: translation || '', // Default to empty string if no translation
     value: masculine, // Use masculine variant as default value for Literal compatibility
   };
@@ -782,7 +863,7 @@ function transformDialogueTurnWithSiblings(
  * ::turn{speaker="me" gender="masculine"}
  * สวัสดี{ครับ|ค่ะ}
  * # en-US: Hello
- * # transliteration: sa-wat-dee krap/ka
+ * # transcription: sa-wat-dee krap/ka
  * ::
  */
 function transformDialogueTurn(directive: DirectiveNode): Partial<DialogueTurnNode> {
