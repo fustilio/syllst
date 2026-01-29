@@ -66,14 +66,14 @@ export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 export type GrammarDifficulty = 'beginner' | 'intermediate' | 'advanced';
 
 /**
- * Move-on criteria (CMI5-inspired)
+ * Progression rule
  * Defines when a learner can proceed to the next lesson
  */
-export type MoveOnCriteria = 
-  | 'Passed'           // Must pass (meet mastery threshold)
-  | 'Completed'        // Must complete (finish all content)
+export type ProgressionRule =
+  | 'Passed'             // Must pass (meet mastery threshold)
+  | 'Completed'          // Must complete (finish all content)
   | 'CompletedAndPassed' // Must both complete and pass
-  | 'NotApplicable';   // No restrictions
+  | 'NotApplicable';     // No restrictions
 
 /**
  * Completion criteria
@@ -93,7 +93,7 @@ export interface CompletionCriteria {
 }
 
 /**
- * Learning objective (CMI5-inspired)
+ * Learning objective
  * Structured objective with tracking criteria
  */
 export interface LearningObjective {
@@ -238,7 +238,7 @@ export interface LessonMetadata {
   prerequisites?: string[];
   /** Learning objectives (legacy: string array) */
   objectives?: string[];
-  /** Structured learning objectives (CMI5-inspired) */
+  /** Structured learning objectives */
   learningObjectives?: LearningObjective[];
   /** Key takeaways */
   takeaways?: string[];
@@ -248,10 +248,10 @@ export interface LessonMetadata {
   notes?: string;
   /** Original source file path (for reference) */
   sourceFile?: string;
-  /** Completion criteria (CMI5-inspired) */
+  /** Completion criteria */
   completionCriteria?: CompletionCriteria;
-  /** Move-on criteria (CMI5-inspired) */
-  moveOn?: MoveOnCriteria;
+  /** Progression rule — when a learner can proceed to the next lesson */
+  progressionRule?: ProgressionRule;
   /** Default mastery score for objectives in this lesson (0-1) */
   defaultMasteryScore?: number;
 }

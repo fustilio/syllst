@@ -67,9 +67,9 @@ export const CEFRLevelSchema = z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
 export const GrammarDifficultySchema = z.enum(['beginner', 'intermediate', 'advanced']);
 
 /**
- * Move-on criteria (CMI5-inspired)
+ * Progression rule — when a learner can proceed
  */
-export const MoveOnCriteriaSchema = z.enum(['Passed', 'Completed', 'CompletedAndPassed', 'NotApplicable']);
+export const ProgressionRuleSchema = z.enum(['Passed', 'Completed', 'CompletedAndPassed', 'NotApplicable']);
 
 /**
  * Character types
@@ -136,7 +136,7 @@ export const SyllabusSourceInfoSchema = z.object({
 });
 
 /**
- * Learning objective schema (CMI5-inspired)
+ * Learning objective schema
  */
 export const LearningObjectiveSchema = z.object({
   id: z.string().min(1),
@@ -146,7 +146,7 @@ export const LearningObjectiveSchema = z.object({
 });
 
 /**
- * Completion criteria schema (CMI5-inspired)
+ * Completion criteria schema
  */
 export const CompletionCriteriaSchema = z.object({
   masteryScore: z.number().min(0).max(1).optional(),
@@ -165,14 +165,14 @@ export const LessonMetadataSchema = z.object({
   estimatedTime: z.number().int().positive().optional(),
   prerequisites: z.array(z.string()).optional(),
   objectives: z.array(z.string()).optional(), // Legacy: string array
-  learningObjectives: z.array(LearningObjectiveSchema).optional(), // CMI5-inspired: structured objectives
+  learningObjectives: z.array(LearningObjectiveSchema).optional(),
   takeaways: z.array(z.string()).optional(),
   culturalNotes: z.string().optional(),
   notes: z.string().optional(),
   sourceFile: z.string().optional(),
-  completionCriteria: CompletionCriteriaSchema.optional(), // CMI5-inspired
-  moveOn: MoveOnCriteriaSchema.optional(), // CMI5-inspired
-  defaultMasteryScore: z.number().min(0).max(1).optional(), // CMI5-inspired
+  completionCriteria: CompletionCriteriaSchema.optional(),
+  progressionRule: ProgressionRuleSchema.optional(),
+  defaultMasteryScore: z.number().min(0).max(1).optional(),
 }).partial();
 
 /**

@@ -34,7 +34,7 @@
 // Re-export types from @syllst/core for convenience
 export type * from '@syllst/core/types';
 
-// Export processor-specific types (Chishiki integration)
+// Export processor-specific types
 export * from './types';
 
 // Export builders

@@ -4,4 +4,3 @@
  */
 
 export * from './dialogue-converters';
-export * from './chishiki-converters';
