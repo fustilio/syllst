@@ -9,13 +9,7 @@ import type { Root as MdastRoot } from 'mdast';
 import type {
   SyllabusRoot,
   LessonAstNode,
-  GrammarRuleNode,
-  VocabularySetNode,
-  CharacterSetNode,
-  ExampleSetNode,
-  ExerciseNode,
   ContentNode,
-  DialogueNode,
 } from '@syllst/core/types';
 import type { MDXFrontmatter } from './mdx-parser';
 
@@ -200,7 +194,7 @@ function extractMarkdown(node: any): string {
  * Transform MDAST to SyllabusRoot (for meta files)
  */
 export function transformToSyllabusRoot(
-  tree: MdastRoot,
+  _tree: MdastRoot,
   frontmatter: MDXFrontmatter
 ): Partial<SyllabusRoot> {
   const {

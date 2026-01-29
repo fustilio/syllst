@@ -9,7 +9,6 @@ import { z } from 'zod';
 import {
   SyllabusRootSchema,
   LessonAstNodeSchema,
-  SyllabusNodeSchema,
   ChapterNodeSchema,
   SectionNodeSchema,
   GrammarRuleNodeSchema,

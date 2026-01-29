@@ -52,7 +52,7 @@ export function validateReferences(
   const nodes = Array.isArray(syllabus) ? syllabus : [syllabus];
 
   for (const node of nodes) {
-    visit(node, (visitedNode: any, index: number | undefined, parent: any) => {
+    visit(node, (visitedNode: any, _index: number | undefined, _parent: any) => {
       // Validate GLOST references in content nodes
       if (visitedNode.type === 'content') {
         const contentNode = visitedNode as ContentNode;

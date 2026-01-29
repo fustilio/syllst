@@ -10,7 +10,6 @@
 
 import type {
   DialogueNode,
-  DialogueTurnNode,
 } from '@syllst/core/types';
 
 // ============================================================================

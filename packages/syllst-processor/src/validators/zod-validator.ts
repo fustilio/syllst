@@ -14,7 +14,6 @@ import {
   type ValidateOptions,
 } from '@syllst/core/schemas';
 import type { LessonAstNode, DialogueNode, SyllabusRoot } from '@syllst/core/types';
-import type { z } from 'zod';
 import {
   validateReferences,
   type ReferenceValidationResult,
@@ -168,7 +167,6 @@ export function validateMultiStage(
   options: MultiStageValidationOptions = {}
 ): MultiStageValidationResult {
   const {
-    strict = false,
     referenceOptions = {},
     validateExternalFormats = false,
   } = options;
@@ -200,7 +198,7 @@ export function validateMultiStage(
   if (validateExternalFormats) {
     // Basic validation of extensions structure
     const nodes = Array.isArray(syllabus) ? syllabus : [syllabus];
-    for (const node of nodes) {
+    for (const _node of nodes) {
       // Visit all nodes and check extensions
       // This is a placeholder - actual validation would check extension schemas
     }

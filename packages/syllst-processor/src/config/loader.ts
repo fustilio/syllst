@@ -6,7 +6,6 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join, resolve } from 'path';
-import { z } from 'zod';
 import {
   SyllstConfigFileSchema,
   DEFAULT_CONFIG,

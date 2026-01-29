@@ -4,7 +4,6 @@
  * Complete pipeline: MDX → MDAST → Syllabus Unist Tree → Structured Data
  */
 
-import { parseMDX, type MDXFrontmatter } from './mdx-parser';
 import { transformMDASTToSyllabusUnist } from './unist-transformer';
 import { createMDXParser } from './mdx-parser';
 import { remarkSyllabusDirectives } from '../plugins/remark-syllabus-directives';
