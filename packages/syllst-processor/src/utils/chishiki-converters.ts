@@ -13,6 +13,7 @@ import type {
   LessonAstNode,
   VocabularySetNode,
   VocabularyItemNode,
+  CharacterSetNode,
   DialogueNode,
   GrammarRuleNode,
   ExerciseNode,
@@ -22,6 +23,7 @@ import type {
 import type {
   ChishikiLearningContent,
   ChishikiVocabularyItem,
+  ChishikiCharacterItem,
   ChishikiDialogueParticipant,
   ChishikiDialogueTurn,
   ChishikiExportOptions,
@@ -54,6 +56,15 @@ function cefrToString(cefrLevel: string | string[] | undefined): string | undefi
   if (!cefrLevel) return undefined;
   if (Array.isArray(cefrLevel)) return cefrLevel.join(', ');
   return cefrLevel;
+}
+
+/**
+ * Extract mnemonic string from CharacterMnemonic or string
+ */
+function getMnemonicString(mnemonic: { text: string } | string | undefined): string | undefined {
+  if (!mnemonic) return undefined;
+  if (typeof mnemonic === 'string') return mnemonic;
+  return mnemonic.text;
 }
 
 // ============================================================================
@@ -169,6 +180,42 @@ export function vocabularyItemToChishiki(
       notes: node.notes,
       example: node.example,
       examples: node.related,
+    },
+    createdAt: timestamp,
+    updatedAt: timestamp,
+  };
+}
+
+/**
+ * Convert a CharacterSetNode to Chishiki learning content
+ */
+export function characterSetToChishiki(
+  node: CharacterSetNode,
+  options: ChishikiExportOptions = {}
+): ChishikiLearningContent {
+  const timestamp = getTimestamp();
+
+  const items: ChishikiCharacterItem[] = node.children.map((item) => ({
+    id: item.id,
+    char: item.char,
+    name: item.name,
+    nativeName: item.nativeName,
+    transcription: getPrimaryTranscription(item.transcription),
+    charType: item.charType,
+    mnemonic: getMnemonicString(item.mnemonic),
+    notes: item.notes,
+  }));
+
+  return {
+    id: options.id || node.id,
+    type: 'character-set',
+    title: node.title || `Character Set: ${node.id}`,
+    parentId: options.parentId,
+    sourceUrl: options.sourceUrl,
+    data: {
+      items,
+      charType: node.charType,
+      description: node.description,
     },
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -333,6 +380,8 @@ export function toChishikiContent(
       return vocabularySetToChishiki(node as unknown as VocabularySetNode, options);
     case 'vocabularyItem':
       return vocabularyItemToChishiki(node as unknown as VocabularyItemNode, options);
+    case 'characterSet':
+      return characterSetToChishiki(node as unknown as CharacterSetNode, options);
     case 'dialogue':
       return dialogueToChishiki(node as unknown as DialogueNode, options);
     case 'grammarRule':

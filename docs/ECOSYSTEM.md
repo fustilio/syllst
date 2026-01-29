@@ -255,29 +255,17 @@ GLOST documents can be used in Chishiki for rich practice activities:
 | Syllst | `@syllst/{package}` | `@syllst/core`, `@syllst/processor` |
 | Chishiki | `@chishiki/{package}` | `@chishiki/core`, `@chishiki/importer-syllst` |
 
-## Package Architecture (Planned)
-
-The current implementation has Chishiki integration in `@syllst/processor`, but the target architecture is:
+## Package Architecture
 
 ```
 @syllst/core           - Type definitions and Zod schemas (no external deps)
-  └── GLOST types      - Optional GLOST sentence types (type-only, no runtime dep)
+                         glostSentences typed as unknown[] to avoid runtime dep
 
-@syllst/processor      - Base MDX processing pipeline
-  └── No integration code (pure parsing/transformation)
-
-@syllst/glost          - GLOST integration adapter (future)
-  └── Depends on glost-core
-  └── Provides syllst-to-GLOST conversion
-
-@syllst/chishiki       - Chishiki integration adapter (future)
-  └── Provides syllst-to-Chishiki export
-  └── Provides activity hints
+@syllst/processor      - MDX processing pipeline
+  └── types/glost.ts       - GLOST type definitions and type guards
+  └── builders/course-builder.ts - Course bundling utilities
 ```
 
-## Future Integrations
-
-- **@syllst/glost** - Convert syllst nodes to GLOST documents, process with glost-processor
-- **@syllst/chishiki** - Export syllst content to Chishiki, generate activity hints
-- **Unified content pipeline** - Single pipeline from MDX to annotated, reviewable content
-- **Cross-project validation** - Validate references across all three projects
+Future packages:
+- `@syllst/glost` - GLOST integration adapter with glost-core dependency
+- `@syllst/chishiki` - Chishiki integration adapter with export utilities

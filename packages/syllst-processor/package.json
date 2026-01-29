@@ -1,6 +1,6 @@
 {
   "name": "@syllst/processor",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "MDX parsing and transformation pipeline for syllst",
   "license": "MIT",
   "type": "module",

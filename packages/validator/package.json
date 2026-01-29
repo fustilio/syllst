@@ -1,0 +1,48 @@
+{
+  "name": "@syllst/validator",
+  "version": "0.1.0",
+  "description": "CLI tool for validating Syllst MDX content",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "syllst-validate": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@syllst/processor": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "packages/validator"
+  },
+  "keywords": [
+    "syllst",
+    "validator",
+    "cli",
+    "mdx",
+    "curriculum"
+  ]
+}

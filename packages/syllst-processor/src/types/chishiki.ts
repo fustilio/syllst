@@ -20,6 +20,7 @@
  * - 'course' ← SyllabusRoot
  * - 'lesson' ← LessonAstNode
  * - 'vocabulary-set' ← VocabularySetNode
+ * - 'character-set' ← CharacterSetNode
  * - 'dialogue' ← DialogueNode
  * - 'grammar-rule' ← GrammarRuleNode
  * - 'exercise' ← ExerciseNode
@@ -30,10 +31,116 @@ export type ChishikiContentType =
   | 'lesson'
   | 'vocabulary-set'
   | 'vocabulary'
+  | 'character-set'
   | 'dialogue'
   | 'grammar-rule'
   | 'exercise'
   | 'text';
+
+// ============================================================================
+// Item Types (defined first for use in ChishikiContentData)
+// ============================================================================
+
+/**
+ * Vocabulary item for vocabulary-set content
+ */
+export interface ChishikiVocabularyItem {
+  id: string;
+  word: string;
+  transcription?: string;
+  translation: string;
+  partOfSpeech?: string;
+  notes?: string;
+  example?: string;
+}
+
+/**
+ * Character item for character-set content
+ */
+export interface ChishikiCharacterItem {
+  id: string;
+  char: string;
+  name: string;
+  nativeName?: string;
+  transcription?: string;
+  charType?: string;
+  mnemonic?: string;
+  notes?: string;
+}
+
+/**
+ * Dialogue participant
+ */
+export interface ChishikiDialogueParticipant {
+  id: string;
+  name: string;
+  role?: string;
+}
+
+/**
+ * Dialogue turn
+ */
+export interface ChishikiDialogueTurn {
+  speakerId: string;
+  text: string;
+  transcription?: string;
+  translation: string;
+}
+
+// ============================================================================
+// Content Data Types
+// ============================================================================
+
+/**
+ * Content-specific data payload
+ *
+ * The structure varies by content type.
+ */
+export interface ChishikiContentData {
+  // Course/Lesson metadata
+  description?: string;
+  estimatedTime?: number;
+  cefrLevel?: string;
+  objectives?: string[];
+  difficulty?: string;
+
+  // Vocabulary data
+  word?: string;
+  transcription?: string;
+  translation?: string;
+  partOfSpeech?: string;
+  examples?: string[];
+  items?: ChishikiVocabularyItem[] | ChishikiCharacterItem[];
+
+  // Character-set data
+  charType?: string;
+
+  // Dialogue data
+  participants?: ChishikiDialogueParticipant[];
+  turns?: ChishikiDialogueTurn[];
+  context?: string;
+  culturalNotes?: string;
+
+  // Grammar rule data
+  explanation?: string;
+  pattern?: string;
+  exceptions?: string;
+  relatedRules?: string[];
+  commonMistakes?: string[];
+
+  // Exercise data
+  exerciseType?: string;
+  question?: string;
+  answer?: string | string[];
+  options?: string[];
+
+  // Text content
+  content?: string;
+  format?: string;
+
+  // Allow additional fields
+  [key: string]: unknown;
+}
 
 /**
  * Chishiki learning content
@@ -60,83 +167,6 @@ export interface ChishikiLearningContent {
   createdAt: string;
   /** ISO 8601 timestamp */
   updatedAt: string;
-}
-
-/**
- * Content-specific data payload
- *
- * The structure varies by content type.
- */
-export interface ChishikiContentData {
-  // Course/Lesson metadata
-  description?: string;
-  estimatedTime?: number;
-  cefrLevel?: string;
-  objectives?: string[];
-
-  // Vocabulary data
-  word?: string;
-  transcription?: string;
-  translation?: string;
-  partOfSpeech?: string;
-  examples?: string[];
-  items?: ChishikiVocabularyItem[];
-
-  // Dialogue data
-  participants?: ChishikiDialogueParticipant[];
-  turns?: ChishikiDialogueTurn[];
-  context?: string;
-  culturalNotes?: string;
-
-  // Grammar rule data
-  explanation?: string;
-  pattern?: string;
-  difficulty?: string;
-
-  // Exercise data
-  exerciseType?: string;
-  question?: string;
-  answer?: string | string[];
-  options?: string[];
-
-  // Text content
-  content?: string;
-  format?: string;
-
-  // Allow additional fields
-  [key: string]: unknown;
-}
-
-/**
- * Vocabulary item for vocabulary-set content
- */
-export interface ChishikiVocabularyItem {
-  id: string;
-  word: string;
-  transcription?: string;
-  translation: string;
-  partOfSpeech?: string;
-  notes?: string;
-  example?: string;
-}
-
-/**
- * Dialogue participant
- */
-export interface ChishikiDialogueParticipant {
-  id: string;
-  name: string;
-  role?: string;
-}
-
-/**
- * Dialogue turn
- */
-export interface ChishikiDialogueTurn {
-  speakerId: string;
-  text: string;
-  transcription?: string;
-  translation: string;
 }
 
 // ============================================================================
@@ -225,6 +255,7 @@ export const SYLLST_TO_CHISHIKI_TYPE_MAP: Record<string, ChishikiContentType> = 
   lesson: 'lesson',
   vocabularySet: 'vocabulary-set',
   vocabularyItem: 'vocabulary',
+  characterSet: 'character-set',
   dialogue: 'dialogue',
   grammarRule: 'grammar-rule',
   exercise: 'exercise',
