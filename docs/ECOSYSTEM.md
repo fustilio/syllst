@@ -75,8 +75,9 @@ This document describes the relationship between syllst and related projects in 
 - `ContentNode` - Generic content (markdown, text, html, glost, glost-dialogue)
 
 **Packages:**
-- `@syllst/core` - Type definitions and Zod validation schemas
+- `@syllst/core` - Type definitions, Zod validation schemas, generic extension system
 - `@syllst/processor` - MDX parsing and transformation pipeline
+- `@syllst/glost` - GLOST integration plugin (remark plugin for word-level enrichment)
 
 **Use cases:**
 - Authoring language courses in MDX
@@ -99,8 +100,9 @@ This document describes the relationship between syllst and related projects in 
 - Spaced repetition scheduling (SM-2 variant)
 - Activity system with pluggable activity types
 
-**Architecture (planned):**
+**Architecture:**
 - `@chishiki/core` - Platform-agnostic learning engine
+- `@chishiki/importer-syllst` - Syllst-to-Chishiki content adapter
 - Storage adapters (OPFS, IndexedDB, better-sqlite3, Tauri)
 - Shell implementations (Chrome extension, PWA, Tauri desktop)
 - Activity plugins (flashcard, cloze, listening, speaking)
@@ -158,33 +160,29 @@ const turn: DialogueTurnNode = {
 
 ### Syllst → Chishiki
 
-Chishiki imports syllst content for practice and review:
+Chishiki imports syllst content for practice and review via `@chishiki/importer-syllst`
+(lives in the chishiki repo — the consumer owns the adapter).
 
 | Integration | Description |
 |-------------|-------------|
-| `@chishiki/importer-syllst` | Import syllst MDX courses into Chishiki |
-| Content types | Syllst `vocabulary-set`, `dialogue`, `lesson` → Chishiki `LearningContent` |
-| Activity generation | Generate flashcards, cloze, quizzes from syllst content |
-| Reference linking | Chishiki activities can reference syllst content IDs |
+| `@chishiki/importer-syllst` | Converts syllst AST nodes into Chishiki learning content |
+| Content types | Syllst `vocabulary-set`, `dialogue`, `lesson` → `SyllstLearningContent` |
+| Activity generation | Generate flashcards, cloze, quizzes from imported content |
+| CMI5 extensions | Type-safe readers for CMI5/xAPI data from syllst's generic `ExtensionsMap` |
 
-**Example: Importing syllst content**
+**Example: Converting syllst AST to Chishiki content**
 ```typescript
-import { syllstImporter } from '@chishiki/importer-syllst';
+import { buildLessonFromMDX } from '@syllst/processor';
+import { lessonToContentBundle, toContent } from '@chishiki/importer-syllst';
 
-// Register the importer
-chishiki.importers.register(syllstImporter);
+// Parse MDX into syllst AST
+const lesson = await buildLessonFromMDX(mdxContent);
 
-// Import a syllst lesson
-const content = await chishiki.content.import({
-  type: 'file',
-  file: lessonFile, // .mdx file
-});
+// Convert lesson + all children to learning content
+const contents = lessonToContentBundle(lesson);
 
-// Generate flashcards from vocabulary sets
-const activities = await chishiki.activities.create(
-  content.id,
-  'flashcard'
-);
+// Or convert a single node
+const singleContent = toContent(lesson);
 ```
 
 ### GLOST → Chishiki
@@ -258,14 +256,20 @@ GLOST documents can be used in Chishiki for rich practice activities:
 ## Package Architecture
 
 ```
-@syllst/core           - Type definitions and Zod schemas (no external deps)
-                         glostSentences typed as unknown[] to avoid runtime dep
+@syllst/core           - Type definitions, Zod schemas, generic extension system
+                         (no external deps, glostSentences typed as unknown[])
 
 @syllst/processor      - MDX processing pipeline
   └── types/glost.ts       - GLOST type definitions and type guards
-  └── builders/course-builder.ts - Course bundling utilities
+  └── builders/           - Lesson/course building from MDX
+
+@syllst/glost          - GLOST integration plugin (remark plugin)
+                         Enriches syllst nodes with word-level annotations
+
+@chishiki/importer-syllst  - Syllst → Chishiki adapter (lives in chishiki repo)
+                              Converts AST nodes to learning content, typed CMI5/xAPI readers
 ```
 
-Future packages:
-- `@syllst/glost` - GLOST integration adapter with glost-core dependency
-- `@syllst/chishiki` - Chishiki integration adapter with export utilities
+**Adapter placement rule:** The adapter lives with whoever is doing the consuming.
+- `@syllst/glost` → in syllst (syllst consumes glost annotations)
+- `@chishiki/importer-syllst` → in chishiki (chishiki consumes syllst content)

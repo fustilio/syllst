@@ -1,0 +1,75 @@
+{
+  "name": "@syllst/xapi",
+  "version": "0.1.0",
+  "description": "xAPI profile for language learning - verbs, activity types, extensions, and Zod schemas extending cmi5",
+  "license": "MIT",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./verbs": {
+      "types": "./src/verbs.ts",
+      "default": "./src/verbs.ts"
+    },
+    "./activity-types": {
+      "types": "./src/activity-types.ts",
+      "default": "./src/activity-types.ts"
+    },
+    "./extensions": {
+      "types": "./src/extensions.ts",
+      "default": "./src/extensions.ts"
+    },
+    "./schemas": {
+      "types": "./src/schemas.ts",
+      "default": "./src/schemas.ts"
+    },
+    "./profile": {
+      "types": "./src/profile.ts",
+      "default": "./src/profile.ts"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "packages/syllst-xapi"
+  },
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "keywords": [
+    "xapi",
+    "cmi5",
+    "language-learning",
+    "verbs",
+    "activity-types",
+    "profile",
+    "lrs",
+    "syllst"
+  ],
+  "homepage": "https://github.com/fustilio/syllst#readme",
+  "bugs": {
+    "url": "https://github.com/fustilio/syllst/issues"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}
