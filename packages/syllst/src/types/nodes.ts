@@ -730,27 +730,23 @@ export interface ExerciseItem {
   hint?: string;
 }
 
+// ============================================================================
+// Exercise Node — Discriminated Union (v0.4.0)
+// ============================================================================
+
 /**
- * Exercise node
- *
- * Practice question or activity
+ * Common fields shared by all exercise types.
+ * Extends UnistParent to maintain Unist compatibility.
+ * Not exported as a standalone type — use ExerciseNode union.
  */
-export interface ExerciseNode extends UnistParent {
+interface BaseExerciseFields extends UnistParent {
   type: 'exercise';
   /** Unique ID within the syllabus */
   id: string;
   /** Exercise title */
   title?: string;
-  /** Exercise type */
-  exerciseType: ExerciseType;
   /** Instructions/prompt (overall directions) */
   question: string;
-  /** Structured exercise items (for fill-in-blank, transformation, etc.) */
-  items?: ExerciseItem[];
-  /** Multiple choice options (if applicable) */
-  options?: string[];
-  /** Correct answer(s) - legacy field, prefer items[] */
-  answer: string | string[];
   /** Explanation of the answer */
   explanation?: string;
   /** Difficulty level */
@@ -779,6 +775,157 @@ export interface ExerciseNode extends UnistParent {
   /** Position in source file */
   position?: Position;
 }
+
+/**
+ * Multiple-choice exercise.
+ * Options are required (at least 2). Answer must be a string
+ * matching one of the options.
+ */
+export interface MultipleChoiceExercise extends BaseExerciseFields {
+  exerciseType: 'multiple-choice';
+  /** Available choices (at least 2) */
+  options: string[];
+  /** Correct answer — must match one of `options` */
+  answer: string;
+  /** Structured exercise items (optional) */
+  items?: ExerciseItem[];
+}
+
+/**
+ * Matching exercise.
+ * Items are required (at least 2 pairs).
+ */
+export interface MatchingExercise extends BaseExerciseFields {
+  exerciseType: 'matching';
+  /** Matching pairs (at least 2) */
+  items: ExerciseItem[];
+  /** Correct answer(s) */
+  answer: string | string[];
+  /** Options (for distractor pool, optional) */
+  options?: string[];
+}
+
+/**
+ * Fill-in-blank exercise.
+ */
+export interface FillInBlankExercise extends BaseExerciseFields {
+  exerciseType: 'fill-in-blank';
+  /** Structured exercise items */
+  items?: ExerciseItem[];
+  /** Correct answer(s) */
+  answer: string | string[];
+  /** Options (word bank, optional) */
+  options?: string[];
+}
+
+/**
+ * True-false exercise.
+ * Answer must be "true" or "false".
+ */
+export interface TrueFalseExercise extends BaseExerciseFields {
+  exerciseType: 'true-false';
+  /** Correct answer — must be "true" or "false" */
+  answer: string;
+  /** Structured exercise items (optional) */
+  items?: ExerciseItem[];
+  /** Options (typically ["true", "false"]) */
+  options?: string[];
+}
+
+/**
+ * Translation exercise.
+ */
+export interface TranslationExercise extends BaseExerciseFields {
+  exerciseType: 'translation';
+  /** Correct answer(s) — may have multiple acceptable translations */
+  answer: string | string[];
+  /** Structured exercise items */
+  items?: ExerciseItem[];
+  /** Options (optional word bank) */
+  options?: string[];
+}
+
+/**
+ * Transformation exercise.
+ * Items are required (at least 1).
+ */
+export interface TransformationExercise extends BaseExerciseFields {
+  exerciseType: 'transformation';
+  /** Transformation pairs (at least 1) */
+  items: ExerciseItem[];
+  /** Correct answer(s) */
+  answer: string | string[];
+  /** Options (optional) */
+  options?: string[];
+}
+
+/**
+ * Pattern-practice exercise.
+ * Items are required (at least 1).
+ */
+export interface PatternPracticeExercise extends BaseExerciseFields {
+  exerciseType: 'pattern-practice';
+  /** Pattern practice items (at least 1) */
+  items: ExerciseItem[];
+  /** Correct answer(s) */
+  answer: string | string[];
+  /** Options (optional) */
+  options?: string[];
+}
+
+/**
+ * Dialogue exercise.
+ * Items are required (at least 1 dialogue turn).
+ */
+export interface DialogueExercise extends BaseExerciseFields {
+  exerciseType: 'dialogue';
+  /** Dialogue turns (at least 1) */
+  items: ExerciseItem[];
+  /** Answer(s) */
+  answer: string | string[];
+  /** Options (optional) */
+  options?: string[];
+}
+
+/**
+ * Open-ended exercise.
+ * Minimal constraints — answer is optional (may be a model response).
+ */
+export interface OpenEndedExercise extends BaseExerciseFields {
+  exerciseType: 'open-ended';
+  /** Model answer(s) — optional for open-ended */
+  answer?: string | string[];
+  /** Structured exercise items */
+  items?: ExerciseItem[];
+  /** Options (optional) */
+  options?: string[];
+}
+
+/**
+ * Exercise node — discriminated union of all exercise types.
+ *
+ * The `exerciseType` field acts as the discriminator.
+ * Use per-type interfaces (e.g., MultipleChoiceExercise) for
+ * type-narrowed access to exercise-specific fields.
+ *
+ * @example
+ * ```typescript
+ * if (exercise.exerciseType === 'multiple-choice') {
+ *   // TypeScript knows exercise.options is string[] (not optional)
+ *   console.log(exercise.options.length);
+ * }
+ * ```
+ */
+export type ExerciseNode =
+  | MultipleChoiceExercise
+  | MatchingExercise
+  | FillInBlankExercise
+  | TrueFalseExercise
+  | TranslationExercise
+  | TransformationExercise
+  | PatternPracticeExercise
+  | DialogueExercise
+  | OpenEndedExercise;
 
 /**
  * Content formats
@@ -1181,10 +1328,73 @@ export function isExampleNode(node: UnistNode): node is ExampleNode {
 }
 
 /**
- * Type guard for ExerciseNode
+ * Type guard for ExerciseNode (any exercise type)
  */
 export function isExerciseNode(node: UnistNode): node is ExerciseNode {
   return node.type === 'exercise';
+}
+
+/**
+ * Type guard for MultipleChoiceExercise
+ */
+export function isMultipleChoiceExercise(node: UnistNode): node is MultipleChoiceExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'multiple-choice';
+}
+
+/**
+ * Type guard for MatchingExercise
+ */
+export function isMatchingExercise(node: UnistNode): node is MatchingExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'matching';
+}
+
+/**
+ * Type guard for FillInBlankExercise
+ */
+export function isFillInBlankExercise(node: UnistNode): node is FillInBlankExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'fill-in-blank';
+}
+
+/**
+ * Type guard for TrueFalseExercise
+ */
+export function isTrueFalseExercise(node: UnistNode): node is TrueFalseExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'true-false';
+}
+
+/**
+ * Type guard for TranslationExercise
+ */
+export function isTranslationExercise(node: UnistNode): node is TranslationExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'translation';
+}
+
+/**
+ * Type guard for TransformationExercise
+ */
+export function isTransformationExercise(node: UnistNode): node is TransformationExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'transformation';
+}
+
+/**
+ * Type guard for PatternPracticeExercise
+ */
+export function isPatternPracticeExercise(node: UnistNode): node is PatternPracticeExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'pattern-practice';
+}
+
+/**
+ * Type guard for DialogueExercise
+ */
+export function isDialogueExercise(node: UnistNode): node is DialogueExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'dialogue';
+}
+
+/**
+ * Type guard for OpenEndedExercise
+ */
+export function isOpenEndedExercise(node: UnistNode): node is OpenEndedExercise {
+  return node.type === 'exercise' && (node as ExerciseNode).exerciseType === 'open-ended';
 }
 
 /**

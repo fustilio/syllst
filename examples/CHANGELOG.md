@@ -1,5 +1,17 @@
 # @syllst/examples
 
+## 0.4.0
+
+### Minor Changes
+
+- Synchronized version with ecosystem-wide 0.4.0 release
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.4.0
+  - @syllst/processor@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

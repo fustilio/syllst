@@ -323,18 +323,18 @@ export const ExampleSetNodeSchema = z.object({
   position: PositionSchema.optional(),
 });
 
+// ============================================================================
+// Exercise Node Schemas — Discriminated Union (v0.4.0)
+// ============================================================================
+
 /**
- * Exercise node schema
+ * Shared base fields for all exercise types (not a standalone schema).
  */
-export const ExerciseNodeSchema = z.object({
+const exerciseBaseFields = {
   type: z.literal('exercise'),
   id: z.string().min(1),
   title: z.string().optional(),
-  exerciseType: ExerciseTypeSchema,
   question: z.string().min(1),
-  items: z.array(ExerciseItemSchema).optional(),
-  options: z.array(z.string()).optional(),
-  answer: z.union([z.string(), z.array(z.string())]),
   explanation: z.string().optional(),
   difficulty: GrammarDifficultySchema.optional(),
   skill: z.string().optional(),
@@ -344,7 +344,139 @@ export const ExerciseNodeSchema = z.object({
   extensions: ExtensionsMapSchema.optional(),
   data: DataSchema.optional(),
   position: PositionSchema.optional(),
+} as const;
+
+/**
+ * Multiple-choice exercise schema.
+ * Options required (>= 2). Answer is a string.
+ */
+export const MultipleChoiceExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('multiple-choice'),
+  options: z.array(z.string()).min(2),
+  answer: z.string(),
+  items: z.array(ExerciseItemSchema).optional(),
 });
+
+/**
+ * Matching exercise schema.
+ * Items required (>= 2 pairs).
+ */
+export const MatchingExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('matching'),
+  items: z.array(ExerciseItemSchema).min(2),
+  answer: z.union([z.string(), z.array(z.string())]),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Fill-in-blank exercise schema.
+ */
+export const FillInBlankExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('fill-in-blank'),
+  items: z.array(ExerciseItemSchema).optional(),
+  answer: z.union([z.string(), z.array(z.string())]),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * True-false exercise schema.
+ * Answer must be "true" or "false".
+ */
+export const TrueFalseExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('true-false'),
+  answer: z.enum(['true', 'false']),
+  items: z.array(ExerciseItemSchema).optional(),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Translation exercise schema.
+ */
+export const TranslationExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('translation'),
+  answer: z.union([z.string(), z.array(z.string())]),
+  items: z.array(ExerciseItemSchema).optional(),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Transformation exercise schema.
+ * Items required (>= 1).
+ */
+export const TransformationExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('transformation'),
+  items: z.array(ExerciseItemSchema).min(1),
+  answer: z.union([z.string(), z.array(z.string())]),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Pattern-practice exercise schema.
+ * Items required (>= 1).
+ */
+export const PatternPracticeExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('pattern-practice'),
+  items: z.array(ExerciseItemSchema).min(1),
+  answer: z.union([z.string(), z.array(z.string())]),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Dialogue exercise schema.
+ * Items required (>= 1 dialogue turn).
+ */
+export const DialogueExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('dialogue'),
+  items: z.array(ExerciseItemSchema).min(1),
+  answer: z.union([z.string(), z.array(z.string())]),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Open-ended exercise schema.
+ * Answer is optional.
+ */
+export const OpenEndedExerciseSchema = z.object({
+  ...exerciseBaseFields,
+  exerciseType: z.literal('open-ended'),
+  answer: z.union([z.string(), z.array(z.string())]).optional(),
+  items: z.array(ExerciseItemSchema).optional(),
+  options: z.array(z.string()).optional(),
+});
+
+/**
+ * Exercise node schema — discriminated union on `exerciseType`.
+ *
+ * Each branch enforces per-type structural requirements:
+ * - multiple-choice: options required (>= 2), answer is string
+ * - matching: items required (>= 2 pairs)
+ * - true-false: answer must be "true" or "false"
+ * - transformation/pattern-practice/dialogue: items required (>= 1)
+ * - open-ended: answer is optional
+ * - fill-in-blank/translation: minimal constraints
+ */
+export const ExerciseNodeSchema = z.discriminatedUnion(
+  'exerciseType',
+  [
+    MultipleChoiceExerciseSchema,
+    MatchingExerciseSchema,
+    FillInBlankExerciseSchema,
+    TrueFalseExerciseSchema,
+    TranslationExerciseSchema,
+    TransformationExerciseSchema,
+    PatternPracticeExerciseSchema,
+    DialogueExerciseSchema,
+    OpenEndedExerciseSchema,
+  ]
+);
 
 /**
  * Grammar rule node schema (recursive)
@@ -582,6 +714,15 @@ export type ZodCharacterItemNode = z.infer<typeof CharacterItemNodeSchema>;
 export type ZodExampleSetNode = z.infer<typeof ExampleSetNodeSchema>;
 export type ZodExampleNode = z.infer<typeof ExampleNodeSchema>;
 export type ZodExerciseNode = z.infer<typeof ExerciseNodeSchema>;
+export type ZodMultipleChoiceExercise = z.infer<typeof MultipleChoiceExerciseSchema>;
+export type ZodMatchingExercise = z.infer<typeof MatchingExerciseSchema>;
+export type ZodFillInBlankExercise = z.infer<typeof FillInBlankExerciseSchema>;
+export type ZodTrueFalseExercise = z.infer<typeof TrueFalseExerciseSchema>;
+export type ZodTranslationExercise = z.infer<typeof TranslationExerciseSchema>;
+export type ZodTransformationExercise = z.infer<typeof TransformationExerciseSchema>;
+export type ZodPatternPracticeExercise = z.infer<typeof PatternPracticeExerciseSchema>;
+export type ZodDialogueExercise = z.infer<typeof DialogueExerciseSchema>;
+export type ZodOpenEndedExercise = z.infer<typeof OpenEndedExerciseSchema>;
 export type ZodContentNode = z.infer<typeof ContentNodeSchema>;
 export type ZodMetadataNode = z.infer<typeof MetadataNodeSchema>;
 export type ZodDialogueNode = z.infer<typeof DialogueNodeSchema>;

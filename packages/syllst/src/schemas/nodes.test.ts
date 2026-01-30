@@ -651,20 +651,22 @@ describe('Node Zod Schemas', () => {
   });
 
   describe('ExerciseNodeSchema', () => {
-    it('should validate minimal exercise', () => {
+    // === Backwards compatibility ===
+
+    it('should validate minimal fill-in-blank exercise', () => {
       const result = ExerciseNodeSchema.safeParse({
         type: 'exercise',
         id: 'ex-001',
         exerciseType: 'fill-in-blank',
         question: 'Complete: สวัสดี___',
         answer: 'ครับ',
-        children: [], // Required field
+        children: [],
       });
-      
+
       expect(result.success).toBe(true);
     });
 
-    it('should validate complete exercise', () => {
+    it('should validate complete multiple-choice exercise', () => {
       const result = ExerciseNodeSchema.safeParse({
         type: 'exercise',
         id: 'ex-002',
@@ -681,7 +683,7 @@ describe('Node Zod Schemas', () => {
         ],
         children: [],
       });
-      
+
       expect(result.success).toBe(true);
     });
 
@@ -705,6 +707,10 @@ describe('Node Zod Schemas', () => {
         exerciseType: 'matching',
         question: 'Match the character to its sound',
         answer: 'ก = g',
+        items: [
+          { question: 'ก', answer: 'g' },
+          { question: 'ข', answer: 'kh' },
+        ],
         skill: 'character-recognition',
         tests: ['identify-consonant', 'sound-mapping'],
         objectiveId: 'obj-char-recognition',
@@ -735,6 +741,338 @@ describe('Node Zod Schemas', () => {
         expect(result.data.tests).toBeUndefined();
         expect(result.data.objectiveId).toBeUndefined();
       }
+    });
+
+    // === Per-type structural validation ===
+
+    describe('multiple-choice', () => {
+      it('should require options with at least 2 items', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'mc-001',
+          exerciseType: 'multiple-choice',
+          question: 'Choose the correct answer',
+          options: ['only-one'],
+          answer: 'only-one',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject missing options', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'mc-002',
+          exerciseType: 'multiple-choice',
+          question: 'Choose the correct answer',
+          answer: 'something',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept valid multiple-choice', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'mc-003',
+          exerciseType: 'multiple-choice',
+          question: 'What is the Thai word for hello?',
+          options: ['สวัสดี', 'ขอบคุณ'],
+          answer: 'สวัสดี',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('matching', () => {
+      it('should require items with at least 2 pairs', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'match-001',
+          exerciseType: 'matching',
+          question: 'Match items',
+          items: [{ question: 'ก', answer: 'g' }],
+          answer: 'ก = g',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject missing items', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'match-002',
+          exerciseType: 'matching',
+          question: 'Match items',
+          answer: 'answer',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept valid matching exercise', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'match-003',
+          exerciseType: 'matching',
+          question: 'Match characters to sounds',
+          items: [
+            { question: 'ก', answer: 'g' },
+            { question: 'ข', answer: 'kh' },
+          ],
+          answer: ['ก = g', 'ข = kh'],
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('true-false', () => {
+      it('should only accept "true" or "false" as answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'tf-001',
+          exerciseType: 'true-false',
+          question: 'ก is a high-class consonant',
+          answer: 'maybe',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept "true" as answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'tf-002',
+          exerciseType: 'true-false',
+          question: 'ก is a middle-class consonant',
+          answer: 'true',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept "false" as answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'tf-003',
+          exerciseType: 'true-false',
+          question: 'ก is a high-class consonant',
+          answer: 'false',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('transformation', () => {
+      it('should require items with at least 1 item', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'trans-001',
+          exerciseType: 'transformation',
+          question: 'Transform the sentence',
+          items: [],
+          answer: 'transformed',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept valid transformation', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'trans-002',
+          exerciseType: 'transformation',
+          question: 'Make these sentences negative',
+          items: [
+            { question: 'ไปตลาด', answer: 'ไม่ไปตลาด' },
+          ],
+          answer: 'ไม่ไปตลาด',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('pattern-practice', () => {
+      it('should require at least 1 item', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'pp-001',
+          exerciseType: 'pattern-practice',
+          question: 'Practice the pattern',
+          items: [],
+          answer: 'answer',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept valid pattern-practice', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'pp-002',
+          exerciseType: 'pattern-practice',
+          question: 'Practice classifier usage',
+          items: [
+            { question: 'cat ___', answer: 'ตัว' },
+          ],
+          answer: 'ตัว',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('dialogue', () => {
+      it('should require at least 1 dialogue item', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'dlg-001',
+          exerciseType: 'dialogue',
+          question: 'Practice this conversation',
+          items: [],
+          answer: '',
+          children: [],
+        });
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept valid dialogue exercise', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'dlg-002',
+          exerciseType: 'dialogue',
+          question: 'Practice greeting',
+          items: [
+            { question: 'A: สวัสดีครับ', answer: 'B: สวัสดีค่ะ' },
+          ],
+          answer: '',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('open-ended', () => {
+      it('should accept exercise without answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'oe-001',
+          exerciseType: 'open-ended',
+          question: 'Describe your daily routine in Thai',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept exercise with model answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'oe-002',
+          exerciseType: 'open-ended',
+          question: 'Write about your family',
+          answer: 'ครอบครัวของฉันมี...',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('fill-in-blank', () => {
+      it('should accept with string answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'fib-001',
+          exerciseType: 'fill-in-blank',
+          question: 'สวัสดี___',
+          answer: 'ครับ',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept with array answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'fib-002',
+          exerciseType: 'fill-in-blank',
+          question: 'สวัสดี___',
+          answer: ['ครับ', 'ค่ะ'],
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept with items', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'fib-003',
+          exerciseType: 'fill-in-blank',
+          question: 'Fill in the blanks',
+          items: [
+            { question: 'สวัสดี___', answer: 'ครับ' },
+            { question: 'ขอบคุณ___', answer: 'ค่ะ' },
+          ],
+          answer: 'ครับ',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('translation', () => {
+      it('should accept with single answer', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'tl-001',
+          exerciseType: 'translation',
+          question: 'Translate: Hello',
+          answer: 'สวัสดี',
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept with multiple answers', () => {
+        const result = ExerciseNodeSchema.safeParse({
+          type: 'exercise',
+          id: 'tl-002',
+          exerciseType: 'translation',
+          question: 'Translate: Thank you',
+          answer: ['ขอบคุณครับ', 'ขอบคุณค่ะ'],
+          children: [],
+        });
+        expect(result.success).toBe(true);
+      });
+    });
+
+    // === Discriminator correctness ===
+
+    it('should discriminate by exerciseType', () => {
+      // matching without required items should fail
+      const matching = ExerciseNodeSchema.safeParse({
+        type: 'exercise',
+        id: 'disc-001',
+        exerciseType: 'matching',
+        question: 'Match items',
+        answer: 'answer',
+        children: [],
+      });
+      expect(matching.success).toBe(false);
+
+      // multiple-choice without required options should fail
+      const mc = ExerciseNodeSchema.safeParse({
+        type: 'exercise',
+        id: 'disc-002',
+        exerciseType: 'multiple-choice',
+        question: 'Choose',
+        answer: 'a',
+        children: [],
+      });
+      expect(mc.success).toBe(false);
     });
   });
 
@@ -980,6 +1318,10 @@ describe('Node Zod Schemas', () => {
             exerciseType: 'matching',
             question: 'Match consonant class to tone',
             answer: 'middle = mid',
+            items: [
+              { question: 'middle', answer: 'mid' },
+              { question: 'high', answer: 'rising' },
+            ],
             skill: 'tone-rule-application',
             tests: ['consonant-class-id', 'tone-prediction'],
             objectiveId: 'obj-tone-rules',

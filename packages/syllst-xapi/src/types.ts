@@ -6,6 +6,11 @@
  *
  * Domain types (CEFRLevel, DifficultyLevel, CharacterType)
  * are imported from @syllst/core to avoid duplication.
+ *
+ * Note: This module re-exports TypeScript *types* from core.
+ * The corresponding Zod *schemas* (CEFRLevelSchema, etc.)
+ * are re-exported from ./extensions.ts, which also defines
+ * the xAPI-specific extension IRIs and composite schemas.
  */
 
 // Re-export shared domain types from core

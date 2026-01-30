@@ -64,15 +64,16 @@ import { SYLLST_XAPI_PROFILE } from '@syllst/xapi/profile';
 
 ```typescript
 import {
+  EXTENSIONS,
   ContextExtensionsSchema,
   ResultExtensionsSchema,
   ProfileVerbSchema,
 } from '@syllst/xapi';
 
-// Validate context extensions
+// Validate context extensions (keys are IRI strings)
 const ctx = ContextExtensionsSchema.parse({
-  targetLanguage: 'th',
-  cefrLevel: 'A1',
+  [EXTENSIONS.TARGET_LANGUAGE]: 'th',
+  [EXTENSIONS.CEFR_LEVEL]: 'A1',
 });
 
 // Validate a verb object
@@ -128,19 +129,19 @@ Plus standard ADL types: `COURSE`, `MODULE`, `LESSON`, `OBJECTIVE`, `ASSESSMENT`
 
 | Extension | Schema | Description |
 |-----------|--------|-------------|
-| `PRONUNCIATION_ACCURACY` | 0-100 number | Pronunciation score |
-| `TRANSCRIPTION_ACCURACY` | 0-100 number | Transcription score |
+| `PRONUNCIATION_ACCURACY` | 0-1 number | Pronunciation score |
+| `TRANSCRIPTION_ACCURACY` | 0-1 number | Transcription score |
 
 ### Activity Extensions
 
 | Extension | Schema | Description |
 |-----------|--------|-------------|
-| `SKILL_CATEGORY` | string | Skill being practiced |
-| `DIFFICULTY_LEVEL` | string | Difficulty rating |
-| `CHARACTER_SET` | string | Script/writing system |
-| `WORD_COUNT` | positive integer | Number of words |
-| `TIME_LIMIT` | positive integer | Time limit in seconds |
-| `REPETITION_COUNT` | positive integer | Number of repetitions |
+| `TARGET_WORD` | non-empty string | Word being practiced |
+| `TRANSCRIPTION` | non-empty string | Romanized transcription |
+| `TRANSLATION` | non-empty string | Translation text |
+| `WORD_CLASS` | non-empty string | Part of speech |
+| `CHARACTER_TYPE` | `consonant` \| `vowel` \| `tone-mark` | Character category |
+| `DIFFICULTY` | `beginner` \| `intermediate` \| `advanced` | Difficulty level |
 
 ## Complements (does not replace)
 

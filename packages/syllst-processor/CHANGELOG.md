@@ -1,5 +1,17 @@
 # @syllst/processor
 
+## 0.4.0
+
+### Minor Changes
+
+- Synchronized version with ecosystem-wide 0.4.0 release
+- Exercise nodes produced by the MDX pipeline now conform to `@syllst/core`'s discriminated union `ExerciseNode`, enabling per-type structural validation during content transformation
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.4.0
+
 ## 0.3.0
 
 ### Minor Changes

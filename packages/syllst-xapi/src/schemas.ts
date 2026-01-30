@@ -46,7 +46,7 @@ export const ProfileVerbSchema = z.object({
  * language-learning extensions.
  */
 export const ActivityDefinitionSchema = z.object({
-  type: z.string().url().optional(),
+  type: z.url().optional(),
   name: z
     .record(z.string(), z.string())
     .optional(),

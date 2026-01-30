@@ -5,6 +5,12 @@
  * result, and activity data. Each extension has
  * a stable IRI, a TypeScript interface, and a
  * Zod validation schema.
+ *
+ * Shared Zod schemas (Bcp47Schema, CEFRLevelSchema,
+ * DifficultyLevelSchema) are imported from
+ * @syllst/core/schemas and re-exported here.
+ * The corresponding TypeScript types live in
+ * ./types.ts.
  */
 
 import { z } from "zod";
@@ -109,6 +115,10 @@ export const TranscriptionSystemSchema = z
 
 /**
  * Accuracy/score value between 0 and 1.
+ *
+ * Used for pronunciation and transcription accuracy
+ * in result extensions. Maps to the xAPI scaled
+ * score range where 0 = no match and 1 = perfect.
  */
 export const AccuracyScoreSchema = z
   .number()
@@ -118,10 +128,14 @@ export const AccuracyScoreSchema = z
 // DifficultySchema alias is defined at the top of this file.
 
 /**
- * xAPI character type — strict 3-value subset
- * used in activity extensions. For the full set
- * of character types, use CharacterTypeSchema
- * from @syllst/core/schemas.
+ * xAPI character type — strict 3-value subset used
+ * in activity extensions.
+ *
+ * Only consonant, vowel, and tone-mark are tracked
+ * as xAPI activity types. The full character type
+ * set (11+ values including number, diacritic,
+ * radical, logograph, etc.) lives in
+ * CharacterTypeSchema from @syllst/core/schemas.
  */
 export const XapiCharacterTypeSchema = z.enum([
   "consonant",
@@ -130,7 +144,8 @@ export const XapiCharacterTypeSchema = z.enum([
 ]);
 
 /**
- * @deprecated Use XapiCharacterTypeSchema
+ * @deprecated Use XapiCharacterTypeSchema (xAPI 3-value subset)
+ * or CharacterTypeSchema from @syllst/core/schemas (full set).
  */
 export const CharacterTypeSchema =
   XapiCharacterTypeSchema;

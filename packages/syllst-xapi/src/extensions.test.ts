@@ -3,14 +3,21 @@ import {
   EXTENSIONS,
   Bcp47Schema,
   CEFRLevelSchema,
+  DifficultyLevelSchema,
   AccuracyScoreSchema,
   DifficultySchema,
   CharacterTypeSchema,
+  XapiCharacterTypeSchema,
   TranscriptionSystemSchema,
   ContextExtensionsSchema,
   ResultExtensionsSchema,
   ActivityExtensionsSchema,
 } from "./extensions.js";
+import {
+  Bcp47Schema as CoreBcp47Schema,
+  CEFRLevelSchema as CoreCEFRLevelSchema,
+  DifficultyLevelSchema as CoreDifficultyLevelSchema,
+} from "@syllst/core/schemas";
 import { SYLLST_XAPI_NAMESPACE } from "./types.js";
 
 // ============================================================
@@ -310,5 +317,61 @@ describe("ActivityExtensionsSchema", () => {
         [EXTENSIONS.TARGET_WORD]: "",
       });
     expect(result.success).toBe(false);
+  });
+});
+
+// ============================================================
+// Canonical Names & Deprecated Alias Equivalence
+// ============================================================
+
+describe("XapiCharacterTypeSchema (canonical)", () => {
+  it.each(["consonant", "vowel", "tone-mark"])(
+    "accepts: %s",
+    (t) => {
+      expect(
+        XapiCharacterTypeSchema.safeParse(t).success
+      ).toBe(true);
+    }
+  );
+
+  it.each(["number", "diacritic", "radical"])(
+    "rejects core-only type: %s",
+    (t) => {
+      expect(
+        XapiCharacterTypeSchema.safeParse(t).success
+      ).toBe(false);
+    }
+  );
+});
+
+describe("Deprecated alias equivalence", () => {
+  it("CharacterTypeSchema === XapiCharacterTypeSchema", () => {
+    expect(CharacterTypeSchema).toBe(
+      XapiCharacterTypeSchema
+    );
+  });
+
+  it("DifficultySchema === DifficultyLevelSchema", () => {
+    expect(DifficultySchema).toBe(
+      DifficultyLevelSchema
+    );
+  });
+});
+
+describe("Core schema re-exports", () => {
+  it("Bcp47Schema is the core schema", () => {
+    expect(Bcp47Schema).toBe(CoreBcp47Schema);
+  });
+
+  it("CEFRLevelSchema is the core schema", () => {
+    expect(CEFRLevelSchema).toBe(
+      CoreCEFRLevelSchema
+    );
+  });
+
+  it("DifficultyLevelSchema is the core schema", () => {
+    expect(DifficultyLevelSchema).toBe(
+      CoreDifficultyLevelSchema
+    );
   });
 });
