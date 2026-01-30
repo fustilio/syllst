@@ -28,20 +28,20 @@ import {
   SyllablePatternNodeSchema,
   PatternExampleNodeSchema,
   WritingPatternNodeSchema,
-} from './nodes';
+} from './nodes.js';
 
 // ============================================================================
 // Re-exports
 // ============================================================================
 
 // Base schemas
-export * from './base';
+export * from './base.js';
 
 // Node schemas
-export * from './nodes';
+export * from './nodes.js';
 
 // Extension schemas
-export * from './extensions';
+export * from './extensions.js';
 
 // ============================================================================
 // Validation Utilities

@@ -3,5 +3,5 @@
  * Unist-based syntax tree types for language learning syllabi
  */
 
-export * from './nodes';
-export * from './extensions';
+export * from './nodes.js';
+export * from './extensions.js';

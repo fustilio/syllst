@@ -1,5 +1,12 @@
 # @syllst/glost
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.4.1
+
 ## 0.4.0
 
 ### Minor Changes

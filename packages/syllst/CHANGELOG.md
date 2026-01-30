@@ -1,5 +1,11 @@
 # @syllst/core
 
+## 0.4.1
+
+### Patch Changes
+
+- fix: add .js extensions to ESM imports in @syllst/core
+
 ## 0.4.0
 
 ### Minor Changes

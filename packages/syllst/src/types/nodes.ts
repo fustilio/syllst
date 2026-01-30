@@ -8,14 +8,14 @@
  */
 
 import type { Node as UnistNode, Parent as UnistParent, Literal as UnistLiteral, Data, Position } from 'unist';
-import type { ExtensionsMap } from './extensions';
+import type { ExtensionsMap } from './extensions.js';
 
 // ============================================================================
 // Core Unist Types (re-exported for convenience)
 // ============================================================================
 
 export type { Data, Position };
-export type { ExtensionsMap, NodeExtension } from './extensions';
+export type { ExtensionsMap, NodeExtension } from './extensions.js';
 
 // ============================================================================
 // Transcription Types (v0.2.0)

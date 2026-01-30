@@ -22,8 +22,8 @@ import {
   ExerciseItemSchema,
   TranscriptionSchema,
   PhonologicalRuleTypeSchema,
-} from './base';
-import { ExtensionsMapSchema } from './extensions';
+} from './base.js';
+import { ExtensionsMapSchema } from './extensions.js';
 
 // ============================================================================
 // Leaf Node Schemas (nodes without children)
