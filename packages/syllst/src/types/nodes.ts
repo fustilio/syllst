@@ -61,9 +61,11 @@ export type Transcription = string | TranscriptionObject;
 export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
 
 /**
- * Difficulty levels for lessons
+ * Difficulty levels for lessons and exercises
  */
-export type GrammarDifficulty = 'beginner' | 'intermediate' | 'advanced';
+export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
+/** @deprecated Use DifficultyLevel */
+export type GrammarDifficulty = DifficultyLevel;
 
 /**
  * Progression rule
@@ -105,6 +107,10 @@ export interface LearningObjective {
   masteryScore?: number;
   /** Whether this is a primary objective */
   isPrimary?: boolean;
+  /** Skill category this objective targets (e.g., 'character-recognition', 'tone-rule-application') */
+  skill?: string;
+  /** References to specific trackable items (canonical IDs from @laeng packages, grammar rule IDs, etc.) */
+  references?: string[];
 }
 
 /**
@@ -281,7 +287,7 @@ export interface LessonAstNode extends UnistParent {
   categories?: string[];
   /** Lesson metadata */
   metadata?: LessonMetadata;
-  /** Child nodes (grammar rules, vocabulary, characters, examples, exercises, dialogues) */
+  /** Child nodes (grammar rules, vocabulary, characters, examples, exercises, dialogues, phonological rules, patterns) */
   children: (
     | GrammarRuleNode
     | VocabularySetNode
@@ -290,6 +296,9 @@ export interface LessonAstNode extends UnistParent {
     | ExerciseNode
     | ContentNode
     | DialogueNode
+    | PhonologicalRuleNode
+    | SyllablePatternNode
+    | WritingPatternNode
   )[];
   /** External format extensions (SCORM, xAPI, CMI5, etc.) */
   extensions?: ExtensionsMap;
@@ -400,9 +409,31 @@ export interface VocabularyItemNode extends UnistLiteral {
 // ============================================================================
 
 /**
- * Character types for alphabet learning
+ * Character types for alphabet/script learning
+ *
+ * Core types cover most writing systems. Use `string` escape hatch
+ * for language-specific character categories not listed here.
+ *
+ * @example
+ * - Thai: 'consonant', 'vowel', 'tone-mark', 'number', 'symbol'
+ * - Japanese: 'consonant', 'vowel', 'syllable-block' (kana), 'logograph' (kanji)
+ * - Korean: 'consonant', 'vowel', 'syllable-block' (jamo → syllable)
+ * - Chinese: 'logograph', 'radical'
+ * - Arabic/Hebrew: 'consonant', 'vowel', 'diacritic'
  */
-export type CharacterType = 'vowel' | 'consonant';
+export type CharacterType =
+  | 'consonant'
+  | 'vowel'
+  | 'tone-mark'
+  | 'number'
+  | 'symbol'
+  | 'diacritic'
+  | 'modifier'
+  | 'punctuation'
+  | 'radical'
+  | 'logograph'
+  | 'syllable-block'
+  | (string & {}); // escape hatch for unlisted types
 
 /**
  * Phonetic categories for consonants
@@ -505,6 +536,12 @@ export interface CharacterItemNode extends UnistLiteral {
   notes?: string;
   /** Audio file path for pronunciation */
   audioPath?: string;
+  /**
+   * Reference to canonical character ID from @laeng packages.
+   * Enables cross-package linking between lesson content and character data.
+   * @example "chicken" (references @laeng/th canonical ID for ก)
+   */
+  canonicalRef?: string;
   /** The value (same as char for Unist Literal compatibility) */
   value: string;
   /** External format extensions (SCORM, xAPI, CMI5, etc.) */
@@ -718,6 +755,21 @@ export interface ExerciseNode extends UnistParent {
   explanation?: string;
   /** Difficulty level */
   difficulty?: GrammarDifficulty;
+  /**
+   * Skill category this exercise tests.
+   * @example 'character-recognition', 'tone-rule-application', 'vocabulary-recall'
+   */
+  skill?: string;
+  /**
+   * IDs of specific items this exercise tests (canonical character refs, vocab IDs, rule IDs).
+   * Enables granular tracking of which items a learner has practiced.
+   */
+  tests?: string[];
+  /**
+   * ID of the learning objective this exercise maps to.
+   * References a LearningObjective.id from the lesson's metadata.
+   */
+  objectiveId?: string;
   /** Child nodes (additional content) */
   children: ContentNode[];
   /** External format extensions (SCORM, xAPI, CMI5, etc.) */
@@ -772,6 +824,210 @@ export interface MetadataNode extends UnistLiteral {
 }
 
 // ============================================================================
+// Phonological Rule Nodes (v0.3.0 — for tone rules, sound changes, etc.)
+// ============================================================================
+
+/**
+ * Types of phonological rules
+ *
+ * Language-agnostic categories covering common phonological phenomena:
+ * - 'tone': Tone determination rules (Thai, Chinese, Vietnamese)
+ * - 'sound-change': Consonant/vowel changes in context (final consonant merging, etc.)
+ * - 'assimilation': Sounds becoming similar to neighboring sounds
+ * - 'elision': Sound deletion in connected speech
+ * - 'liaison': Sound linking between words (French, etc.)
+ * - 'sandhi': Tone/sound changes at word boundaries (Chinese, Thai clusters)
+ */
+export type PhonologicalRuleType =
+  | 'tone'
+  | 'sound-change'
+  | 'assimilation'
+  | 'elision'
+  | 'liaison'
+  | 'sandhi'
+  | (string & {}); // escape hatch
+
+/**
+ * Phonological rule node
+ *
+ * Represents a discrete, trackable phonological rule (tone determination,
+ * sound change, etc.). Language-specific conditions go in child
+ * RuleConditionNodes or in node.data.
+ *
+ * @example Thai tone rule: "Mai Ek on Middle-Class Consonants → Low Tone"
+ * @example French liaison: "Final consonant pronounced before vowel"
+ */
+export interface PhonologicalRuleNode extends UnistParent {
+  type: 'phonologicalRule';
+  /** Unique ID within the syllabus */
+  id: string;
+  /** Rule title */
+  title: string;
+  /** Type of phonological rule */
+  ruleType: PhonologicalRuleType;
+  /** Prose description of the rule */
+  description?: string;
+  /** Exceptions or special cases */
+  exceptions?: string;
+  /** IDs of related phonological rules */
+  relatedRules?: string[];
+  /** Child nodes: conditions that define this rule, examples, and content */
+  children: (RuleConditionNode | ExampleNode | ContentNode)[];
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
+  extensions?: ExtensionsMap;
+  /** Unist data (language-specific extensions go here) */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+/**
+ * Rule condition node
+ *
+ * A single condition→result case within a phonological rule.
+ * The `condition` record is intentionally generic (Record<string, string>)
+ * to support any language's phonological parameters.
+ *
+ * @example Thai: { consonantClass: 'middle', toneMark: 'mai-ek' } → result: 'low'
+ * @example Chinese: { initialTone: '3', followingTone: '3' } → result: '2'
+ */
+export interface RuleConditionNode extends UnistLiteral {
+  type: 'ruleCondition';
+  /** Optional ID for tracking individual conditions */
+  id?: string;
+  /** Condition parameters (language-specific key-value pairs) */
+  condition: Record<string, string>;
+  /** Result when condition is met (e.g., tone name, transformed sound) */
+  result: string;
+  /** Example text demonstrating this condition */
+  example?: string;
+  /** Transcription of the example */
+  exampleTranscription?: string;
+  /** Translation of the example */
+  exampleTranslation?: string;
+  /** Additional notes */
+  notes?: string;
+  /** Serialized condition for Unist Literal compatibility */
+  value: string;
+  /** Unist data */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+// ============================================================================
+// Syllable Pattern Nodes (v0.3.0 — for syllable structure teaching)
+// ============================================================================
+
+/**
+ * Syllable pattern node
+ *
+ * Represents an abstract syllable structure pattern for teaching
+ * syllable analysis. Language-specific details (live/dead syllables
+ * in Thai, open/closed in European languages) go in data or patternType.
+ *
+ * @example Thai: Live syllable (คำเป็น) — ends in long vowel or sonorant
+ * @example Thai: Dead syllable (คำตาย) — ends in stop or short vowel
+ * @example English: CVC pattern (cat, dog, run)
+ */
+export interface SyllablePatternNode extends UnistParent {
+  type: 'syllablePattern';
+  /** Unique ID within the syllabus */
+  id: string;
+  /** Pattern title */
+  title: string;
+  /**
+   * Pattern type (language-specific classification).
+   * @example Thai: 'live' | 'dead'
+   * @example General: 'open' | 'closed'
+   */
+  patternType?: string;
+  /**
+   * Abstract syllable structure using linguistic notation.
+   * @example 'CV', 'CVC', 'CVCC', 'V', 'VC'
+   */
+  structure?: string;
+  /** Prose description of the pattern */
+  description?: string;
+  /** Child nodes: examples demonstrating this pattern and content */
+  children: (PatternExampleNode | ContentNode)[];
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
+  extensions?: ExtensionsMap;
+  /** Unist data */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+/**
+ * Pattern example node
+ *
+ * A concrete example of a syllable pattern with optional
+ * references to canonical character IDs.
+ */
+export interface PatternExampleNode extends UnistLiteral {
+  type: 'patternExample';
+  /** Text in target language */
+  text: string;
+  /** Transcription/pronunciation */
+  transcription?: Transcription;
+  /** Translation */
+  translation?: string;
+  /** Additional notes */
+  notes?: string;
+  /** Canonical character IDs used in this example */
+  references?: string[];
+  /** The value (same as text for Unist Literal compatibility) */
+  value: string;
+  /** Unist data (language-specific: consonantClass, syllableType, tone, vowelLength, etc.) */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+// ============================================================================
+// Writing Pattern Nodes (v0.3.0 — for script/writing system rules)
+// ============================================================================
+
+/**
+ * Writing pattern node
+ *
+ * Represents a writing system rule: character positioning, stroke order,
+ * ligatures, or combination rules. Relevant for non-Latin scripts
+ * where characters behave differently in context.
+ *
+ * @example Thai: Vowel เ- is written before the consonant but read after
+ * @example Japanese: Kanji stroke order rules
+ * @example Arabic: Letter forms change by position (initial/medial/final/isolated)
+ * @example Korean: Jamo combine into syllable blocks
+ */
+export interface WritingPatternNode extends UnistParent {
+  type: 'writingPattern';
+  /** Unique ID within the syllabus */
+  id: string;
+  /** Pattern title */
+  title: string;
+  /**
+   * Type of writing pattern.
+   * @example 'positioning' — character placement rules (Thai vowels)
+   * @example 'stroke-order' — stroke sequence (CJK characters)
+   * @example 'ligature' — characters that merge visually (Arabic)
+   * @example 'combination' — characters that combine (Korean jamo)
+   */
+  patternType: string;
+  /** Prose description */
+  description?: string;
+  /** Child nodes: examples and content */
+  children: (ExampleNode | ContentNode)[];
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
+  extensions?: ExtensionsMap;
+  /** Unist data */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+// ============================================================================
 // Union Types for Type Safety
 // ============================================================================
 
@@ -794,7 +1050,12 @@ export type SyllabusNode =
   | ContentNode
   | MetadataNode
   | DialogueNode
-  | DialogueTurnNode;
+  | DialogueTurnNode
+  | PhonologicalRuleNode
+  | RuleConditionNode
+  | SyllablePatternNode
+  | PatternExampleNode
+  | WritingPatternNode;
 
 /**
  * Parent nodes (nodes with children)
@@ -809,7 +1070,10 @@ export type SyllabusParent =
   | CharacterSetNode
   | ExampleSetNode
   | ExerciseNode
-  | DialogueNode;
+  | DialogueNode
+  | PhonologicalRuleNode
+  | SyllablePatternNode
+  | WritingPatternNode;
 
 /**
  * Leaf nodes (nodes without children)
@@ -820,7 +1084,9 @@ export type SyllabusLeaf =
   | ExampleNode
   | ContentNode
   | MetadataNode
-  | DialogueTurnNode;
+  | DialogueTurnNode
+  | RuleConditionNode
+  | PatternExampleNode;
 
 /**
  * Content-bearing nodes
@@ -947,6 +1213,41 @@ export function isDialogueNode(node: UnistNode): node is DialogueNode {
  */
 export function isDialogueTurnNode(node: UnistNode): node is DialogueTurnNode {
   return node.type === 'dialogueTurn';
+}
+
+/**
+ * Type guard for PhonologicalRuleNode
+ */
+export function isPhonologicalRuleNode(node: UnistNode): node is PhonologicalRuleNode {
+  return node.type === 'phonologicalRule';
+}
+
+/**
+ * Type guard for RuleConditionNode
+ */
+export function isRuleConditionNode(node: UnistNode): node is RuleConditionNode {
+  return node.type === 'ruleCondition';
+}
+
+/**
+ * Type guard for SyllablePatternNode
+ */
+export function isSyllablePatternNode(node: UnistNode): node is SyllablePatternNode {
+  return node.type === 'syllablePattern';
+}
+
+/**
+ * Type guard for PatternExampleNode
+ */
+export function isPatternExampleNode(node: UnistNode): node is PatternExampleNode {
+  return node.type === 'patternExample';
+}
+
+/**
+ * Type guard for WritingPatternNode
+ */
+export function isWritingPatternNode(node: UnistNode): node is WritingPatternNode {
+  return node.type === 'writingPattern';
 }
 
 /**

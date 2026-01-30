@@ -97,6 +97,11 @@ import type {
   DialogueNode,
   DialogueTurnNode,
   DialogueParticipant,
+  PhonologicalRuleNode,
+  RuleConditionNode,
+  SyllablePatternNode,
+  PatternExampleNode,
+  WritingPatternNode,
 } from '@syllst/core/types';
 ```
 
@@ -118,6 +123,11 @@ import type {
 | `CharacterItemNode` | Single character |
 | `DialogueNode` | Conversation with turns |
 | `DialogueTurnNode` | Single dialogue turn |
+| `PhonologicalRuleNode` | Phonological rule (tone, sound change, etc.) |
+| `RuleConditionNode` | Single condition→result case in a rule |
+| `SyllablePatternNode` | Syllable structure pattern (live/dead, CV/CVC) |
+| `PatternExampleNode` | Concrete example of a syllable pattern |
+| `WritingPatternNode` | Writing system rule (positioning, stroke order) |
 | `ContentNode` | Markdown/text content |
 | `MetadataNode` | Key-value metadata |
 
@@ -127,22 +137,23 @@ import type {
 |------|--------|
 | `CEFRLevel` | A1, A2, B1, B2, C1, C2 |
 | `GrammarDifficulty` | beginner, intermediate, advanced |
-| `CharacterType` | vowel, consonant |
+| `CharacterType` | consonant, vowel, tone-mark, number, symbol, diacritic, modifier, punctuation, radical, logograph, syllable-block (+ string escape hatch) |
+| `PhonologicalRuleType` | tone, sound-change, assimilation, elision, liaison, sandhi (+ string escape hatch) |
 | `ExerciseType` | fill-in-blank, multiple-choice, translation, etc. |
-| `ContentFormat` | markdown, text, html |
-| `GrammaticalGender` | masculine, feminine, neuter |
+| `ContentFormat` | markdown, text, html, glost, glost-dialogue |
 
 ## Type Guards
 
 ```typescript
 import {
-  isLessonNode,
+  isLessonAstNode,
   isGrammarRuleNode,
   isVocabularySetNode,
   isSyllabusRoot,
+  isPhonologicalRuleNode,
 } from '@syllst/core/types';
 
-if (isLessonNode(node)) {
+if (isLessonAstNode(node)) {
   // TypeScript knows node is LessonAstNode
   console.log(node.title);
 }
@@ -200,6 +211,11 @@ validateLesson(lesson, { strict: true });
 | `ExampleNodeSchema` | Example sentence |
 | `CharacterSetNodeSchema` | Character/alphabet set |
 | `CharacterItemNodeSchema` | Single character |
+| `PhonologicalRuleNodeSchema` | Phonological rule |
+| `RuleConditionNodeSchema` | Rule condition case |
+| `SyllablePatternNodeSchema` | Syllable pattern |
+| `PatternExampleNodeSchema` | Pattern example |
+| `WritingPatternNodeSchema` | Writing system pattern |
 
 ### Validation Functions
 
@@ -263,11 +279,11 @@ npm test
 
 | Test Suite | Tests | Description |
 |------------|-------|-------------|
-| `base.test.ts` | 82 | Base schemas (Point, Position, enums) |
-| `nodes.test.ts` | 46 | Node schemas (lesson, dialogue, vocab, etc.) |
+| `base.test.ts` | 86 | Base schemas (Point, Position, enums, CharacterType, PhonologicalRuleType) |
+| `nodes.test.ts` | 70 | Node schemas (lesson, dialogue, vocab, phonological rules, patterns, etc.) |
 | `index.test.ts` | 41 | Validation functions and error formatting |
 
-**Total: 169 tests**
+**Total: 197 tests**
 
 ### Type Check
 

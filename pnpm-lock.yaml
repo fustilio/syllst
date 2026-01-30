@@ -210,6 +210,9 @@ importers:
 
   packages/syllst-xapi:
     dependencies:
+      '@syllst/core':
+        specifier: workspace:*
+        version: link:../syllst
       zod:
         specifier: 'catalog:'
         version: 4.3.6

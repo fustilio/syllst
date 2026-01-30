@@ -1,5 +1,16 @@
 # @syllst/processor
 
+## 0.3.0
+
+### Minor Changes
+
+- use consolidated definitions from core
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.3.0
+
 ## 0.2.2
 
 ### Patch Changes

@@ -23,6 +23,11 @@ import {
   MetadataNodeSchema,
   DialogueNodeSchema,
   DialogueTurnNodeSchema,
+  PhonologicalRuleNodeSchema,
+  RuleConditionNodeSchema,
+  SyllablePatternNodeSchema,
+  PatternExampleNodeSchema,
+  WritingPatternNodeSchema,
 } from './nodes';
 
 // ============================================================================
@@ -87,6 +92,11 @@ export function getSchemaForNodeType(
     metadata: MetadataNodeSchema,
     dialogue: DialogueNodeSchema,
     dialogueTurn: DialogueTurnNodeSchema,
+    phonologicalRule: PhonologicalRuleNodeSchema,
+    ruleCondition: RuleConditionNodeSchema,
+    syllablePattern: SyllablePatternNodeSchema,
+    patternExample: PatternExampleNodeSchema,
+    writingPattern: WritingPatternNodeSchema,
   };
 
   return schemaMap[type];

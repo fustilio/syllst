@@ -19,6 +19,11 @@ import {
   GrammarRuleNodeSchema,
   ExerciseNodeSchema,
   LessonAstNodeSchema,
+  PhonologicalRuleNodeSchema,
+  RuleConditionNodeSchema,
+  SyllablePatternNodeSchema,
+  PatternExampleNodeSchema,
+  WritingPatternNodeSchema,
 } from './nodes';
 
 describe('Node Zod Schemas', () => {
@@ -146,7 +151,7 @@ describe('Node Zod Schemas', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should reject invalid charType', () => {
+    it('should accept extended charType via string escape hatch', () => {
       const result = CharacterItemNodeSchema.safeParse({
         type: 'characterItem',
         id: 'char-001',
@@ -156,8 +161,56 @@ describe('Node Zod Schemas', () => {
         charType: 'diphthong',
         value: 'ა',
       });
-      
+
+      // CharacterTypeSchema now accepts any string for language-specific types
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject non-string charType', () => {
+      const result = CharacterItemNodeSchema.safeParse({
+        type: 'characterItem',
+        id: 'char-001',
+        char: 'ა',
+        name: 'ani',
+        transliteration: 'a',
+        charType: 123,
+        value: 'ა',
+      });
+
       expect(result.success).toBe(false);
+    });
+
+    it('should validate character item with canonicalRef', () => {
+      const result = CharacterItemNodeSchema.safeParse({
+        type: 'characterItem',
+        id: 'th-chicken',
+        char: 'ก',
+        name: 'gor gai',
+        charType: 'consonant',
+        canonicalRef: 'chicken',
+        value: 'ก',
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.canonicalRef).toBe('chicken');
+      }
+    });
+
+    it('should validate character without canonicalRef (backwards compatible)', () => {
+      const result = CharacterItemNodeSchema.safeParse({
+        type: 'characterItem',
+        id: 'char-old',
+        char: 'ก',
+        name: 'gor gai',
+        charType: 'consonant',
+        value: 'ก',
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.canonicalRef).toBeUndefined();
+      }
     });
   });
 
@@ -641,8 +694,47 @@ describe('Node Zod Schemas', () => {
         answer: 'test',
         children: [],
       });
-      
+
       expect(result.success).toBe(false);
+    });
+
+    it('should validate exercise with skill tracking fields', () => {
+      const result = ExerciseNodeSchema.safeParse({
+        type: 'exercise',
+        id: 'ex-skill-001',
+        exerciseType: 'matching',
+        question: 'Match the character to its sound',
+        answer: 'ก = g',
+        skill: 'character-recognition',
+        tests: ['identify-consonant', 'sound-mapping'],
+        objectiveId: 'obj-char-recognition',
+        children: [],
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.skill).toBe('character-recognition');
+        expect(result.data.tests).toEqual(['identify-consonant', 'sound-mapping']);
+        expect(result.data.objectiveId).toBe('obj-char-recognition');
+      }
+    });
+
+    it('should validate exercise without skill fields (backwards compatible)', () => {
+      const result = ExerciseNodeSchema.safeParse({
+        type: 'exercise',
+        id: 'ex-compat',
+        exerciseType: 'fill-in-blank',
+        question: 'Test',
+        answer: 'answer',
+        children: [],
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.skill).toBeUndefined();
+        expect(result.data.tests).toBeUndefined();
+        expect(result.data.objectiveId).toBeUndefined();
+      }
     });
   });
 
@@ -734,7 +826,447 @@ describe('Node Zod Schemas', () => {
         order: -1,
         children: [],
       });
-      
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should validate lesson with phonological rule children', () => {
+      const result = LessonAstNodeSchema.safeParse({
+        type: 'lesson',
+        id: 'lesson-tone-rules',
+        title: 'Thai Tone Rules',
+        order: 7,
+        children: [
+          {
+            type: 'phonologicalRule',
+            id: 'tone-mid',
+            title: 'Middle-Class Tone Rules',
+            ruleType: 'tone',
+            description: 'Middle-class consonants produce all 5 tones.',
+            children: [
+              {
+                type: 'ruleCondition',
+                condition: { consonantClass: 'middle', toneMark: 'none' },
+                result: 'mid',
+                value: 'consonantClass=middle, toneMark=none → mid',
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate lesson with syllable pattern children', () => {
+      const result = LessonAstNodeSchema.safeParse({
+        type: 'lesson',
+        id: 'lesson-syllables',
+        title: 'Thai Syllable Patterns',
+        order: 8,
+        children: [
+          {
+            type: 'syllablePattern',
+            id: 'live-syllables',
+            title: 'Live Syllables',
+            patternType: 'live',
+            structure: 'CV',
+            children: [
+              {
+                type: 'patternExample',
+                text: 'กา',
+                transcription: 'gaa',
+                translation: 'crow',
+                value: 'กา',
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate lesson with writing pattern children', () => {
+      const result = LessonAstNodeSchema.safeParse({
+        type: 'lesson',
+        id: 'lesson-writing',
+        title: 'Thai Writing Patterns',
+        order: 9,
+        children: [
+          {
+            type: 'writingPattern',
+            id: 'vowel-pos',
+            title: 'Vowel Positioning',
+            patternType: 'positioning',
+            children: [
+              {
+                type: 'example',
+                id: 'wp-ex-1',
+                text: 'เ-',
+                translation: 'Written before consonant',
+                value: 'เ-',
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate lesson with all new node types combined', () => {
+      const result = LessonAstNodeSchema.safeParse({
+        type: 'lesson',
+        id: 'lesson-comprehensive',
+        title: 'Comprehensive Thai Phonology',
+        order: 10,
+        cefrLevel: 'A1',
+        children: [
+          {
+            type: 'characterSet',
+            id: 'mid-consonants',
+            title: 'Middle-Class Consonants',
+            charType: 'consonant',
+            children: [
+              {
+                type: 'characterItem',
+                id: 'th-chicken',
+                char: 'ก',
+                name: 'gor gai',
+                charType: 'consonant',
+                canonicalRef: 'chicken',
+                value: 'ก',
+              },
+            ],
+          },
+          {
+            type: 'phonologicalRule',
+            id: 'tone-mid',
+            title: 'Middle-Class Tone Rules',
+            ruleType: 'tone',
+            children: [
+              {
+                type: 'ruleCondition',
+                condition: { consonantClass: 'middle', toneMark: 'none' },
+                result: 'mid',
+                example: 'กา',
+                value: 'mid tone',
+              },
+            ],
+          },
+          {
+            type: 'syllablePattern',
+            id: 'live-syllables',
+            title: 'Live Syllables',
+            children: [
+              {
+                type: 'patternExample',
+                text: 'กา',
+                value: 'กา',
+              },
+            ],
+          },
+          {
+            type: 'writingPattern',
+            id: 'vowel-pos',
+            title: 'Vowel Positioning',
+            patternType: 'positioning',
+            children: [],
+          },
+          {
+            type: 'exercise',
+            id: 'ex-tone',
+            exerciseType: 'matching',
+            question: 'Match consonant class to tone',
+            answer: 'middle = mid',
+            skill: 'tone-rule-application',
+            tests: ['consonant-class-id', 'tone-prediction'],
+            objectiveId: 'obj-tone-rules',
+            children: [],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('RuleConditionNodeSchema', () => {
+    it('should validate minimal rule condition', () => {
+      const result = RuleConditionNodeSchema.safeParse({
+        type: 'ruleCondition',
+        condition: { consonantClass: 'middle', toneMark: 'none' },
+        result: 'mid',
+        value: 'consonantClass=middle, toneMark=none → mid',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate complete rule condition', () => {
+      const result = RuleConditionNodeSchema.safeParse({
+        type: 'ruleCondition',
+        id: 'cond-001',
+        condition: { consonantClass: 'middle', toneMark: 'mai-ek' },
+        result: 'low',
+        example: 'ไก่',
+        exampleTranscription: 'gài',
+        exampleTranslation: 'chicken',
+        notes: 'Common word',
+        value: 'consonantClass=middle, toneMark=mai-ek → low',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject empty result', () => {
+      const result = RuleConditionNodeSchema.safeParse({
+        type: 'ruleCondition',
+        condition: { key: 'val' },
+        result: '',
+        value: 'test',
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject missing condition', () => {
+      const result = RuleConditionNodeSchema.safeParse({
+        type: 'ruleCondition',
+        result: 'mid',
+        value: 'test',
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('PhonologicalRuleNodeSchema', () => {
+    it('should validate minimal phonological rule', () => {
+      const result = PhonologicalRuleNodeSchema.safeParse({
+        type: 'phonologicalRule',
+        id: 'tone-mid',
+        title: 'Middle-Class Tone Rules',
+        ruleType: 'tone',
+        children: [],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate complete phonological rule', () => {
+      const result = PhonologicalRuleNodeSchema.safeParse({
+        type: 'phonologicalRule',
+        id: 'tone-mid',
+        title: 'Middle-Class Tone Rules',
+        ruleType: 'tone',
+        description: 'Middle-class consonants produce all 5 tones.',
+        exceptions: 'Short vowel exceptions apply.',
+        relatedRules: ['tone-high', 'tone-low'],
+        children: [
+          {
+            type: 'ruleCondition',
+            condition: { consonantClass: 'middle', toneMark: 'none' },
+            result: 'mid',
+            value: 'consonantClass=middle → mid',
+          },
+          {
+            type: 'example',
+            id: 'ex-tone-1',
+            text: 'กา',
+            translation: 'crow',
+            value: 'กา',
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should accept custom ruleType via string escape hatch', () => {
+      const result = PhonologicalRuleNodeSchema.safeParse({
+        type: 'phonologicalRule',
+        id: 'custom-rule',
+        title: 'Custom Rule',
+        ruleType: 'vowel-reduction',
+        children: [],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject empty id', () => {
+      const result = PhonologicalRuleNodeSchema.safeParse({
+        type: 'phonologicalRule',
+        id: '',
+        title: 'Test',
+        ruleType: 'tone',
+        children: [],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject empty title', () => {
+      const result = PhonologicalRuleNodeSchema.safeParse({
+        type: 'phonologicalRule',
+        id: 'test',
+        title: '',
+        ruleType: 'tone',
+        children: [],
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('PatternExampleNodeSchema', () => {
+    it('should validate minimal pattern example', () => {
+      const result = PatternExampleNodeSchema.safeParse({
+        type: 'patternExample',
+        text: 'กา',
+        value: 'กา',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate complete pattern example', () => {
+      const result = PatternExampleNodeSchema.safeParse({
+        type: 'patternExample',
+        text: 'กา',
+        transcription: 'gaa',
+        translation: 'crow',
+        notes: 'Live syllable example',
+        references: ['gor-gai', 'sara-aa'],
+        value: 'กา',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject empty text', () => {
+      const result = PatternExampleNodeSchema.safeParse({
+        type: 'patternExample',
+        text: '',
+        value: '',
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('SyllablePatternNodeSchema', () => {
+    it('should validate minimal syllable pattern', () => {
+      const result = SyllablePatternNodeSchema.safeParse({
+        type: 'syllablePattern',
+        id: 'live-syllable',
+        title: 'Live Syllables',
+        children: [],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate complete syllable pattern', () => {
+      const result = SyllablePatternNodeSchema.safeParse({
+        type: 'syllablePattern',
+        id: 'live-syllable',
+        title: 'Live Syllables',
+        patternType: 'live',
+        structure: 'CV',
+        description: 'Live syllables end in a long vowel or sonorant.',
+        children: [
+          {
+            type: 'patternExample',
+            text: 'กา',
+            transcription: 'gaa',
+            translation: 'crow',
+            value: 'กา',
+          },
+          {
+            type: 'content',
+            format: 'text',
+            value: 'Additional notes on live syllables.',
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject empty id', () => {
+      const result = SyllablePatternNodeSchema.safeParse({
+        type: 'syllablePattern',
+        id: '',
+        title: 'Test',
+        children: [],
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('WritingPatternNodeSchema', () => {
+    it('should validate minimal writing pattern', () => {
+      const result = WritingPatternNodeSchema.safeParse({
+        type: 'writingPattern',
+        id: 'vowel-pos',
+        title: 'Vowel Positioning',
+        patternType: 'positioning',
+        children: [],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate complete writing pattern', () => {
+      const result = WritingPatternNodeSchema.safeParse({
+        type: 'writingPattern',
+        id: 'vowel-pos',
+        title: 'Vowel Positioning Rules',
+        patternType: 'positioning',
+        description: 'Thai vowels appear in various positions.',
+        children: [
+          {
+            type: 'example',
+            id: 'wp-ex-1',
+            text: 'เ-',
+            translation: 'Short e — written before consonant',
+            value: 'เ-',
+          },
+          {
+            type: 'content',
+            format: 'text',
+            value: 'Position depends on vowel length.',
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject empty patternType', () => {
+      const result = WritingPatternNodeSchema.safeParse({
+        type: 'writingPattern',
+        id: 'test',
+        title: 'Test',
+        patternType: '',
+        children: [],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject missing patternType', () => {
+      const result = WritingPatternNodeSchema.safeParse({
+        type: 'writingPattern',
+        id: 'test',
+        title: 'Test',
+        children: [],
+      });
+
       expect(result.success).toBe(false);
     });
   });

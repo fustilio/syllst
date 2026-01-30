@@ -21,6 +21,7 @@ import {
   CharacterVariantSchema,
   ExerciseItemSchema,
   TranscriptionSchema,
+  PhonologicalRuleTypeSchema,
 } from './base';
 import { ExtensionsMapSchema } from './extensions';
 
@@ -70,6 +71,7 @@ export const CharacterItemNodeSchema = z.object({
   variants: z.array(CharacterVariantSchema).optional(),
   notes: z.string().optional(),
   audioPath: z.string().optional(),
+  canonicalRef: z.string().optional(),
   value: z.string(),
   extensions: ExtensionsMapSchema.optional(),
   data: DataSchema.optional(),
@@ -176,6 +178,104 @@ export const DialogueNodeSchema = z.object({
 });
 
 // ============================================================================
+// Phonological Rule Node Schemas (v0.3.0)
+// ============================================================================
+
+/**
+ * Rule condition node schema
+ */
+export const RuleConditionNodeSchema = z.object({
+  type: z.literal('ruleCondition'),
+  id: z.string().optional(),
+  condition: z.record(z.string(), z.string()),
+  result: z.string().min(1),
+  example: z.string().optional(),
+  exampleTranscription: z.string().optional(),
+  exampleTranslation: z.string().optional(),
+  notes: z.string().optional(),
+  value: z.string(),
+  data: DataSchema.optional(),
+  position: PositionSchema.optional(),
+});
+
+/**
+ * Phonological rule node schema
+ */
+export const PhonologicalRuleNodeSchema = z.object({
+  type: z.literal('phonologicalRule'),
+  id: z.string().min(1),
+  title: z.string().min(1),
+  ruleType: PhonologicalRuleTypeSchema,
+  description: z.string().optional(),
+  exceptions: z.string().optional(),
+  relatedRules: z.array(z.string()).optional(),
+  children: z.array(
+    z.union([RuleConditionNodeSchema, ExampleNodeSchema, ContentNodeSchema])
+  ),
+  extensions: ExtensionsMapSchema.optional(),
+  data: DataSchema.optional(),
+  position: PositionSchema.optional(),
+});
+
+// ============================================================================
+// Syllable Pattern Node Schemas (v0.3.0)
+// ============================================================================
+
+/**
+ * Pattern example node schema
+ */
+export const PatternExampleNodeSchema = z.object({
+  type: z.literal('patternExample'),
+  text: z.string().min(1),
+  transcription: TranscriptionSchema.optional(),
+  translation: z.string().optional(),
+  notes: z.string().optional(),
+  references: z.array(z.string()).optional(),
+  value: z.string(),
+  data: DataSchema.optional(),
+  position: PositionSchema.optional(),
+});
+
+/**
+ * Syllable pattern node schema
+ */
+export const SyllablePatternNodeSchema = z.object({
+  type: z.literal('syllablePattern'),
+  id: z.string().min(1),
+  title: z.string().min(1),
+  patternType: z.string().optional(),
+  structure: z.string().optional(),
+  description: z.string().optional(),
+  children: z.array(
+    z.union([PatternExampleNodeSchema, ContentNodeSchema])
+  ),
+  extensions: ExtensionsMapSchema.optional(),
+  data: DataSchema.optional(),
+  position: PositionSchema.optional(),
+});
+
+// ============================================================================
+// Writing Pattern Node Schemas (v0.3.0)
+// ============================================================================
+
+/**
+ * Writing pattern node schema
+ */
+export const WritingPatternNodeSchema = z.object({
+  type: z.literal('writingPattern'),
+  id: z.string().min(1),
+  title: z.string().min(1),
+  patternType: z.string().min(1),
+  description: z.string().optional(),
+  children: z.array(
+    z.union([ExampleNodeSchema, ContentNodeSchema])
+  ),
+  extensions: ExtensionsMapSchema.optional(),
+  data: DataSchema.optional(),
+  position: PositionSchema.optional(),
+});
+
+// ============================================================================
 // Parent Node Schemas (nodes with children)
 // ============================================================================
 
@@ -237,6 +337,9 @@ export const ExerciseNodeSchema = z.object({
   answer: z.union([z.string(), z.array(z.string())]),
   explanation: z.string().optional(),
   difficulty: GrammarDifficultySchema.optional(),
+  skill: z.string().optional(),
+  tests: z.array(z.string()).optional(),
+  objectiveId: z.string().optional(),
   children: z.array(ContentNodeSchema),
   extensions: ExtensionsMapSchema.optional(),
   data: DataSchema.optional(),
@@ -293,6 +396,9 @@ export const LessonContentChildSchema: z.ZodTypeAny = z.union([
   ExerciseNodeSchema,
   ContentNodeSchema,
   DialogueNodeSchema,
+  PhonologicalRuleNodeSchema,
+  SyllablePatternNodeSchema,
+  WritingPatternNodeSchema,
 ]);
 
 /**
@@ -420,6 +526,11 @@ export const SyllabusNodeSchema: z.ZodTypeAny = z.union([
   MetadataNodeSchema,
   DialogueNodeSchema,
   DialogueTurnNodeSchema,
+  PhonologicalRuleNodeSchema,
+  RuleConditionNodeSchema,
+  SyllablePatternNodeSchema,
+  PatternExampleNodeSchema,
+  WritingPatternNodeSchema,
 ]);
 
 /**
@@ -436,6 +547,9 @@ export const SyllabusParentSchema: z.ZodTypeAny = z.union([
   ExampleSetNodeSchema,
   ExerciseNodeSchema,
   DialogueNodeSchema,
+  PhonologicalRuleNodeSchema,
+  SyllablePatternNodeSchema,
+  WritingPatternNodeSchema,
 ]);
 
 /**
@@ -448,6 +562,8 @@ export const SyllabusLeafSchema: z.ZodTypeAny = z.union([
   ContentNodeSchema,
   MetadataNodeSchema,
   DialogueTurnNodeSchema,
+  RuleConditionNodeSchema,
+  PatternExampleNodeSchema,
 ]);
 
 // ============================================================================
@@ -472,6 +588,11 @@ export type ZodDialogueNode = z.infer<typeof DialogueNodeSchema>;
 export type ZodDialogueTurnNode = z.infer<typeof DialogueTurnNodeSchema>;
 export type ZodDialogueParticipant = z.infer<typeof DialogueParticipantSchema>;
 export type ZodGenderVariants = z.infer<typeof GenderVariantsSchema>;
+export type ZodPhonologicalRuleNode = z.infer<typeof PhonologicalRuleNodeSchema>;
+export type ZodRuleConditionNode = z.infer<typeof RuleConditionNodeSchema>;
+export type ZodSyllablePatternNode = z.infer<typeof SyllablePatternNodeSchema>;
+export type ZodPatternExampleNode = z.infer<typeof PatternExampleNodeSchema>;
+export type ZodWritingPatternNode = z.infer<typeof WritingPatternNodeSchema>;
 export type ZodSyllabusNode = z.infer<typeof SyllabusNodeSchema>;
 export type ZodSyllabusParent = z.infer<typeof SyllabusParentSchema>;
 export type ZodSyllabusLeaf = z.infer<typeof SyllabusLeafSchema>;

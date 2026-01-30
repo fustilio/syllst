@@ -47,13 +47,16 @@ export function transformToLessonAstNode(
   // Types that we want to capture as top-level content
   const directiveTypes = new Set([
     'grammarRule', 'vocabularySet', 'characterSet',
-    'exampleSet', 'exercise', 'dialogue'
+    'exampleSet', 'exercise', 'dialogue',
+    'phonologicalRule', 'syllablePattern', 'writingPattern',
   ]);
 
   // Types that contain nested content we should skip
   const containerTypes = new Set([
     'grammarRule', 'vocabularySet', 'characterSet',
-    'exampleSet', 'exercise', 'dialogue', 'list', 'listItem'
+    'exampleSet', 'exercise', 'dialogue',
+    'phonologicalRule', 'syllablePattern', 'writingPattern',
+    'list', 'listItem',
   ]);
 
   // Traverse tree and collect directive nodes
@@ -258,7 +261,12 @@ export function extractDirectiveNodes(tree: MdastRoot): any[] {
       node.type === 'vocabularyItem' ||
       node.type === 'example' ||
       node.type === 'dialogue' ||
-      node.type === 'dialogueTurn'
+      node.type === 'dialogueTurn' ||
+      node.type === 'phonologicalRule' ||
+      node.type === 'ruleCondition' ||
+      node.type === 'syllablePattern' ||
+      node.type === 'patternExample' ||
+      node.type === 'writingPattern'
     ) {
       directives.push(node);
     }

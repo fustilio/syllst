@@ -71,13 +71,19 @@ This document describes the relationship between syllst and related projects in 
 - `SyllabusRoot` - Course-level container
 - `ChapterNode`, `SectionNode`, `LessonAstNode` - Hierarchical structure
 - `VocabularySetNode`, `GrammarRuleNode`, `DialogueNode` - Learning content
-- `ExerciseNode` - Practice activities
+- `CharacterSetNode`, `CharacterItemNode` - Alphabet/script learning with @laeng integration
+- `ExerciseNode` - Practice activities with skill/objective tracking
+- `PhonologicalRuleNode`, `RuleConditionNode` - Phonological rules (tone, sound change, sandhi)
+- `SyllablePatternNode`, `PatternExampleNode` - Syllable structure patterns
+- `WritingPatternNode` - Writing system rules (positioning, stroke order)
 - `ContentNode` - Generic content (markdown, text, html, glost, glost-dialogue)
 
 **Packages:**
 - `@syllst/core` - Type definitions, Zod validation schemas, generic extension system
 - `@syllst/processor` - MDX parsing and transformation pipeline
 - `@syllst/glost` - GLOST integration plugin (remark plugin for word-level enrichment)
+- `@syllst/validator` - CLI validation tool for MDX content
+- `@syllst/xapi` - xAPI vocabulary profile for language learning
 
 **Use cases:**
 - Authoring language courses in MDX
@@ -265,6 +271,11 @@ GLOST documents can be used in Chishiki for rich practice activities:
 
 @syllst/glost          - GLOST integration plugin (remark plugin)
                          Enriches syllst nodes with word-level annotations
+
+@syllst/validator      - CLI tool for validating MDX content against schemas
+
+@syllst/xapi           - xAPI vocabulary profile for language learning
+                         Verbs, activity types, extensions for learning analytics
 
 @chishiki/importer-syllst  - Syllst → Chishiki adapter (lives in chishiki repo)
                               Converts AST nodes to learning content, typed CMI5/xAPI readers

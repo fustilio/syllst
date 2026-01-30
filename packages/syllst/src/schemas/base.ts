@@ -57,14 +57,29 @@ export const TranscriptionSchema = z.union([z.string(), TranscriptionObjectSchem
 // ============================================================================
 
 /**
+ * BCP 47 language tag (basic validation).
+ * Accepts codes like "en", "th", "ja", "en-US".
+ */
+export const Bcp47Schema = z
+  .string()
+  .min(2)
+  .max(11)
+  .regex(
+    /^[a-z]{2,3}(-[A-Z][a-zA-Z]{1,7})?$/,
+    'Must be a valid BCP 47 language tag'
+  );
+
+/**
  * CEFR levels
  */
 export const CEFRLevelSchema = z.enum(['A1', 'A2', 'B1', 'B2', 'C1', 'C2']);
 
 /**
- * Grammar difficulty levels
+ * Difficulty levels for lessons and exercises
  */
-export const GrammarDifficultySchema = z.enum(['beginner', 'intermediate', 'advanced']);
+export const DifficultyLevelSchema = z.enum(['beginner', 'intermediate', 'advanced']);
+/** @deprecated Use DifficultyLevelSchema */
+export const GrammarDifficultySchema = DifficultyLevelSchema;
 
 /**
  * Progression rule — when a learner can proceed
@@ -72,9 +87,25 @@ export const GrammarDifficultySchema = z.enum(['beginner', 'intermediate', 'adva
 export const ProgressionRuleSchema = z.enum(['Passed', 'Completed', 'CompletedAndPassed', 'NotApplicable']);
 
 /**
- * Character types
+ * Character types (expanded v0.3.0)
+ * Core types for common writing systems, with string fallback for unlisted types
  */
-export const CharacterTypeSchema = z.enum(['vowel', 'consonant']);
+export const CharacterTypeSchema = z.union([
+  z.enum([
+    'consonant', 'vowel', 'tone-mark', 'number', 'symbol',
+    'diacritic', 'modifier', 'punctuation', 'radical',
+    'logograph', 'syllable-block',
+  ]),
+  z.string(), // escape hatch for language-specific types
+]);
+
+/**
+ * Phonological rule types (v0.3.0)
+ */
+export const PhonologicalRuleTypeSchema = z.union([
+  z.enum(['tone', 'sound-change', 'assimilation', 'elision', 'liaison', 'sandhi']),
+  z.string(),
+]);
 
 /**
  * Phonetic categories
@@ -143,6 +174,8 @@ export const LearningObjectiveSchema = z.object({
   description: z.string().min(1),
   masteryScore: z.number().min(0).max(1).optional(),
   isPrimary: z.boolean().optional(),
+  skill: z.string().optional(),
+  references: z.array(z.string()).optional(),
 });
 
 /**
@@ -218,7 +251,9 @@ export const ExerciseItemSchema = z.object({
 // ============================================================================
 
 export type ZodCEFRLevel = z.infer<typeof CEFRLevelSchema>;
-export type ZodGrammarDifficulty = z.infer<typeof GrammarDifficultySchema>;
+export type ZodDifficultyLevel = z.infer<typeof DifficultyLevelSchema>;
+/** @deprecated Use ZodDifficultyLevel */
+export type ZodGrammarDifficulty = ZodDifficultyLevel;
 export type ZodCharacterType = z.infer<typeof CharacterTypeSchema>;
 export type ZodPhoneticCategory = z.infer<typeof PhoneticCategorySchema>;
 export type ZodVoicingType = z.infer<typeof VoicingTypeSchema>;
@@ -233,3 +268,4 @@ export type ZodCharacterTransliteration = z.infer<typeof CharacterTransliteratio
 export type ZodExerciseItem = z.infer<typeof ExerciseItemSchema>;
 export type ZodTranscription = z.infer<typeof TranscriptionSchema>;
 export type ZodTranscriptionObject = z.infer<typeof TranscriptionObjectSchema>;
+export type ZodPhonologicalRuleType = z.infer<typeof PhonologicalRuleTypeSchema>;

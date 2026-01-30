@@ -1,6 +1,6 @@
 {
   "name": "@syllst/glost",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "GLOST word-level annotation plugin for syllst",
   "license": "MIT",
   "type": "module",

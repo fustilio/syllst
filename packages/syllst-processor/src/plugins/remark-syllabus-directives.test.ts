@@ -364,4 +364,250 @@ The pattern **यह (X) है** means "This is (X)".
       expect(foundTurn).toBe(true);
     });
   });
+
+  describe('Phonological Rule Directives', () => {
+    it('should transform phonological-rule with rule-conditions', async () => {
+      const content = `
+:::phonological-rule{id="tone-mid" title="Middle-Class Tone Rules" ruleType="tone"}
+Middle-class consonants produce all 5 tones.
+
+::rule-condition{condition='{"consonantClass":"middle","toneMark":"none"}' result="mid" example="กา" exampleTranscription="gaa" exampleTranslation="crow"}
+::
+
+::rule-condition{condition='{"consonantClass":"middle","toneMark":"mai-ek"}' result="low" example="ไก่" exampleTranscription="gài" exampleTranslation="chicken"}
+::
+
+:::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundRule = false;
+      let conditionCount = 0;
+
+      visit(tree, (node: any) => {
+        if (node.type === 'phonologicalRule') {
+          foundRule = true;
+          expect(node.id).toBe('tone-mid');
+          expect(node.title).toBe('Middle-Class Tone Rules');
+          expect(node.ruleType).toBe('tone');
+          expect(node.description).toContain('Middle-class');
+          expect(node.children).toBeDefined();
+          conditionCount = node.children.filter(
+            (c: any) => c.type === 'ruleCondition'
+          ).length;
+        }
+      });
+
+      expect(foundRule).toBe(true);
+      expect(conditionCount).toBe(2);
+    });
+
+    it('should transform standalone rule-condition', async () => {
+      const content = `
+::rule-condition{condition='{"consonantClass":"middle","toneMark":"mai-ek"}' result="low" example="ไก่" exampleTranscription="gài" exampleTranslation="chicken"}
+::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundCondition = false;
+      visit(tree, (node: any) => {
+        if (node.type === 'ruleCondition') {
+          foundCondition = true;
+          expect(node.result).toBe('low');
+          expect(node.condition).toEqual({
+            consonantClass: 'middle',
+            toneMark: 'mai-ek',
+          });
+          expect(node.example).toBe('ไก่');
+          expect(node.exampleTranscription).toBe('gài');
+          expect(node.exampleTranslation).toBe('chicken');
+          expect(node.value).toContain('→ low');
+        }
+      });
+
+      expect(foundCondition).toBe(true);
+    });
+
+    it('should transform phonological-rule with relatedRules', async () => {
+      const content = `
+:::phonological-rule{id="tone-high" title="High-Class Tone Rules" ruleType="tone" relatedRules="tone-mid,tone-low"}
+High-class consonants produce only 3 tones.
+:::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundRule = false;
+      visit(tree, (node: any) => {
+        if (node.type === 'phonologicalRule') {
+          foundRule = true;
+          expect(node.relatedRules).toEqual(['tone-mid', 'tone-low']);
+        }
+      });
+
+      expect(foundRule).toBe(true);
+    });
+  });
+
+  describe('Syllable Pattern Directives', () => {
+    it('should transform syllable-pattern with pattern-examples', async () => {
+      const content = `
+:::syllable-pattern{id="live-syllables" title="Live Syllables" patternType="live" structure="CV"}
+Live syllables end in a long vowel or a sonorant consonant.
+
+::pattern-example{text="กา" transcription="gaa" translation="crow"}
+::
+
+::pattern-example{text="มา" transcription="maa" translation="come"}
+::
+
+:::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundPattern = false;
+      let exampleCount = 0;
+
+      visit(tree, (node: any) => {
+        if (node.type === 'syllablePattern') {
+          foundPattern = true;
+          expect(node.id).toBe('live-syllables');
+          expect(node.title).toBe('Live Syllables');
+          expect(node.patternType).toBe('live');
+          expect(node.structure).toBe('CV');
+          expect(node.description).toContain('Live syllables');
+          expect(node.children).toBeDefined();
+          exampleCount = node.children.filter(
+            (c: any) => c.type === 'patternExample'
+          ).length;
+        }
+      });
+
+      expect(foundPattern).toBe(true);
+      expect(exampleCount).toBe(2);
+    });
+
+    it('should transform standalone pattern-example with data attributes', async () => {
+      const content = `
+::pattern-example{text="กา" transcription="gaa" translation="crow" data:consonantClass="middle" data:tone="mid"}
+::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundExample = false;
+      visit(tree, (node: any) => {
+        if (node.type === 'patternExample') {
+          foundExample = true;
+          expect(node.text).toBe('กา');
+          expect(node.translation).toBe('crow');
+          expect(node.value).toBe('กา');
+          expect(node.data?.consonantClass).toBe('middle');
+          expect(node.data?.tone).toBe('mid');
+        }
+      });
+
+      expect(foundExample).toBe(true);
+    });
+  });
+
+  describe('Exercise with Skill Tracking', () => {
+    it('should transform exercise with skill, tests, and objectiveId', async () => {
+      const content = `
+:::exercise{id="ex-tone-1" type="matching" difficulty="beginner" skill="tone-rule-application" tests="consonant-class-id,tone-prediction" objectiveId="obj-tone-rules"}
+**Question:** Match the consonant class to the correct tone
+
+**Answer:** middle class + no mark = mid tone
+:::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundExercise = false;
+      visit(tree, (node: any) => {
+        if (node.type === 'exercise') {
+          foundExercise = true;
+          expect(node.id).toBe('ex-tone-1');
+          expect(node.skill).toBe('tone-rule-application');
+          expect(node.tests).toEqual(['consonant-class-id', 'tone-prediction']);
+          expect(node.objectiveId).toBe('obj-tone-rules');
+        }
+      });
+
+      expect(foundExercise).toBe(true);
+    });
+  });
+
+  describe('Character with canonicalRef', () => {
+    it('should transform character item with canonicalRef', async () => {
+      const content = `
+::character{id="th-chicken" char="ก" name="gor gai" nativeName="ก ไก่" charType="consonant" canonicalRef="chicken"}
+::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundChar = false;
+      visit(tree, (node: any) => {
+        if (node.type === 'characterItem') {
+          foundChar = true;
+          expect(node.id).toBe('th-chicken');
+          expect(node.char).toBe('ก');
+          expect(node.canonicalRef).toBe('chicken');
+        }
+      });
+
+      expect(foundChar).toBe(true);
+    });
+  });
+
+  describe('Writing Pattern Directives', () => {
+    it('should transform writing-pattern with examples', async () => {
+      const content = `
+:::writing-pattern{id="vowel-positioning" title="Vowel Positioning Rules" patternType="positioning"}
+Thai vowels can appear above, below, before, or after their consonant.
+
+::example{id="wp-ex-1" text="เ-" translation="Short e vowel — written before consonant"}
+::
+
+::example{id="wp-ex-2" text="-ิ" translation="Short i vowel — written above consonant"}
+::
+
+:::
+`;
+
+      const parser = createParser();
+      const tree = await parser.run(parser.parse(content));
+
+      let foundWritingPattern = false;
+      let exampleCount = 0;
+
+      visit(tree, (node: any) => {
+        if (node.type === 'writingPattern') {
+          foundWritingPattern = true;
+          expect(node.id).toBe('vowel-positioning');
+          expect(node.title).toBe('Vowel Positioning Rules');
+          expect(node.patternType).toBe('positioning');
+          expect(node.description).toContain('Thai vowels');
+          expect(node.children).toBeDefined();
+          exampleCount = node.children.filter(
+            (c: any) => c.type === 'example'
+          ).length;
+        }
+      });
+
+      expect(foundWritingPattern).toBe(true);
+      expect(exampleCount).toBe(2);
+    });
+  });
 });

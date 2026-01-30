@@ -3,7 +3,17 @@
  *
  * Base types and constants for the syllst
  * language learning xAPI profile.
+ *
+ * Domain types (CEFRLevel, DifficultyLevel, CharacterType)
+ * are imported from @syllst/core to avoid duplication.
  */
+
+// Re-export shared domain types from core
+export type {
+  CEFRLevel,
+  DifficultyLevel,
+  CharacterType,
+} from "@syllst/core/types";
 
 /**
  * Base IRI namespace for all syllst xAPI concepts.
@@ -50,30 +60,3 @@ export interface ExtensionDefinition {
     Record<string, string>
   >;
 }
-
-/**
- * CEFR proficiency levels.
- */
-export type CEFRLevel =
-  | "A1"
-  | "A2"
-  | "B1"
-  | "B2"
-  | "C1"
-  | "C2";
-
-/**
- * Difficulty levels for language learning content.
- */
-export type DifficultyLevel =
-  | "beginner"
-  | "intermediate"
-  | "advanced";
-
-/**
- * Character types for script/alphabet learning.
- */
-export type CharacterType =
-  | "consonant"
-  | "vowel"
-  | "tone-mark";

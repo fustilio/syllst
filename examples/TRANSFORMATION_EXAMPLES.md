@@ -350,6 +350,167 @@ The pattern **यह (X) है** means "This is (X)".
 }
 ```
 
+## Phonological Rules
+
+### Input MDX
+
+```mdx
+:::phonological-rule{id="tone-mid" title="Middle-Class Tone Rules" ruleType="tone"}
+Middle-class consonants produce all 5 tones with tone marks.
+
+::rule-condition{condition='{"consonantClass":"middle","toneMark":"none"}' result="mid" example="กา" exampleTranscription="gaa" exampleTranslation="crow"}
+::
+
+::rule-condition{condition='{"consonantClass":"middle","toneMark":"mai-ek"}' result="low" example="ไก่" exampleTranscription="gài" exampleTranslation="chicken"}
+::
+
+:::
+```
+
+### Output Unist Node
+
+```javascript
+{
+  type: 'phonologicalRule',
+  id: 'tone-mid',
+  title: 'Middle-Class Tone Rules',
+  ruleType: 'tone',
+  description: 'Middle-class consonants produce all 5 tones with tone marks.',
+  children: [
+    {
+      type: 'ruleCondition',
+      condition: { consonantClass: 'middle', toneMark: 'none' },
+      result: 'mid',
+      example: 'กา',
+      exampleTranscription: 'gaa',
+      exampleTranslation: 'crow',
+      value: 'consonantClass=middle, toneMark=none → mid'
+    },
+    {
+      type: 'ruleCondition',
+      condition: { consonantClass: 'middle', toneMark: 'mai-ek' },
+      result: 'low',
+      example: 'ไก่',
+      exampleTranscription: 'gài',
+      exampleTranslation: 'chicken',
+      value: 'consonantClass=middle, toneMark=mai-ek → low'
+    }
+  ]
+}
+```
+
+**Key Transformations:**
+- Container directive `:::phonological-rule` → `type: 'phonologicalRule'`
+- `ruleType` attribute maps to `PhonologicalRuleType` (tone, sound-change, assimilation, etc.)
+- First paragraph → `description` field
+- Nested `::rule-condition` directives → `children` array
+- `condition` attribute is JSON-parsed into a `Record<string, string>`
+- `relatedRules` attribute (comma-separated) → string array
+
+## Syllable Patterns
+
+### Input MDX
+
+```mdx
+:::syllable-pattern{id="live-syllables" title="Live Syllables" patternType="live" structure="CV"}
+Live syllables end in a long vowel or a sonorant consonant.
+
+::pattern-example{text="กา" transcription="gaa" translation="crow"}
+::
+
+::pattern-example{text="มา" transcription="maa" translation="come"}
+::
+
+:::
+```
+
+### Output Unist Node
+
+```javascript
+{
+  type: 'syllablePattern',
+  id: 'live-syllables',
+  title: 'Live Syllables',
+  patternType: 'live',
+  structure: 'CV',
+  description: 'Live syllables end in a long vowel or a sonorant consonant.',
+  children: [
+    {
+      type: 'patternExample',
+      text: 'กา',
+      transcription: 'gaa',
+      translation: 'crow',
+      value: 'กา'
+    },
+    {
+      type: 'patternExample',
+      text: 'มา',
+      transcription: 'maa',
+      translation: 'come',
+      value: 'มา'
+    }
+  ]
+}
+```
+
+**Key Transformations:**
+- Container directive `:::syllable-pattern` → `type: 'syllablePattern'`
+- `patternType` and `structure` map to optional string fields
+- Nested `::pattern-example` → `type: 'patternExample'`
+- `text` is duplicated to `value` for Literal compatibility
+- `data:*` attributes become `data` object properties
+
+## Writing Patterns
+
+### Input MDX
+
+```mdx
+:::writing-pattern{id="vowel-positioning" title="Vowel Positioning Rules" patternType="positioning"}
+Thai vowels can appear above, below, before, or after their consonant.
+
+::example{id="wp-ex-1" text="เ-" translation="Short e vowel — written before consonant"}
+::
+
+::example{id="wp-ex-2" text="-ิ" translation="Short i vowel — written above consonant"}
+::
+
+:::
+```
+
+### Output Unist Node
+
+```javascript
+{
+  type: 'writingPattern',
+  id: 'vowel-positioning',
+  title: 'Vowel Positioning Rules',
+  patternType: 'positioning',
+  description: 'Thai vowels can appear above, below, before, or after their consonant.',
+  children: [
+    {
+      type: 'example',
+      id: 'wp-ex-1',
+      text: 'เ-',
+      translation: 'Short e vowel — written before consonant',
+      value: 'เ-'
+    },
+    {
+      type: 'example',
+      id: 'wp-ex-2',
+      text: '-ิ',
+      translation: 'Short i vowel — written above consonant',
+      value: '-ิ'
+    }
+  ]
+}
+```
+
+**Key Transformations:**
+- Container directive `:::writing-pattern` → `type: 'writingPattern'`
+- `patternType` is required (positioning, stroke-order, ligature, combination, etc.)
+- Children can be `ExampleNode` or `ContentNode`
+- First paragraph → `description` field
+
 ## Text Extraction Details
 
 ### How Bold Text is Handled
@@ -429,6 +590,7 @@ pnpm test
 ```
 
 **Test Coverage:**
-- ✅ 169 tests passing in `@syllst/core`
+- ✅ 197 tests passing in `@syllst/core`
+- ✅ 37 tests passing in `@syllst/processor`
 - ✅ Complete validation testing for all node types
 - ✅ Real-world lesson file examples

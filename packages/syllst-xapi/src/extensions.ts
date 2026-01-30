@@ -8,7 +8,21 @@
  */
 
 import { z } from "zod";
+import {
+  Bcp47Schema,
+  CEFRLevelSchema,
+  DifficultyLevelSchema,
+} from "@syllst/core/schemas";
 import { SYLLST_XAPI_NAMESPACE } from "./types.js";
+
+// Re-export core schemas for convenience
+export { Bcp47Schema, CEFRLevelSchema };
+
+/**
+ * @deprecated Use DifficultyLevelSchema from @syllst/core/schemas
+ */
+export const DifficultySchema = DifficultyLevelSchema;
+export { DifficultyLevelSchema };
 
 // ============================================================
 // Extension IRI Constants
@@ -70,30 +84,8 @@ export type ExtensionIRI =
 // Value Schemas (reusable)
 // ============================================================
 
-/**
- * BCP 47 language tag (basic validation).
- * Accepts codes like "en", "th", "ja", "en-US".
- */
-export const Bcp47Schema = z
-  .string()
-  .min(2)
-  .max(11)
-  .regex(
-    /^[a-z]{2,3}(-[A-Z][a-zA-Z]{1,7})?$/,
-    "Must be a valid BCP 47 language tag"
-  );
-
-/**
- * CEFR proficiency level.
- */
-export const CEFRLevelSchema = z.enum([
-  "A1",
-  "A2",
-  "B1",
-  "B2",
-  "C1",
-  "C2",
-]);
+// Bcp47Schema, CEFRLevelSchema, and DifficultyLevelSchema
+// are imported from @syllst/core/schemas and re-exported above.
 
 /**
  * Transcription system identifier.
@@ -123,23 +115,25 @@ export const AccuracyScoreSchema = z
   .min(0)
   .max(1);
 
-/**
- * Difficulty level.
- */
-export const DifficultySchema = z.enum([
-  "beginner",
-  "intermediate",
-  "advanced",
-]);
+// DifficultySchema alias is defined at the top of this file.
 
 /**
- * Character type.
+ * xAPI character type — strict 3-value subset
+ * used in activity extensions. For the full set
+ * of character types, use CharacterTypeSchema
+ * from @syllst/core/schemas.
  */
-export const CharacterTypeSchema = z.enum([
+export const XapiCharacterTypeSchema = z.enum([
   "consonant",
   "vowel",
   "tone-mark",
 ]);
+
+/**
+ * @deprecated Use XapiCharacterTypeSchema
+ */
+export const CharacterTypeSchema =
+  XapiCharacterTypeSchema;
 
 // ============================================================
 // Typed Extension Value Maps
@@ -230,8 +224,8 @@ export const ActivityExtensionsSchema = z
     [EXTENSIONS.WORD_CLASS]:
       z.string().min(1).optional(),
     [EXTENSIONS.CHARACTER_TYPE]:
-      CharacterTypeSchema.optional(),
+      XapiCharacterTypeSchema.optional(),
     [EXTENSIONS.DIFFICULTY]:
-      DifficultySchema.optional(),
+      DifficultyLevelSchema.optional(),
   })
   .passthrough();

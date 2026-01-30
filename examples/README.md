@@ -109,8 +109,9 @@ The syllst structure follows this hierarchy:
 ```
 SyllabusRoot (Course)
   └── ChapterNode (Module/Chapter)
-      └── LessonAstNode (Lesson/Unit)
-          └── Content Nodes (Grammar, Vocabulary, Exercises, etc.)
+      └── SectionNode (optional grouping)
+          └── LessonAstNode (Lesson/Unit)
+              └── Content Nodes
 ```
 
 ### Structure Levels
@@ -121,14 +122,22 @@ SyllabusRoot (Course)
    - Example: `course-syllabus.mdx`
 
 2. **ChapterNode** - Organizational unit
-   - Groups related lessons
-   - Contains lessons as children
+   - Groups related sections or lessons
    - Example: `chapter-foundation.mdx`
 
-3. **LessonAstNode** - Individual lesson
-   - Contains learning content
-   - Grammar, vocabulary, exercises, dialogues
-   - Example: `basic-lesson.mdx`
+3. **SectionNode** - Optional sub-grouping within a chapter
+
+4. **LessonAstNode** - Individual lesson containing content nodes:
+   - `GrammarRuleNode` - Grammar explanations with examples
+   - `VocabularySetNode` / `VocabularyItemNode` - Vocabulary items
+   - `CharacterSetNode` / `CharacterItemNode` - Alphabet/script characters
+   - `ExampleSetNode` / `ExampleNode` - Example sentences
+   - `ExerciseNode` - Practice exercises
+   - `DialogueNode` / `DialogueTurnNode` - Conversations
+   - `PhonologicalRuleNode` / `RuleConditionNode` - Phonological rules (tone, sound change)
+   - `SyllablePatternNode` / `PatternExampleNode` - Syllable structure patterns
+   - `WritingPatternNode` - Writing system rules (positioning, stroke order)
+   - `ContentNode` - Generic content (markdown, text, html)
 
 ## Pipeline Overview
 

@@ -24,6 +24,12 @@ import type {
   GenderVariants,
   Transcription,
   TranscriptionObject,
+  PhonologicalRuleNode,
+  RuleConditionNode,
+  SyllablePatternNode,
+  PatternExampleNode,
+  WritingPatternNode,
+  PhonologicalRuleType,
 } from '@syllst/core/types';
 
 /**
@@ -272,6 +278,7 @@ function transformCharacterItem(directive: DirectiveNode): Partial<CharacterItem
     exampleWords,
     notes,
     audioPath,
+    canonicalRef,
   } = directive.attributes || {};
 
   // Extract data:* attributes
@@ -297,6 +304,7 @@ function transformCharacterItem(directive: DirectiveNode): Partial<CharacterItem
     exampleWords: parsedExampleWords,
     notes,
     audioPath,
+    canonicalRef,
     value: char, // For Literal compatibility
     data: dataAttrs,
   };
@@ -394,6 +402,9 @@ function transformExercise(directive: DirectiveNode): Partial<ExerciseNode> {
     type: exerciseType = 'open-ended',
     title,
     difficulty,
+    skill,
+    tests,
+    objectiveId,
   } = directive.attributes || {};
 
   // Extract question, answer, explanation from children
@@ -544,6 +555,9 @@ function transformExercise(directive: DirectiveNode): Partial<ExerciseNode> {
     answer: answerItems.length > 0 ? (answerItems.length === 1 ? answerItems[0] : answerItems.join('\n')) : '',
     explanation,
     difficulty: difficulty as 'beginner' | 'intermediate' | 'advanced' | undefined,
+    skill,
+    tests: tests ? tests.split(',').map(t => t.trim()) : undefined,
+    objectiveId,
     children: [], // Exercise nodes require children array (empty if no additional content)
   };
 }
@@ -888,6 +902,243 @@ function collectSiblingContent(parent: any, startIndex: number): any[] {
   return siblings;
 }
 
+// ============================================================================
+// Phonological Rule, Syllable Pattern, Writing Pattern Transforms (v0.3.0)
+// ============================================================================
+
+/**
+ * Transform leaf directive to RuleConditionNode
+ *
+ * Usage:
+ * ::rule-condition{condition='{"consonantClass":"middle","toneMark":"mai-ek"}' result="low" example="ไก่" exampleTranscription="gài" exampleTranslation="chicken"}
+ */
+function transformRuleCondition(directive: DirectiveNode): Partial<RuleConditionNode> {
+  const {
+    id,
+    result = '',
+    example,
+    exampleTranscription,
+    exampleTranslation,
+    notes,
+  } = directive.attributes || {};
+
+  // Parse condition from JSON attribute
+  let condition: Record<string, string> = {};
+  const conditionAttr = directive.attributes?.condition;
+  if (conditionAttr) {
+    try {
+      condition = JSON.parse(conditionAttr);
+    } catch {
+      // If not valid JSON, treat as single key-value
+      condition = { rule: conditionAttr };
+    }
+  }
+
+  // Build a readable value string from condition + result
+  const conditionStr = Object.entries(condition)
+    .map(([k, v]) => `${k}=${v}`)
+    .join(', ');
+  const value = `${conditionStr} → ${result}`;
+
+  return {
+    type: 'ruleCondition',
+    id,
+    condition,
+    result,
+    example,
+    exampleTranscription,
+    exampleTranslation,
+    notes,
+    value,
+  };
+}
+
+/**
+ * Transform container directive to PhonologicalRuleNode
+ *
+ * Usage:
+ * :::phonological-rule{id="tone-rules-middle" title="Tone Rules for Middle-Class" ruleType="tone"}
+ * Middle-class consonants produce all 5 tones with tone marks.
+ *
+ * ::rule-condition{condition='{"consonantClass":"middle","toneMark":"none"}' result="mid" example="กา" exampleTranscription="gaa" exampleTranslation="crow"}
+ * ::rule-condition{condition='{"consonantClass":"middle","toneMark":"mai-ek"}' result="low" example="ไก่" exampleTranscription="gài" exampleTranslation="chicken"}
+ * :::
+ */
+function transformPhonologicalRule(directive: DirectiveNode): Partial<PhonologicalRuleNode> {
+  const {
+    id = '',
+    title = '',
+    ruleType = 'tone',
+    description: descAttr,
+    exceptions,
+    relatedRules,
+  } = directive.attributes || {};
+
+  // Extract description from first paragraph if not in attributes
+  let description = descAttr;
+  const children: any[] = [];
+
+  if (directive.children) {
+    for (const child of directive.children) {
+      if (child.type === 'paragraph' && !description) {
+        description = extractTextContent(child);
+      } else if (child.type === 'leafDirective' && child.name === 'rule-condition') {
+        children.push(transformRuleCondition(child));
+      } else if (child.type === 'leafDirective' && child.name === 'example') {
+        children.push(transformExample(child));
+      } else if (child.type === 'containerDirective' && child.name === 'example') {
+        children.push(transformExample(child));
+      } else if (child.type === 'paragraph' && description) {
+        // Additional paragraphs become content nodes
+        children.push({
+          type: 'content',
+          format: 'text',
+          value: extractTextContent(child),
+        });
+      }
+    }
+  }
+
+  return {
+    type: 'phonologicalRule',
+    id,
+    title,
+    ruleType: ruleType as PhonologicalRuleType,
+    description,
+    exceptions,
+    relatedRules: relatedRules ? relatedRules.split(',').map(r => r.trim()) : undefined,
+    children,
+  };
+}
+
+/**
+ * Transform leaf directive to PatternExampleNode
+ *
+ * Usage:
+ * ::pattern-example{text="กา" transcription="gaa" translation="crow" references="chicken" data:consonantClass="middle" data:syllableType="live" data:tone="mid"}
+ */
+function transformPatternExample(directive: DirectiveNode): Partial<PatternExampleNode> {
+  const {
+    text = '',
+    transcription,
+    translation,
+    notes,
+    references,
+  } = directive.attributes || {};
+
+  const dataAttrs = extractDataAttributes(directive.attributes);
+
+  return {
+    type: 'patternExample',
+    text,
+    transcription: parseTranscription(transcription),
+    translation,
+    notes,
+    references: references ? references.split(',').map(r => r.trim()) : undefined,
+    value: text,
+    data: dataAttrs,
+  };
+}
+
+/**
+ * Transform container directive to SyllablePatternNode
+ *
+ * Usage:
+ * :::syllable-pattern{id="live-syllables" title="Live Syllables" patternType="live" structure="CV"}
+ * Live syllables end in a long vowel or a sonorant consonant.
+ *
+ * ::pattern-example{text="กา" transcription="gaa" translation="crow" data:tone="mid"}
+ * :::
+ */
+function transformSyllablePattern(directive: DirectiveNode): Partial<SyllablePatternNode> {
+  const {
+    id = '',
+    title = '',
+    patternType,
+    structure,
+    description: descAttr,
+  } = directive.attributes || {};
+
+  let description = descAttr;
+  const children: any[] = [];
+
+  if (directive.children) {
+    for (const child of directive.children) {
+      if (child.type === 'paragraph' && !description) {
+        description = extractTextContent(child);
+      } else if (child.type === 'leafDirective' && child.name === 'pattern-example') {
+        children.push(transformPatternExample(child));
+      } else if (child.type === 'paragraph' && description) {
+        children.push({
+          type: 'content',
+          format: 'text',
+          value: extractTextContent(child),
+        });
+      }
+    }
+  }
+
+  return {
+    type: 'syllablePattern',
+    id,
+    title,
+    patternType,
+    structure,
+    description,
+    children,
+  };
+}
+
+/**
+ * Transform container directive to WritingPatternNode
+ *
+ * Usage:
+ * :::writing-pattern{id="vowel-positioning" title="Vowel Positioning Rules" patternType="positioning"}
+ * Thai vowels can appear above, below, before, or after their consonant.
+ *
+ * ::example{text="เ-" translation="Short e vowel — written before consonant"}
+ * :::
+ */
+function transformWritingPattern(directive: DirectiveNode): Partial<WritingPatternNode> {
+  const {
+    id = '',
+    title = '',
+    patternType = 'positioning',
+    description: descAttr,
+  } = directive.attributes || {};
+
+  let description = descAttr;
+  const children: any[] = [];
+
+  if (directive.children) {
+    for (const child of directive.children) {
+      if (child.type === 'paragraph' && !description) {
+        description = extractTextContent(child);
+      } else if (
+        (child.type === 'leafDirective' || child.type === 'containerDirective') &&
+        child.name === 'example'
+      ) {
+        children.push(transformExample(child));
+      } else if (child.type === 'paragraph' && description) {
+        children.push({
+          type: 'content',
+          format: 'text',
+          value: extractTextContent(child),
+        });
+      }
+    }
+  }
+
+  return {
+    type: 'writingPattern',
+    id,
+    title,
+    patternType,
+    description,
+    children,
+  };
+}
+
 /**
  * Remark plugin to transform syllabus directives
  */
@@ -951,6 +1202,26 @@ export const remarkSyllabusDirectives: Plugin<[], MdastRoot> = function () {
         case 'cultural-note':
           // Cultural notes are handled inside dialogue, but can also be standalone
           // For standalone notes, we could create a ContentNode
+          break;
+
+        case 'phonological-rule':
+          Object.assign(node, transformPhonologicalRule(directive));
+          break;
+
+        case 'rule-condition':
+          Object.assign(node, transformRuleCondition(directive));
+          break;
+
+        case 'syllable-pattern':
+          Object.assign(node, transformSyllablePattern(directive));
+          break;
+
+        case 'pattern-example':
+          Object.assign(node, transformPatternExample(directive));
+          break;
+
+        case 'writing-pattern':
+          Object.assign(node, transformWritingPattern(directive));
           break;
       }
     });

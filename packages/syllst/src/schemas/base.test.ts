@@ -21,6 +21,8 @@ import {
   CharacterTransliterationSchema,
   CharacterVariantSchema,
   ExerciseItemSchema,
+  LearningObjectiveSchema,
+  PhonologicalRuleTypeSchema,
 } from './base';
 
 describe('Base Zod Schemas', () => {
@@ -189,9 +191,26 @@ describe('Base Zod Schemas', () => {
       expect(CharacterTypeSchema.safeParse('consonant').success).toBe(true);
     });
 
-    it('should reject invalid types', () => {
-      expect(CharacterTypeSchema.safeParse('diphthong').success).toBe(false);
-      expect(CharacterTypeSchema.safeParse('semivowel').success).toBe(false);
+    it('should accept extended types via string escape hatch', () => {
+      // CharacterTypeSchema now accepts any string for language-specific types
+      expect(CharacterTypeSchema.safeParse('diphthong').success).toBe(true);
+      expect(CharacterTypeSchema.safeParse('semivowel').success).toBe(true);
+    });
+
+    it('should accept all core character types', () => {
+      const coreTypes = [
+        'consonant', 'vowel', 'tone-mark', 'number', 'symbol',
+        'diacritic', 'modifier', 'punctuation', 'radical',
+        'logograph', 'syllable-block',
+      ];
+      for (const t of coreTypes) {
+        expect(CharacterTypeSchema.safeParse(t).success).toBe(true);
+      }
+    });
+
+    it('should reject non-string types', () => {
+      expect(CharacterTypeSchema.safeParse(123).success).toBe(false);
+      expect(CharacterTypeSchema.safeParse(null).success).toBe(false);
     });
   });
 
@@ -500,8 +519,88 @@ describe('Base Zod Schemas', () => {
         question: 'Test?',
         answer: '',
       });
-      
+
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe('LearningObjectiveSchema', () => {
+    it('should validate minimal objective', () => {
+      const result = LearningObjectiveSchema.safeParse({
+        id: 'obj-001',
+        description: 'Recognize all middle-class consonants',
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should validate complete objective with skill and references', () => {
+      const result = LearningObjectiveSchema.safeParse({
+        id: 'obj-tone',
+        description: 'Apply tone rules for middle-class consonants',
+        masteryScore: 0.8,
+        isPrimary: true,
+        skill: 'tone-rule-application',
+        references: ['tone-mid', 'tone-high', 'tone-low'],
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.skill).toBe('tone-rule-application');
+        expect(result.data.references).toEqual(['tone-mid', 'tone-high', 'tone-low']);
+        expect(result.data.masteryScore).toBe(0.8);
+        expect(result.data.isPrimary).toBe(true);
+      }
+    });
+
+    it('should validate objective without skill/references (backwards compatible)', () => {
+      const result = LearningObjectiveSchema.safeParse({
+        id: 'obj-legacy',
+        description: 'Learn basic greetings',
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.skill).toBeUndefined();
+        expect(result.data.references).toBeUndefined();
+      }
+    });
+
+    it('should reject empty id', () => {
+      const result = LearningObjectiveSchema.safeParse({
+        id: '',
+        description: 'Test',
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it('should reject empty description', () => {
+      const result = LearningObjectiveSchema.safeParse({
+        id: 'obj-001',
+        description: '',
+      });
+
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe('PhonologicalRuleTypeSchema', () => {
+    it('should accept core rule types', () => {
+      const coreTypes = ['tone', 'sound-change', 'assimilation', 'elision', 'liaison', 'sandhi'];
+      for (const t of coreTypes) {
+        expect(PhonologicalRuleTypeSchema.safeParse(t).success).toBe(true);
+      }
+    });
+
+    it('should accept custom rule types via string escape hatch', () => {
+      expect(PhonologicalRuleTypeSchema.safeParse('vowel-reduction').success).toBe(true);
+      expect(PhonologicalRuleTypeSchema.safeParse('palatalization').success).toBe(true);
+    });
+
+    it('should reject non-string types', () => {
+      expect(PhonologicalRuleTypeSchema.safeParse(123).success).toBe(false);
+      expect(PhonologicalRuleTypeSchema.safeParse(null).success).toBe(false);
     });
   });
 });

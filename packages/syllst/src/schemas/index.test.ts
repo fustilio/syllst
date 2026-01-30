@@ -70,6 +70,11 @@ describe('Validation Functions', () => {
         'metadata',
         'dialogue',
         'dialogueTurn',
+        'phonologicalRule',
+        'ruleCondition',
+        'syllablePattern',
+        'patternExample',
+        'writingPattern',
       ];
 
       for (const type of knownTypes) {
