@@ -8,6 +8,26 @@
 
 import { visit } from 'unist-util-visit';
 import type { SyllabusRoot, LessonAstNode, ContentNode } from '@syllst/core';
+import {
+  SYLLST_ERROR_CODES,
+  type SyllstErrorCode,
+} from './error-codes.js';
+
+/**
+ * Structured validation issue with error code
+ */
+export interface ValidationIssue {
+  /** Error code for programmatic consumption */
+  code: SyllstErrorCode;
+  /** Human-readable error message */
+  message: string;
+  /** Path to the error location in the node tree */
+  path?: string[];
+  /** Severity of the issue */
+  severity: 'error' | 'warning';
+  /** Additional context about the error */
+  context?: Record<string, unknown>;
+}
 
 /**
  * Validation result for references
@@ -22,8 +42,10 @@ export interface ReferenceValidationResult {
     nodeType: string;
     location?: string;
   }>;
-  /** Warnings */
+  /** Warnings (deprecated: use 'issues' instead) */
   warnings: string[];
+  /** Structured validation issues with error codes */
+  issues?: ValidationIssue[];
 }
 
 /**
@@ -45,6 +67,7 @@ export function validateReferences(
 ): ReferenceValidationResult {
   const unresolvedGlostRefs: ReferenceValidationResult['unresolvedGlostRefs'] = [];
   const warnings: string[] = [];
+  const issues: ValidationIssue[] = [];
 
   // Build lookup maps
   const glostIds = new Set(options.glostDocumentIds || []);
@@ -61,12 +84,27 @@ export function validateReferences(
           contentNode.ref
         ) {
           if (!glostIds.has(contentNode.ref)) {
+            const location = contentNode.position
+              ? `line ${contentNode.position?.start?.line || 'unknown'}`
+              : undefined;
+
             unresolvedGlostRefs.push({
               ref: contentNode.ref,
               nodeType: 'content',
-              location: contentNode.position
-                ? `line ${contentNode.position?.start?.line || 'unknown'}`
-                : undefined,
+              location,
+            });
+
+            // Add structured issue
+            issues.push({
+              code: SYLLST_ERROR_CODES.UNRESOLVED_GLOST_REFERENCE,
+              message: `Unresolved GLOST reference: ${contentNode.ref}`,
+              severity: options.warnOnly ? 'warning' : 'error',
+              context: {
+                ref: contentNode.ref,
+                nodeType: 'content',
+                location,
+                format: contentNode.format,
+              },
             });
           }
         }
@@ -80,12 +118,25 @@ export function validateReferences(
     warnings.push(
       `Found ${unresolvedGlostRefs.length} unresolved GLOST references`
     );
+
+    // Add summary issue for multiple unresolved references
+    if (unresolvedGlostRefs.length > 1) {
+      issues.push({
+        code: SYLLST_ERROR_CODES.MULTIPLE_UNRESOLVED_GLOST_REFS,
+        message: `Found ${unresolvedGlostRefs.length} unresolved GLOST references`,
+        severity: 'error',
+        context: {
+          count: unresolvedGlostRefs.length,
+        },
+      });
+    }
   }
 
   return {
     valid,
     unresolvedGlostRefs,
     warnings,
+    issues,
   };
 }
 

@@ -1589,6 +1589,27 @@ export interface CourseIndices {
 }
 
 /**
+ * Difficulty breakdown - detailed difficulty scoring with contributing factors
+ */
+export interface DifficultyBreakdown {
+  /** Overall difficulty level */
+  overall: 'beginner' | 'intermediate' | 'advanced';
+  /** Normalized difficulty score (0-100) */
+  score: number;
+  /** Individual contributing factors (0-100 each) */
+  factors: {
+    /** Exercise complexity based on exercise type weights */
+    exerciseComplexity: number;
+    /** Vocabulary density (items per exercise/lesson ratio) */
+    vocabularyDensity: number;
+    /** Prerequisite depth (deepest dependency chain) */
+    prerequisiteDepth: number;
+    /** Content mix score (diversity of content types) */
+    contentMixScore: number;
+  };
+}
+
+/**
  * Course statistics - aggregated statistics across all lessons
  */
 export interface CourseStatistics {
@@ -1610,6 +1631,8 @@ export interface CourseStatistics {
   difficultyDistribution: Partial<Record<GrammarDifficulty, number>>;
   /** Exercise type distribution (type -> count) */
   exerciseTypeDistribution: Partial<Record<ExerciseType, number>>;
+  /** Enhanced difficulty breakdown with contributing factors */
+  difficultyBreakdown: DifficultyBreakdown;
 }
 
 /**

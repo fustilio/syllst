@@ -5,6 +5,7 @@
  * Can be used in the build pipeline to validate parsed content.
  */
 
+import { z } from 'zod';
 import {
   validateNode as validateNodeSchema,
   validateLesson as validateLessonSchema,
@@ -18,11 +19,14 @@ import {
   validateReferences,
   type ReferenceValidationResult,
   type ReferenceValidationOptions,
+  type ValidationIssue,
 } from './reference-validator.js';
+import { SYLLST_ERROR_CODES } from './error-codes.js';
 
 // Re-export types
 export type { ValidationResult, ValidateOptions };
 export type { ReferenceValidationResult, ReferenceValidationOptions };
+export type { ValidationIssue };
 
 /**
  * Validate any syllst node
@@ -117,6 +121,133 @@ export {
 };
 
 /**
+ * Convert Zod errors to structured ValidationIssues with error codes
+ */
+export function zodErrorsToIssues(zodError: z.ZodError): ValidationIssue[] {
+  return zodError.issues.map((issue) => {
+    let code: string = SYLLST_ERROR_CODES.SCHEMA_VALIDATION_FAILED;
+
+    // Map specific Zod error codes to Syllst error codes
+    if (issue.code === 'invalid_type') {
+      if (issue.path.includes('type') || issue.message.includes('type')) {
+        code = SYLLST_ERROR_CODES.INVALID_FIELD_TYPE;
+      } else {
+        code = SYLLST_ERROR_CODES.INVALID_FIELD_TYPE;
+      }
+    } else if (issue.code === 'custom') {
+      if (issue.message.includes('type')) {
+        code = SYLLST_ERROR_CODES.MISSING_TYPE;
+      } else {
+        code = SYLLST_ERROR_CODES.SCHEMA_VALIDATION_FAILED;
+      }
+    }
+    // Note: invalid_string and invalid_enum_value are handled by Zod v3
+    // We map other errors to generic SCHEMA_VALIDATION_FAILED
+
+    const path = issue.path.length > 0 ? issue.path.map(String) : undefined;
+
+    return {
+      code: code as any, // Type assertion needed for SyllstErrorCode
+      message: issue.message,
+      path,
+      severity: 'error' as const,
+      context: {
+        zodCode: issue.code,
+        received: 'received' in issue ? issue.received : undefined,
+        expected: 'expected' in issue ? issue.expected : undefined,
+      },
+    };
+  });
+}
+
+/**
+ * Enhanced validation result with structured issues
+ */
+export interface EnhancedValidationResult<T = unknown>
+  extends ValidationResult<T> {
+  /** Structured validation issues with error codes */
+  issues?: ValidationIssue[];
+}
+
+/**
+ * Validate any syllst node with structured error codes
+ *
+ * Enhanced version of validateNode that returns structured ValidationIssues
+ */
+export function validateNodeWithCodes<T = unknown>(
+  node: unknown,
+  options?: ValidateOptions
+): EnhancedValidationResult<T> {
+  const result = validateNodeSchema(node, options);
+
+  if (result.errors) {
+    return {
+      ...result,
+      data: result.data as T | undefined,
+      issues: zodErrorsToIssues(result.errors),
+    } as EnhancedValidationResult<T>;
+  }
+
+  return {
+    ...result,
+    data: result.data as T | undefined,
+    issues: [],
+  } as EnhancedValidationResult<T>;
+}
+
+/**
+ * Validate a lesson node with structured error codes
+ *
+ * Enhanced version of validateLesson that returns structured ValidationIssues
+ */
+export function validateLessonWithCodes(
+  lesson: unknown,
+  options?: ValidateOptions
+): EnhancedValidationResult<LessonAstNode> {
+  const result = validateLessonSchema(lesson, options) as ValidationResult<LessonAstNode>;
+
+  if (result.errors) {
+    return {
+      ...result,
+      data: result.data as LessonAstNode | undefined,
+      issues: zodErrorsToIssues(result.errors),
+    } as EnhancedValidationResult<LessonAstNode>;
+  }
+
+  return {
+    ...result,
+    data: result.data as LessonAstNode | undefined,
+    issues: [],
+  } as EnhancedValidationResult<LessonAstNode>;
+}
+
+/**
+ * Validate a dialogue node with structured error codes
+ *
+ * Enhanced version of validateDialogue that returns structured ValidationIssues
+ */
+export function validateDialogueWithCodes(
+  dialogue: unknown,
+  options?: ValidateOptions
+): EnhancedValidationResult<DialogueNode> {
+  const result = validateDialogueSchema(dialogue, options) as ValidationResult<DialogueNode>;
+
+  if (result.errors) {
+    return {
+      ...result,
+      data: result.data as DialogueNode | undefined,
+      issues: zodErrorsToIssues(result.errors),
+    } as EnhancedValidationResult<DialogueNode>;
+  }
+
+  return {
+    ...result,
+    data: result.data as DialogueNode | undefined,
+    issues: [],
+  } as EnhancedValidationResult<DialogueNode>;
+}
+
+/**
  * Multi-stage validation result
  */
 export interface MultiStageValidationResult {
@@ -140,6 +271,8 @@ export interface MultiStageValidationResult {
   allErrors: string[];
   /** All warnings combined */
   allWarnings: string[];
+  /** All structured issues combined (new) */
+  allIssues?: ValidationIssue[];
 }
 
 /**
@@ -207,9 +340,12 @@ export function validateMultiStage(
   // Combine results
   const allErrors: string[] = [];
   const allWarnings: string[] = [];
+  const allIssues: ValidationIssue[] = [];
 
   if (!syntax.valid && syntax.errors) {
     allErrors.push(...formatValidationErrorsSchema(syntax.errors));
+    // Add structured issues from syntax validation
+    allIssues.push(...zodErrorsToIssues(syntax.errors));
   }
   if (!references.valid) {
     if (references.unresolvedGlostRefs.length > 0) {
@@ -220,6 +356,14 @@ export function validateMultiStage(
       );
     }
   }
+  // Collect structured issues from reference validation
+  if (references.issues && references.issues.length > 0) {
+    allIssues.push(...references.issues);
+  }
+  if (glost.issues && glost.issues.length > 0) {
+    allIssues.push(...glost.issues);
+  }
+
   allWarnings.push(...syntax.warnings);
   allWarnings.push(...references.warnings);
   allWarnings.push(...glost.warnings);
@@ -241,5 +385,6 @@ export function validateMultiStage(
     valid,
     allErrors,
     allWarnings,
+    allIssues,
   };
 }

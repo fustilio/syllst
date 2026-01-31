@@ -768,3 +768,493 @@ describe('buildCourseBundleFromSyllabus', () => {
     expect(bundle.statistics.totalExercises).toBe(1);
   });
 });
+
+// ============================================================================
+// Difficulty Breakdown
+// ============================================================================
+
+describe('difficulty breakdown', () => {
+  describe('exercise complexity', () => {
+    it('should score 0 when no exercises exist', () => {
+      const lessons = [makeLesson({ id: 'L1', order: 1 })];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.exerciseComplexity).toBe(0);
+    });
+
+    it('should score low for simple exercise types (matching)', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeExercise('ex1', 'matching'),
+            makeExercise('ex2', 'matching'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.exerciseComplexity).toBe(0);
+    });
+
+    it('should score medium for moderate exercise types (multiple-choice)', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeExercise('ex1', 'multiple-choice'),
+            makeExercise('ex2', 'multiple-choice'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const score = bundle.statistics.difficultyBreakdown.factors.exerciseComplexity;
+      expect(score).toBeGreaterThan(0);
+      expect(score).toBeLessThan(50);
+    });
+
+    it('should score high for complex exercise types (translation, open-ended)', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeExercise('ex1', 'translation'),
+            makeExercise('ex2', 'open-ended'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.exerciseComplexity).toBeGreaterThan(70);
+    });
+
+    it('should calculate weighted average for mixed exercise types', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeExercise('ex1', 'matching'),
+            makeExercise('ex2', 'translation'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const score = bundle.statistics.difficultyBreakdown.factors.exerciseComplexity;
+      expect(score).toBeGreaterThan(30);
+      expect(score).toBeLessThan(80);
+    });
+  });
+
+  describe('vocabulary density', () => {
+    it('should score 0 when no lessons exist', () => {
+      const bundle = buildCourseBundle([], defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.vocabularyDensity).toBe(0);
+    });
+
+    it('should score low for few vocabulary items per lesson', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [
+              { id: 'v1', word: 'word1', translation: 't1' },
+            ]),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.vocabularyDensity).toBeLessThan(30);
+    });
+
+    it('should score medium for moderate vocabulary density', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [
+              { id: 'v1', word: 'word1', translation: 't1' },
+              { id: 'v2', word: 'word2', translation: 't2' },
+              { id: 'v3', word: 'word3', translation: 't3' },
+              { id: 'v4', word: 'word4', translation: 't4' },
+              { id: 'v5', word: 'word5', translation: 't5' },
+              { id: 'v6', word: 'word6', translation: 't6' },
+              { id: 'v7', word: 'word7', translation: 't7' },
+              { id: 'v8', word: 'word8', translation: 't8' },
+            ]),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const score = bundle.statistics.difficultyBreakdown.factors.vocabularyDensity;
+      expect(score).toBeGreaterThan(25);
+      expect(score).toBeLessThan(70);
+    });
+
+    it('should score high for many vocabulary items per lesson', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', Array.from({ length: 20 }, (_, i) => ({
+              id: `v${i}`,
+              word: `word${i}`,
+              translation: `t${i}`,
+            }))),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.vocabularyDensity).toBeGreaterThan(70);
+    });
+
+    it('should add bonus for high vocab-per-exercise ratio', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [
+              { id: 'v1', word: 'word1', translation: 't1' },
+              { id: 'v2', word: 'word2', translation: 't2' },
+              { id: 'v3', word: 'word3', translation: 't3' },
+              { id: 'v4', word: 'word4', translation: 't4' },
+            ]),
+            makeExercise('ex1', 'multiple-choice'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const score = bundle.statistics.difficultyBreakdown.factors.vocabularyDensity;
+      expect(score).toBeGreaterThan(20);
+    });
+  });
+
+  describe('prerequisite depth', () => {
+    it('should score 0 when no prerequisites exist', () => {
+      const lessons = [makeLesson({ id: 'L1', order: 1 })];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.prerequisiteDepth).toBe(0);
+    });
+
+    it('should score low for shallow prerequisite chains', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          metadata: { prerequisites: [] } as any,
+        }),
+        makeLesson({
+          id: 'L2',
+          order: 2,
+          metadata: { prerequisites: ['L1'] } as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const score = bundle.statistics.difficultyBreakdown.factors.prerequisiteDepth;
+      expect(score).toBeLessThan(30);
+    });
+
+    it('should score high for deep prerequisite chains', () => {
+      const lessons = [
+        makeLesson({ id: 'L1', order: 1 }),
+        makeLesson({
+          id: 'L2',
+          order: 2,
+          metadata: { prerequisites: ['L1'] } as any,
+        }),
+        makeLesson({
+          id: 'L3',
+          order: 3,
+          metadata: { prerequisites: ['L2'] } as any,
+        }),
+        makeLesson({
+          id: 'L4',
+          order: 4,
+          metadata: { prerequisites: ['L3'] } as any,
+        }),
+        makeLesson({
+          id: 'L5',
+          order: 5,
+          metadata: { prerequisites: ['L4'] } as any,
+        }),
+        makeLesson({
+          id: 'L6',
+          order: 6,
+          metadata: { prerequisites: ['L5'] } as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.prerequisiteDepth).toBeGreaterThan(60);
+    });
+
+    it('should consider grammar rule dependencies', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeGrammarRule('g1', 'Base', 'Base rule'),
+            makeGrammarRule('g2', 'Level2', 'Extends g1', ['g1']),
+            makeGrammarRule('g3', 'Level3', 'Extends g2', ['g2']),
+            makeGrammarRule('g4', 'Level4', 'Extends g3', ['g3']),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.prerequisiteDepth).toBeGreaterThan(30);
+    });
+  });
+
+  describe('content mix score', () => {
+    it('should score 0 for empty lessons', () => {
+      const bundle = buildCourseBundle([], defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.contentMixScore).toBe(0);
+    });
+
+    it('should score low for single content type', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [{ id: 'v1', word: 'word1', translation: 't1' }]),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.contentMixScore).toBe(20);
+    });
+
+    it('should score medium for 2-3 content types', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [{ id: 'v1', word: 'word1', translation: 't1' }]),
+            makeGrammarRule('g1', 'Rule', 'Explanation'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.contentMixScore).toBe(40);
+    });
+
+    it('should score high for diverse content types', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [{ id: 'v1', word: 'word1', translation: 't1' }]),
+            makeGrammarRule('g1', 'Rule', 'Explanation'),
+            makeExercise('ex1', 'multiple-choice'),
+            { type: 'content', format: 'markdown', value: '# Content' },
+            { type: 'dialogue', id: 'd1', participants: [], children: [] },
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      expect(bundle.statistics.difficultyBreakdown.factors.contentMixScore).toBe(100);
+    });
+
+    it('should calculate average across multiple lessons', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [{ id: 'v1', word: 'word1', translation: 't1' }]),
+          ] as any,
+        }),
+        makeLesson({
+          id: 'L2',
+          order: 2,
+          children: [
+            makeVocabSet('vs2', [{ id: 'v2', word: 'word2', translation: 't2' }]),
+            makeGrammarRule('g1', 'Rule', 'Explanation'),
+            makeExercise('ex1', 'multiple-choice'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      // L1: 20, L2: 60, average: 40
+      expect(bundle.statistics.difficultyBreakdown.factors.contentMixScore).toBe(40);
+    });
+  });
+
+  describe('overall difficulty score', () => {
+    it('should classify as beginner for simple courses', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [
+              { id: 'v1', word: 'word1', translation: 't1' },
+            ]),
+            makeExercise('ex1', 'matching'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const breakdown = bundle.statistics.difficultyBreakdown;
+      expect(breakdown.overall).toBe('beginner');
+      expect(breakdown.score).toBeLessThan(35);
+    });
+
+    it('should classify as intermediate for moderate courses', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', Array.from({ length: 10 }, (_, i) => ({
+              id: `v${i}`,
+              word: `word${i}`,
+              translation: `t${i}`,
+            }))),
+            makeGrammarRule('g1', 'Rule', 'Explanation'),
+            makeExercise('ex1', 'fill-in-blank'),
+            makeExercise('ex2', 'multiple-choice'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const breakdown = bundle.statistics.difficultyBreakdown;
+      expect(breakdown.overall).toBe('intermediate');
+      expect(breakdown.score).toBeGreaterThanOrEqual(35);
+      expect(breakdown.score).toBeLessThan(70);
+    });
+
+    it('should classify as advanced for complex courses', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', Array.from({ length: 20 }, (_, i) => ({
+              id: `v${i}`,
+              word: `word${i}`,
+              translation: `t${i}`,
+            }))),
+            makeGrammarRule('g1', 'Rule 1', 'Explanation'),
+            makeGrammarRule('g2', 'Rule 2', 'Depends on g1', ['g1']),
+            makeGrammarRule('g3', 'Rule 3', 'Depends on g2', ['g2']),
+            makeExercise('ex1', 'translation'),
+            makeExercise('ex2', 'open-ended'),
+            { type: 'dialogue', id: 'd1', participants: [], children: [] },
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const breakdown = bundle.statistics.difficultyBreakdown;
+      expect(breakdown.overall).toBe('advanced');
+      expect(breakdown.score).toBeGreaterThanOrEqual(70);
+    });
+
+    it('should return all factor scores between 0 and 100', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', [{ id: 'v1', word: 'word1', translation: 't1' }]),
+            makeExercise('ex1', 'multiple-choice'),
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const { factors } = bundle.statistics.difficultyBreakdown;
+
+      expect(factors.exerciseComplexity).toBeGreaterThanOrEqual(0);
+      expect(factors.exerciseComplexity).toBeLessThanOrEqual(100);
+
+      expect(factors.vocabularyDensity).toBeGreaterThanOrEqual(0);
+      expect(factors.vocabularyDensity).toBeLessThanOrEqual(100);
+
+      expect(factors.prerequisiteDepth).toBeGreaterThanOrEqual(0);
+      expect(factors.prerequisiteDepth).toBeLessThanOrEqual(100);
+
+      expect(factors.contentMixScore).toBeGreaterThanOrEqual(0);
+      expect(factors.contentMixScore).toBeLessThanOrEqual(100);
+    });
+
+    it('should calculate overall score as weighted average', () => {
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          children: [
+            makeVocabSet('vs1', Array.from({ length: 10 }, (_, i) => ({
+              id: `v${i}`,
+              word: `word${i}`,
+              translation: `t${i}`,
+            }))),
+            makeGrammarRule('g1', 'Rule', 'Explanation'),
+            makeExercise('ex1', 'translation'),
+            { type: 'dialogue', id: 'd1', participants: [], children: [] },
+          ] as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const { factors, score } = bundle.statistics.difficultyBreakdown;
+
+      // Verify it's approximately the weighted average
+      const expectedScore = Math.round(
+        factors.exerciseComplexity * 0.35 +
+        factors.vocabularyDensity * 0.35 +
+        factors.prerequisiteDepth * 0.15 +
+        factors.contentMixScore * 0.15
+      );
+
+      expect(score).toBe(expectedScore);
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty course', () => {
+      const bundle = buildCourseBundle([], defaultOptions);
+      const breakdown = bundle.statistics.difficultyBreakdown;
+
+      expect(breakdown.overall).toBe('beginner');
+      expect(breakdown.score).toBe(0);
+      expect(breakdown.factors.exerciseComplexity).toBe(0);
+      expect(breakdown.factors.vocabularyDensity).toBe(0);
+      expect(breakdown.factors.prerequisiteDepth).toBe(0);
+      expect(breakdown.factors.contentMixScore).toBe(0);
+    });
+
+    it('should handle lessons with no children', () => {
+      const lessons = [makeLesson({ id: 'L1', order: 1, children: [] as any })];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      const breakdown = bundle.statistics.difficultyBreakdown;
+
+      expect(breakdown.overall).toBe('beginner');
+      expect(breakdown.score).toBeLessThan(35);
+    });
+
+    it('should handle circular prerequisite references safely', () => {
+      // This would be an authoring error, but we should not crash
+      const lessons = [
+        makeLesson({
+          id: 'L1',
+          order: 1,
+          metadata: { prerequisites: ['L2'] } as any,
+        }),
+        makeLesson({
+          id: 'L2',
+          order: 2,
+          metadata: { prerequisites: ['L1'] } as any,
+        }),
+      ];
+      const bundle = buildCourseBundle(lessons, defaultOptions);
+      // Should complete without errors
+      expect(bundle.statistics.difficultyBreakdown).toBeDefined();
+    });
+  });
+});

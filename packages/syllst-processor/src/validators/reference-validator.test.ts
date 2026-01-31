@@ -3,6 +3,7 @@ import {
   validateReferences,
   validateGlostReferences,
 } from './reference-validator';
+import { SYLLST_ERROR_CODES } from './error-codes';
 import type { LessonAstNode, SyllabusRoot } from '@syllst/core';
 
 // ============================================================================
@@ -293,5 +294,161 @@ describe('validateGlostReferences', () => {
 
     expect(result.valid).toBe(false);
     expect(result.unresolvedGlostRefs[0].ref).toBe('doc-missing');
+  });
+});
+
+// ============================================================================
+// Structured Error Codes
+// ============================================================================
+
+describe('Structured Error Codes', () => {
+  describe('ValidationIssue structure', () => {
+    it('should return structured issues for unresolved GLOST references', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text', 'doc-missing'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: [],
+      });
+
+      expect(result.issues).toBeDefined();
+      expect(result.issues).toHaveLength(1); // one for unresolved ref (no summary for single error)
+
+      const unresolvedIssue = result.issues?.find(
+        (i) => i.code === SYLLST_ERROR_CODES.UNRESOLVED_GLOST_REFERENCE
+      );
+      expect(unresolvedIssue).toBeDefined();
+      expect(unresolvedIssue?.code).toBe(
+        SYLLST_ERROR_CODES.UNRESOLVED_GLOST_REFERENCE
+      );
+      expect(unresolvedIssue?.message).toContain('doc-missing');
+      expect(unresolvedIssue?.severity).toBe('error');
+      expect(unresolvedIssue?.context?.ref).toBe('doc-missing');
+    });
+
+    it('should include context information in issues', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost-dialogue', 'dialogue', 'missing-dialogue'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: [],
+      });
+
+      const issue = result.issues?.find(
+        (i) => i.code === SYLLST_ERROR_CODES.UNRESOLVED_GLOST_REFERENCE
+      );
+      expect(issue?.context).toBeDefined();
+      expect(issue?.context?.ref).toBe('missing-dialogue');
+      expect(issue?.context?.nodeType).toBe('content');
+      expect(issue?.context?.format).toBe('glost-dialogue');
+    });
+
+    it('should set severity to warning when warnOnly is true', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text', 'doc-missing'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: [],
+        warnOnly: true,
+      });
+
+      const issue = result.issues?.find(
+        (i) => i.code === SYLLST_ERROR_CODES.UNRESOLVED_GLOST_REFERENCE
+      );
+      expect(issue?.severity).toBe('warning');
+    });
+
+    it('should add MULTIPLE_UNRESOLVED_GLOST_REFS for multiple errors', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text 1', 'missing-1'),
+          contentNode('glost', 'text 2', 'missing-2'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: [],
+      });
+
+      const summaryIssue = result.issues?.find(
+        (i) => i.code === SYLLST_ERROR_CODES.MULTIPLE_UNRESOLVED_GLOST_REFS
+      );
+      expect(summaryIssue).toBeDefined();
+      expect(summaryIssue?.message).toContain('2 unresolved');
+      expect(summaryIssue?.context?.count).toBe(2);
+    });
+
+    it('should not add summary issue for single error', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text', 'missing-1'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: [],
+      });
+
+      const summaryIssue = result.issues?.find(
+        (i) => i.code === SYLLST_ERROR_CODES.MULTIPLE_UNRESOLVED_GLOST_REFS
+      );
+      expect(summaryIssue).toBeUndefined();
+    });
+
+    it('should return empty issues array when validation passes', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text', 'doc-001'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: ['doc-001'],
+      });
+
+      expect(result.issues).toBeDefined();
+      expect(result.issues).toHaveLength(0);
+    });
+  });
+
+  describe('Backwards compatibility', () => {
+    it('should maintain existing warnings array', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text', 'missing'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons, {
+        glostDocumentIds: [],
+      });
+
+      expect(result.warnings).toBeDefined();
+      expect(result.warnings).toHaveLength(1);
+      expect(result.warnings[0]).toContain('1 unresolved GLOST references');
+    });
+
+    it('should maintain unresolvedGlostRefs array', () => {
+      const lessons = [
+        makeLesson('L1', [
+          contentNode('glost', 'text', 'missing'),
+        ]),
+      ];
+
+      const result = validateReferences(lessons);
+
+      expect(result.unresolvedGlostRefs).toBeDefined();
+      expect(result.unresolvedGlostRefs).toHaveLength(1);
+      expect(result.unresolvedGlostRefs[0].ref).toBe('missing');
+    });
   });
 });

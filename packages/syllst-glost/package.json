@@ -33,6 +33,7 @@
     "vfile": "catalog:"
   },
   "peerDependencies": {
+    "@syllst/core": ">=0.4.0",
     "glost-core": ">=0.1.0",
     "glost-processor": ">=0.1.0"
   },

@@ -10,6 +10,7 @@ import type {
   CourseManifest,
   CourseIndices,
   CourseStatistics,
+  DifficultyBreakdown,
   VocabularyIndex,
   VocabularyIndexEntry,
   GrammarRuleIndex,
@@ -231,6 +232,224 @@ function buildCourseIndices(lessons: LessonAstNode[]): CourseIndices {
 }
 
 // ============================================================================
+// Difficulty Scoring
+// ============================================================================
+
+/**
+ * Exercise complexity weights by type
+ * Higher weights indicate more difficult exercise types
+ */
+const EXERCISE_COMPLEXITY_WEIGHTS: Record<ExerciseType, number> = {
+  "matching": 1.0,
+  "true-false": 1.2,
+  "multiple-choice": 1.5,
+  "fill-in-blank": 2.0,
+  "pattern-practice": 2.5,
+  "transformation": 3.0,
+  "translation": 3.5,
+  "dialogue": 4.0,
+  "open-ended": 4.5,
+};
+
+/**
+ * Calculate exercise complexity score (0-100)
+ * Based on weighted average of exercise types
+ */
+function calculateExerciseComplexity(
+  indices: CourseIndices
+): number {
+  const exercises = Array.from(indices.exercises.byId.values());
+  if (exercises.length === 0) return 0;
+
+  let totalWeight = 0;
+  for (const exercise of exercises) {
+    totalWeight += EXERCISE_COMPLEXITY_WEIGHTS[exercise.exerciseType] || 1.0;
+  }
+
+  const avgWeight = totalWeight / exercises.length;
+  // Normalize: matching (1.0) = 0, open-ended (4.5) = 100
+  const minWeight = 1.0;
+  const maxWeight = 4.5;
+  return Math.min(100, ((avgWeight - minWeight) / (maxWeight - minWeight)) * 100);
+}
+
+/**
+ * Calculate vocabulary density score (0-100)
+ * Measures vocabulary items per exercise/lesson ratio
+ */
+function calculateVocabularyDensity(
+  lessons: LessonAstNode[],
+  indices: CourseIndices
+): number {
+  const totalVocab = indices.vocabulary.byWord.size;
+  const totalExercises = indices.exercises.byId.size;
+  const totalLessons = lessons.length;
+
+  if (totalLessons === 0) return 0;
+
+  // Calculate vocab-per-lesson ratio
+  const vocabPerLesson = totalVocab / totalLessons;
+
+  // Calculate vocab-per-exercise ratio (if exercises exist)
+  const vocabPerExercise = totalExercises > 0
+    ? totalVocab / totalExercises
+    : vocabPerLesson;
+
+  // Higher density = harder
+  // Normalize based on typical ranges:
+  // Low: 1-5 vocab per lesson = 0-30
+  // Medium: 5-15 vocab per lesson = 30-70
+  // High: 15+ vocab per lesson = 70-100
+  const densityScore = Math.min(100, (vocabPerLesson / 20) * 100);
+
+  // Bonus for high vocab-per-exercise ratio (indicates complex exercises)
+  const exerciseBonus = Math.min(20, vocabPerExercise * 5);
+
+  return Math.min(100, densityScore + exerciseBonus);
+}
+
+/**
+ * Calculate maximum prerequisite depth using BFS
+ */
+function calculatePrerequisiteDepth(
+  lessons: LessonAstNode[],
+  indices: CourseIndices
+): number {
+  // Build lesson prerequisite map
+  const lessonPrereqs = new Map<string, string[]>();
+  for (const lesson of lessons) {
+    if (lesson.metadata?.prerequisites) {
+      lessonPrereqs.set(lesson.id, lesson.metadata.prerequisites);
+    }
+  }
+
+  // Build grammar rule dependency map (already in indices)
+  const grammarDeps = indices.grammarRules.dependencies;
+
+  // Find max depth for lesson prerequisites
+  let maxLessonDepth = 0;
+  for (const lesson of lessons) {
+    const depth = getDepth(lesson.id, lessonPrereqs);
+    maxLessonDepth = Math.max(maxLessonDepth, depth);
+  }
+
+  // Find max depth for grammar rule dependencies
+  let maxGrammarDepth = 0;
+  for (const ruleId of grammarDeps.keys()) {
+    const depth = getDepth(ruleId, grammarDeps);
+    maxGrammarDepth = Math.max(maxGrammarDepth, depth);
+  }
+
+  // Take the maximum of both
+  const maxDepth = Math.max(maxLessonDepth, maxGrammarDepth);
+
+  // Normalize: 0-2 levels = 0-40, 3-5 levels = 40-80, 6+ = 80-100
+  return Math.min(100, (maxDepth / 6) * 100);
+}
+
+/**
+ * Get depth of a node in a dependency graph using BFS
+ */
+function getDepth(
+  nodeId: string,
+  graph: Map<string, string[]>
+): number {
+  const visited = new Set<string>();
+  let depth = 0;
+  let queue: string[] = [nodeId];
+
+  while (queue.length > 0) {
+    const nextQueue: string[] = [];
+    for (const id of queue) {
+      if (visited.has(id)) continue;
+      visited.add(id);
+
+      const deps = graph.get(id);
+      if (deps && deps.length > 0) {
+        nextQueue.push(...deps);
+      }
+    }
+
+    if (nextQueue.length > 0) {
+      depth++;
+      queue = nextQueue;
+    } else {
+      break;
+    }
+  }
+
+  return depth;
+}
+
+/**
+ * Calculate content mix score (0-100)
+ * Higher score for lessons with diverse content types
+ */
+function calculateContentMixScore(
+  lessons: LessonAstNode[]
+): number {
+  if (lessons.length === 0) return 0;
+
+  let totalMixScore = 0;
+
+  for (const lesson of lessons) {
+    const contentTypes = new Set<string>();
+
+    for (const child of lesson.children) {
+      contentTypes.add(child.type);
+    }
+
+    // Score based on diversity (1 type = 20, 2 types = 40, 3+ types = 60+)
+    const mixScore = Math.min(100, contentTypes.size * 20);
+    totalMixScore += mixScore;
+  }
+
+  return totalMixScore / lessons.length;
+}
+
+/**
+ * Calculate overall difficulty breakdown
+ */
+function calculateDifficultyBreakdown(
+  lessons: LessonAstNode[],
+  indices: CourseIndices
+): DifficultyBreakdown {
+  const exerciseComplexity = calculateExerciseComplexity(indices);
+  const vocabularyDensity = calculateVocabularyDensity(lessons, indices);
+  const prerequisiteDepth = calculatePrerequisiteDepth(lessons, indices);
+  const contentMixScore = calculateContentMixScore(lessons);
+
+  // Weighted average: exercises and vocab are most important
+  const score = Math.round(
+    exerciseComplexity * 0.35 +
+    vocabularyDensity * 0.35 +
+    prerequisiteDepth * 0.15 +
+    contentMixScore * 0.15
+  );
+
+  // Determine overall level based on score
+  let overall: 'beginner' | 'intermediate' | 'advanced';
+  if (score < 35) {
+    overall = 'beginner';
+  } else if (score < 70) {
+    overall = 'intermediate';
+  } else {
+    overall = 'advanced';
+  }
+
+  return {
+    overall,
+    score,
+    factors: {
+      exerciseComplexity,
+      vocabularyDensity,
+      prerequisiteDepth,
+      contentMixScore,
+    },
+  };
+}
+
+// ============================================================================
 // Statistics Calculator
 // ============================================================================
 
@@ -287,6 +506,9 @@ function calculateCourseStatistics(
     }
   }
 
+  // Calculate difficulty breakdown
+  const difficultyBreakdown = calculateDifficultyBreakdown(lessons, indices);
+
   return {
     totalLessons: lessons.length,
     totalVocabularyItems,
@@ -297,6 +519,7 @@ function calculateCourseStatistics(
     cefrLevelCoverage,
     difficultyDistribution,
     exerciseTypeDistribution,
+    difficultyBreakdown,
   };
 }
 
