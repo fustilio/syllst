@@ -4,11 +4,11 @@
  * Complete pipeline: MDX → MDAST → Syllabus Unist Tree → Structured Data
  */
 
-import { transformMDASTToSyllabusUnist } from './unist-transformer';
-import { createMDXParser } from './mdx-parser';
-import { remarkSyllabusDirectives } from '../plugins/remark-syllabus-directives';
+import { transformMDASTToSyllabusUnist } from './unist-transformer.js';
+import { createMDXParser } from './mdx-parser.js';
+import { remarkSyllabusDirectives } from '../plugins/remark-syllabus-directives.js';
 import type { LessonAstNode } from '@syllst/core/types';
-import { validateLesson as validateLessonWithZod } from '../validators/zod-validator';
+import { validateLesson as validateLessonWithZod } from '../validators/zod-validator.js';
 
 /**
  * Build options
@@ -45,7 +45,7 @@ export async function buildLessonFromMDX(
   const tree = await parser.run(parsedTree);
 
   // Step 2: Extract frontmatter
-  const { parseMDX: parse } = await import('./mdx-parser');
+  const { parseMDX: parse } = await import('./mdx-parser.js');
   const { frontmatter } = await parse(content, {
     path: options.path,
     extractFrontmatter: true,

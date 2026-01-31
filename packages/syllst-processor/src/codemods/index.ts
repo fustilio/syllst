@@ -8,4 +8,4 @@ export {
   migrateLesson,
   migrateSyllabus,
   migrateToTranscription,
-} from './migrate-to-transcription';
+} from './migrate-to-transcription.js';

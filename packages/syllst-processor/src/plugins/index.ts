@@ -3,4 +3,4 @@
  * Remark plugins for custom MDX directives
  */
 
-export * from './remark-syllabus-directives';
+export * from './remark-syllabus-directives.js';

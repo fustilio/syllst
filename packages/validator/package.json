@@ -1,6 +1,6 @@
 {
   "name": "@syllst/validator",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "CLI tool for validating Syllst MDX content",
   "license": "MIT",
   "type": "module",
@@ -20,7 +20,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"

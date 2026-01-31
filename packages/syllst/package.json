@@ -1,23 +1,23 @@
 {
   "name": "@syllst/core",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Syllabus Syntax Tree (syllst) - Unist-based type definitions and validation schemas for language learning syllabi",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./types": {
-      "types": "./src/types/index.ts",
-      "default": "./src/types/index.ts"
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
     },
     "./schemas": {
-      "types": "./src/schemas/index.ts",
-      "default": "./src/schemas/index.ts"
+      "types": "./dist/schemas/index.d.ts",
+      "default": "./dist/schemas/index.js"
     }
   },
   "repository": {
@@ -26,7 +26,7 @@
     "directory": "packages/syllst"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"
@@ -55,7 +55,7 @@
     "url": "https://github.com/fustilio/syllst/issues"
   },
   "files": [
-    "src",
+    "dist",
     "README.md",
     "LICENSE"
   ],

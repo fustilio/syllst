@@ -4,5 +4,5 @@
  */
 
 // GLOST integration types (future: extract to @syllst/glost)
-export * from './glost';
-export * from './glost-schemas';
+export * from './glost.js';
+export * from './glost-schemas.js';

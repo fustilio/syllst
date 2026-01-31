@@ -3,4 +3,4 @@
  * Utility functions for syllst processing
  */
 
-export * from './dialogue-converters';
+export * from './dialogue-converters.js';

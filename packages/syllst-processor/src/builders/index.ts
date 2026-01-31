@@ -3,7 +3,7 @@
  * MDX to Syllabus Unist transformation pipeline
  */
 
-export * from './mdx-parser';
-export * from './unist-transformer';
-export * from './syllabus-builder';
-export * from './course-builder';
+export * from './mdx-parser.js';
+export * from './unist-transformer.js';
+export * from './syllabus-builder.js';
+export * from './course-builder.js';

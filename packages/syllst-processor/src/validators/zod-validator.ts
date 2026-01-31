@@ -18,7 +18,7 @@ import {
   validateReferences,
   type ReferenceValidationResult,
   type ReferenceValidationOptions,
-} from './reference-validator';
+} from './reference-validator.js';
 
 // Re-export types
 export type { ValidationResult, ValidateOptions };

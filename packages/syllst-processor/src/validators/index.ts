@@ -3,5 +3,5 @@
  * Zod validators for syllabus nodes
  */
 
-export * from './zod-validator';
-export * from './reference-validator';
+export * from './zod-validator.js';
+export * from './reference-validator.js';

@@ -1,43 +1,43 @@
 {
   "name": "@syllst/processor",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "MDX parsing and transformation pipeline for syllst",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./builders": {
-      "types": "./src/builders/index.ts",
-      "default": "./src/builders/index.ts"
+      "types": "./dist/builders/index.d.ts",
+      "default": "./dist/builders/index.js"
     },
     "./plugins": {
-      "types": "./src/plugins/index.ts",
-      "default": "./src/plugins/index.ts"
+      "types": "./dist/plugins/index.d.ts",
+      "default": "./dist/plugins/index.js"
     },
     "./validators": {
-      "types": "./src/validators/index.ts",
-      "default": "./src/validators/index.ts"
+      "types": "./dist/validators/index.d.ts",
+      "default": "./dist/validators/index.js"
     },
     "./utils": {
-      "types": "./src/utils/index.ts",
-      "default": "./src/utils/index.ts"
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     },
     "./config": {
-      "types": "./src/config/index.ts",
-      "default": "./src/config/index.ts"
+      "types": "./dist/config/index.d.ts",
+      "default": "./dist/config/index.js"
     },
     "./codemods": {
-      "types": "./src/codemods/index.ts",
-      "default": "./src/codemods/index.ts"
+      "types": "./dist/codemods/index.d.ts",
+      "default": "./dist/codemods/index.js"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest"
   },
@@ -67,6 +67,12 @@
     "type": "git",
     "url": "https://github.com/fustilio/syllst.git",
     "directory": "packages/syllst-processor"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "syllabus",

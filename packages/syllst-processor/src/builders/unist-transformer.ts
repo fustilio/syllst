@@ -11,7 +11,7 @@ import type {
   LessonAstNode,
   ContentNode,
 } from '@syllst/core/types';
-import type { MDXFrontmatter } from './mdx-parser';
+import type { MDXFrontmatter } from './mdx-parser.js';
 
 /**
  * Options for transforming MDAST to Syllabus Unist

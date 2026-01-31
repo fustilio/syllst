@@ -1,5 +1,13 @@
 # @syllst/examples
 
+## 0.4.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/processor@0.4.2
+  - @syllst/core@0.4.2
+
 ## 0.4.1
 
 ### Patch Changes

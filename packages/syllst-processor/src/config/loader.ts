@@ -10,7 +10,7 @@ import {
   SyllstConfigFileSchema,
   DEFAULT_CONFIG,
   type SyllstConfigFile,
-} from './schema';
+} from './schema.js';
 
 /**
  * Options for loading configuration

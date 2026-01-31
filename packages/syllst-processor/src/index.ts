@@ -35,19 +35,19 @@
 export type * from '@syllst/core/types';
 
 // Export processor-specific types
-export * from './types';
+export * from './types/index.js';
 
 // Export builders
-export * from './builders';
+export * from './builders/index.js';
 
 // Export plugins
-export * from './plugins';
+export * from './plugins/index.js';
 
 // Export validators
-export * from './validators';
+export * from './validators/index.js';
 
 // Export utilities
-export * from './utils';
+export * from './utils/index.js';
 
 // Export configuration
-export * from './config';
+export * from './config/index.js';

@@ -1,35 +1,35 @@
 {
   "name": "@syllst/xapi",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "xAPI profile for language learning - verbs, activity types, extensions, and Zod schemas extending cmi5",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./verbs": {
-      "types": "./src/verbs.ts",
-      "default": "./src/verbs.ts"
+      "types": "./dist/verbs.d.ts",
+      "default": "./dist/verbs.js"
     },
     "./activity-types": {
-      "types": "./src/activity-types.ts",
-      "default": "./src/activity-types.ts"
+      "types": "./dist/activity-types.d.ts",
+      "default": "./dist/activity-types.js"
     },
     "./extensions": {
-      "types": "./src/extensions.ts",
-      "default": "./src/extensions.ts"
+      "types": "./dist/extensions.d.ts",
+      "default": "./dist/extensions.js"
     },
     "./schemas": {
-      "types": "./src/schemas.ts",
-      "default": "./src/schemas.ts"
+      "types": "./dist/schemas.d.ts",
+      "default": "./dist/schemas.js"
     },
     "./profile": {
-      "types": "./src/profile.ts",
-      "default": "./src/profile.ts"
+      "types": "./dist/profile.d.ts",
+      "default": "./dist/profile.js"
     }
   },
   "repository": {
@@ -38,7 +38,7 @@
     "directory": "packages/syllst-xapi"
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"
@@ -66,7 +66,7 @@
     "url": "https://github.com/fustilio/syllst/issues"
   },
   "files": [
-    "src",
+    "dist",
     "README.md",
     "LICENSE"
   ],
