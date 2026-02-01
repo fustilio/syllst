@@ -29,6 +29,7 @@ import {
   isGrammarRuleNode,
   isExerciseNode,
 } from '@syllst/core/types';
+import { visit } from 'unist-util-visit';
 
 // ============================================================================
 // Options
@@ -614,21 +615,9 @@ export function buildCourseBundleFromSyllabus(
 ): CourseBundle {
   // Extract all lessons from the syllabus hierarchy
   const lessons: LessonAstNode[] = [];
-
-  function extractLessons(children: unknown[]): void {
-    for (const child of children) {
-      if (typeof child === 'object' && child !== null && 'type' in child) {
-        const node = child as { type: string; children?: unknown[] };
-        if (node.type === 'lesson') {
-          lessons.push(node as unknown as LessonAstNode);
-        } else if (node.children && Array.isArray(node.children)) {
-          extractLessons(node.children);
-        }
-      }
-    }
-  }
-
-  extractLessons(syllabus.children);
+  visit(syllabus as any, 'lesson', (node: any) => {
+    lessons.push(node as LessonAstNode);
+  });
 
   // Build bundle with syllabus metadata as defaults
   return buildCourseBundle(lessons, {

@@ -5,6 +5,8 @@
  */
 
 import { visit, SKIP } from 'unist-util-visit';
+import { toMarkdown } from 'mdast-util-to-markdown';
+import { gfmToMarkdown } from 'mdast-util-gfm';
 import type { Root as MdastRoot } from 'mdast';
 import type {
   SyllabusRoot,
@@ -81,7 +83,10 @@ export function transformToLessonAstNode(
       children.push({
         type: 'content',
         format: 'markdown',
-        value: extractMarkdown(node),
+        value: toMarkdown(
+          { type: 'root', children: [node] } as MdastRoot,
+          { bullet: '-', extensions: [gfmToMarkdown()] }
+        ).trim(),
       } as ContentNode);
 
       // For lists and tables, skip visiting children since we've already extracted the markdown
@@ -104,93 +109,6 @@ export function transformToLessonAstNode(
     metadata,
     children,
   };
-}
-
-/**
- * Extract markdown text from a node
- */
-function extractMarkdown(node: any): string {
-  if (node.type === 'text') {
-    return node.value;
-  }
-
-  if (node.type === 'heading') {
-    const level = '#'.repeat(node.depth);
-    const text = node.children?.map(extractMarkdown).join('') || '';
-    return `${level} ${text}\n\n`;
-  }
-
-  if (node.type === 'paragraph') {
-    const text = node.children?.map(extractMarkdown).join('') || '';
-    return `${text}\n\n`;
-  }
-
-  if (node.type === 'strong') {
-    const text = node.children?.map(extractMarkdown).join('') || '';
-    return `**${text}**`;
-  }
-
-  if (node.type === 'emphasis') {
-    const text = node.children?.map(extractMarkdown).join('') || '';
-    return `*${text}*`;
-  }
-
-  if (node.type === 'inlineCode') {
-    return `\`${node.value}\``;
-  }
-
-  if (node.type === 'code') {
-    return `\`\`\`${node.lang || ''}\n${node.value}\n\`\`\`\n\n`;
-  }
-
-  if (node.type === 'list') {
-    const items = node.children?.map((item: any, index: number) => {
-      const content = extractMarkdown(item);
-      // Ordered list uses numbers, unordered uses dashes
-      const prefix = node.ordered ? `${index + 1}. ` : '- ';
-      return prefix + content.trim();
-    }).join('\n') || '';
-    return items + '\n\n';
-  }
-
-  if (node.type === 'listItem') {
-    // Extract content from list item children
-    return node.children?.map(extractMarkdown).join('').trim() || '';
-  }
-
-  if (node.type === 'table') {
-    // Extract table as markdown
-    const rows = node.children || [];
-    const result: string[] = [];
-
-    rows.forEach((row: any, rowIndex: number) => {
-      if (row.type === 'tableRow') {
-        const cells = row.children?.map((cell: any) => {
-          const content = cell.children?.map(extractMarkdown).join('').trim() || '';
-          return content;
-        }) || [];
-        result.push('| ' + cells.join(' | ') + ' |');
-
-        // Add header separator after first row
-        if (rowIndex === 0) {
-          result.push('|' + cells.map(() => '---').join('|') + '|');
-        }
-      }
-    });
-
-    return result.join('\n') + '\n\n';
-  }
-
-  if (node.type === 'tableRow' || node.type === 'tableCell') {
-    // Handled by table extraction above
-    return '';
-  }
-
-  if (node.children) {
-    return node.children.map(extractMarkdown).join('');
-  }
-
-  return '';
 }
 
 /**
@@ -249,25 +167,18 @@ export function transformMDASTToSyllabusUnist(
  *
  * Useful for debugging and testing
  */
+const DIRECTIVE_TYPES = new Set([
+  'grammarRule', 'vocabularySet', 'exampleSet', 'exercise',
+  'vocabularyItem', 'example', 'dialogue', 'dialogueTurn',
+  'phonologicalRule', 'ruleCondition', 'syllablePattern',
+  'patternExample', 'writingPattern',
+]);
+
 export function extractDirectiveNodes(tree: MdastRoot): any[] {
   const directives: any[] = [];
 
   visit(tree, (node: any) => {
-    if (
-      node.type === 'grammarRule' ||
-      node.type === 'vocabularySet' ||
-      node.type === 'exampleSet' ||
-      node.type === 'exercise' ||
-      node.type === 'vocabularyItem' ||
-      node.type === 'example' ||
-      node.type === 'dialogue' ||
-      node.type === 'dialogueTurn' ||
-      node.type === 'phonologicalRule' ||
-      node.type === 'ruleCondition' ||
-      node.type === 'syllablePattern' ||
-      node.type === 'patternExample' ||
-      node.type === 'writingPattern'
-    ) {
+    if (DIRECTIVE_TYPES.has(node.type)) {
       directives.push(node);
     }
   });

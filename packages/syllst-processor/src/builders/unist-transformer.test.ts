@@ -189,7 +189,7 @@ describe('transformToLessonAstNode', () => {
       expect(lesson.children).toHaveLength(1);
       const content = lesson.children[0] as any;
       expect(content.value).toContain('| Col A | Col B |');
-      expect(content.value).toContain('| r1a | r1b |');
+      expect(content.value).toMatch(/\|\s*r1a\s*\|\s*r1b\s*\|/);
     });
 
     it('should handle multiple content nodes', () => {

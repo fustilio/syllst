@@ -15,6 +15,7 @@
  * ```
  */
 
+import { map } from 'unist-util-map';
 import type {
   VocabularyItemNode,
   CharacterItemNode,
@@ -179,34 +180,27 @@ function migrateNode(node: unknown): MigrationResult {
     return { node, migrations: [], hadDeprecatedFields: false };
   }
 
-  const obj = node as Record<string, unknown>;
   const allMigrations: string[] = [];
 
-  // Handle specific node types
-  if (obj.type === 'vocabularyItem') {
-    return migrateVocabularyItem(node as LegacyVocabularyItem);
-  }
-
-  if (obj.type === 'characterItem') {
-    return migrateCharacterItem(node as LegacyCharacterItem);
-  }
-
-  // Recursively handle children
-  if ('children' in obj && Array.isArray(obj.children)) {
-    const migratedChildren = obj.children.map((child) => {
-      const result = migrateNode(child);
+  const migrated = map(node as any, (n: any) => {
+    if (n.type === 'vocabularyItem') {
+      const result = migrateVocabularyItem(n as LegacyVocabularyItem);
       allMigrations.push(...result.migrations);
-      return result.node;
-    });
+      return result.node as any;
+    }
+    if (n.type === 'characterItem') {
+      const result = migrateCharacterItem(n as LegacyCharacterItem);
+      allMigrations.push(...result.migrations);
+      return result.node as any;
+    }
+    return n;
+  });
 
-    return {
-      node: { ...obj, children: migratedChildren },
-      migrations: allMigrations,
-      hadDeprecatedFields: allMigrations.length > 0,
-    };
-  }
-
-  return { node, migrations: allMigrations, hadDeprecatedFields: allMigrations.length > 0 };
+  return {
+    node: migrated,
+    migrations: allMigrations,
+    hadDeprecatedFields: allMigrations.length > 0,
+  };
 }
 
 /**

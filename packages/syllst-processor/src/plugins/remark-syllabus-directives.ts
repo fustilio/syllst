@@ -5,6 +5,7 @@
  */
 
 import { visit } from 'unist-util-visit';
+import { toString } from 'mdast-util-to-string';
 import type { Plugin } from 'unified';
 import type { Root as MdastRoot } from 'mdast';
 import type {
@@ -123,7 +124,7 @@ function transformGrammarRule(directive: DirectiveNode): Partial<GrammarRuleNode
     for (const child of directive.children) {
       if (child.type === 'paragraph' && !explanation) {
         // First paragraph is the explanation
-        explanation = extractTextContent(child);
+        explanation = toString(child);
       } else if (child.type === 'containerDirective' && child.name === 'example') {
         // Nested examples
         const exampleNode = transformExample(child);
@@ -422,7 +423,7 @@ function transformExercise(directive: DirectiveNode): Partial<ExerciseNode> {
 
     for (const child of directive.children) {
       if (child.type === 'paragraph') {
-        const text = extractTextContent(child);
+        const text = toString(child);
         // After markdown parsing, **Question:** becomes plain text "Question:"
         // because the strong formatting is already extracted
         if (text.startsWith('Question:')) {
@@ -469,7 +470,7 @@ function transformExercise(directive: DirectiveNode): Partial<ExerciseNode> {
         }
       } else if (child.type === 'list') {
         // Handle numbered lists - store separately for parsing
-        const listText = extractTextContent(child);
+        const listText = extractListText(child);
         if (currentSection) {
           listContent[currentSection] = (listContent[currentSection] || '') + '\n' + listText;
         }
@@ -563,52 +564,15 @@ function transformExercise(directive: DirectiveNode): Partial<ExerciseNode> {
 }
 
 /**
- * Extract text content from a node, preserving line breaks
+ * Extract text from a list node, preserving bullet/number prefixes
+ * for parseListItems() consumption.
  */
-function extractTextContent(node: any, preserveLineBreaks = true): string {
-  if (!node) {
-    return '';
-  }
-
-  if (node.type === 'text') {
-    return node.value || '';
-  }
-
-  // Handle list items specially to preserve structure
-  if (node.type === 'listItem') {
-    const content = node.children?.map((c: any) => extractTextContent(c, preserveLineBreaks)).join('') || '';
-    return content;
-  }
-
-  // Handle lists - join items with newlines
-  if (node.type === 'list') {
-    return node.children?.map((item: any, index: number) => {
-      const content = extractTextContent(item, preserveLineBreaks);
-      // For ordered lists, add numbering
-      if (node.ordered) {
-        return `${index + 1}. ${content}`;
-      }
-      return `- ${content}`;
-    }).join('\n') || '';
-  }
-
-  // Handle paragraphs - add newline after
-  if (node.type === 'paragraph') {
-    const content = node.children?.map((c: any) => extractTextContent(c, preserveLineBreaks)).join('') || '';
-    return content;
-  }
-
-  // Handle strong/emphasis - extract inner text
-  if (node.type === 'strong' || node.type === 'emphasis') {
-    return node.children?.map((c: any) => extractTextContent(c, preserveLineBreaks)).join('') || '';
-  }
-
-  if (node.children && Array.isArray(node.children)) {
-    const separator = preserveLineBreaks ? '\n' : '';
-    return node.children.map((c: any) => extractTextContent(c, preserveLineBreaks)).join(separator);
-  }
-
-  return '';
+function extractListText(node: any): string {
+  if (node.type !== 'list' || !node.children) return toString(node);
+  return node.children.map((item: any, index: number) => {
+    const content = toString(item);
+    return node.ordered ? `${index + 1}. ${content}` : `- ${content}`;
+  }).join('\n');
 }
 
 // ============================================================================
@@ -756,9 +720,9 @@ function transformDialogue(directive: DirectiveNode): Partial<DialogueNode> {
 
         // Extract cultural notes from directive children OR sibling content
         if (siblingContent.length > 0) {
-          culturalNotes = siblingContent.map(node => extractTextContent(node)).join('\n').trim();
+          culturalNotes = siblingContent.map(node => toString(node)).join('\n').trim();
         } else {
-          culturalNotes = extractTextContent(child);
+          culturalNotes = toString(child);
         }
         continue;
       }
@@ -790,7 +754,7 @@ function extractTurnContent(nodes: any[]): { text: string; translation: string; 
 
   for (const child of nodes) {
     if (child.type === 'paragraph') {
-      const content = extractTextContent(child);
+      const content = toString(child);
       if (content.startsWith('#')) {
         // Parse annotation: # en-US: Hello or # transcription: ...
         const match = content.match(/^#\s*(\S+):\s*(.+)$/);
@@ -810,7 +774,7 @@ function extractTurnContent(nodes: any[]): { text: string; translation: string; 
     } else if (child.type === 'heading') {
       // In markdown, # starts a heading - we use this for annotations
       // Parse annotation: # en-US: Hello or # transcription: ...
-      const content = extractTextContent(child);
+      const content = toString(child);
       const match = content.match(/^(\S+):\s*(.+)$/);
       if (match) {
         const [, annotationType, value] = match;
@@ -981,7 +945,7 @@ function transformPhonologicalRule(directive: DirectiveNode): Partial<Phonologic
   if (directive.children) {
     for (const child of directive.children) {
       if (child.type === 'paragraph' && !description) {
-        description = extractTextContent(child);
+        description = toString(child);
       } else if (child.type === 'leafDirective' && child.name === 'rule-condition') {
         children.push(transformRuleCondition(child));
       } else if (child.type === 'leafDirective' && child.name === 'example') {
@@ -993,7 +957,7 @@ function transformPhonologicalRule(directive: DirectiveNode): Partial<Phonologic
         children.push({
           type: 'content',
           format: 'text',
-          value: extractTextContent(child),
+          value: toString(child),
         });
       }
     }
@@ -1065,14 +1029,14 @@ function transformSyllablePattern(directive: DirectiveNode): Partial<SyllablePat
   if (directive.children) {
     for (const child of directive.children) {
       if (child.type === 'paragraph' && !description) {
-        description = extractTextContent(child);
+        description = toString(child);
       } else if (child.type === 'leafDirective' && child.name === 'pattern-example') {
         children.push(transformPatternExample(child));
       } else if (child.type === 'paragraph' && description) {
         children.push({
           type: 'content',
           format: 'text',
-          value: extractTextContent(child),
+          value: toString(child),
         });
       }
     }
@@ -1113,7 +1077,7 @@ function transformWritingPattern(directive: DirectiveNode): Partial<WritingPatte
   if (directive.children) {
     for (const child of directive.children) {
       if (child.type === 'paragraph' && !description) {
-        description = extractTextContent(child);
+        description = toString(child);
       } else if (
         (child.type === 'leafDirective' || child.type === 'containerDirective') &&
         child.name === 'example'
@@ -1123,7 +1087,7 @@ function transformWritingPattern(directive: DirectiveNode): Partial<WritingPatte
         children.push({
           type: 'content',
           format: 'text',
-          value: extractTextContent(child),
+          value: toString(child),
         });
       }
     }

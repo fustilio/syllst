@@ -18,6 +18,15 @@ catalogs:
     '@types/unist':
       specifier: ^3.0.3
       version: 3.0.3
+    mdast-util-gfm:
+      specifier: ^3.1.0
+      version: 3.1.0
+    mdast-util-to-markdown:
+      specifier: ^2.1.2
+      version: 2.1.2
+    mdast-util-to-string:
+      specifier: ^4.0.0
+      version: 4.0.0
     remark:
       specifier: ^15.0.1
       version: 15.0.1
@@ -42,6 +51,9 @@ catalogs:
     unified:
       specifier: ^11.0.5
       version: 11.0.5
+    unist-util-map:
+      specifier: ^4.0.0
+      version: 4.0.0
     unist-util-visit:
       specifier: ^5.1.0
       version: 5.1.0
@@ -155,6 +167,15 @@ importers:
       '@syllst/core':
         specifier: workspace:*
         version: link:../syllst
+      mdast-util-gfm:
+        specifier: 'catalog:'
+        version: 3.1.0
+      mdast-util-to-markdown:
+        specifier: 'catalog:'
+        version: 2.1.2
+      mdast-util-to-string:
+        specifier: 'catalog:'
+        version: 4.0.0
       remark:
         specifier: 'catalog:'
         version: 15.0.1
@@ -176,6 +197,9 @@ importers:
       unified:
         specifier: 'catalog:'
         version: 11.0.5
+      unist-util-map:
+        specifier: 'catalog:'
+        version: 4.0.0
       unist-util-visit:
         specifier: 'catalog:'
         version: 5.1.0

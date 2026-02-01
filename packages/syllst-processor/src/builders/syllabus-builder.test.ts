@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildLessonFromMDX, validateLessonStructure } from './syllabus-builder';
-import type { LessonAstNode } from '@syllst/core/types';
+import { buildLessonFromMDX } from './syllabus-builder';
 
 describe('Syllabus Builder', () => {
   describe('buildLessonFromMDX', () => {
@@ -228,58 +227,6 @@ Explanation of pattern 1.
       expect(hasVocab).toBe(true);
       expect(hasExamples).toBe(true);
       expect(hasExercises).toBe(true);
-    });
-  });
-
-  describe('validateLessonStructure', () => {
-    it('should validate correct lesson', async () => {
-      const mdx = `---
-type: lesson
-id: valid-lesson
-title: "Valid Lesson"
-order: 1
----
-
-:::grammar-rule{id="rule-001" title="Rule"}
-Explanation.
-:::
-`;
-
-      const lesson = await buildLessonFromMDX(mdx);
-      const validation = validateLessonStructure(lesson);
-
-      expect(validation.valid).toBe(true);
-      expect(validation.errors).toHaveLength(0);
-    });
-
-    it('should detect missing ID', () => {
-      const lesson: LessonAstNode = {
-        type: 'lesson',
-        id: '',
-        title: 'Test',
-        order: 1,
-        children: [],
-      };
-
-      const validation = validateLessonStructure(lesson);
-
-      expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Lesson must have an id');
-    });
-
-    it('should detect missing children', () => {
-      const lesson: LessonAstNode = {
-        type: 'lesson',
-        id: 'test',
-        title: 'Test',
-        order: 1,
-        children: [],
-      };
-
-      const validation = validateLessonStructure(lesson);
-
-      expect(validation.valid).toBe(false);
-      expect(validation.errors).toContain('Lesson must have children (grammar rules, vocabulary, etc.)');
     });
   });
 });

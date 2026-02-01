@@ -46,6 +46,9 @@
   },
   "dependencies": {
     "@syllst/core": "workspace:*",
+    "mdast-util-gfm": "catalog:",
+    "mdast-util-to-markdown": "catalog:",
+    "mdast-util-to-string": "catalog:",
     "remark": "catalog:",
     "remark-directive": "catalog:",
     "remark-frontmatter": "catalog:",
@@ -53,6 +56,7 @@
     "remark-mdx": "catalog:",
     "remark-parse": "catalog:",
     "unified": "catalog:",
+    "unist-util-map": "catalog:",
     "unist-util-visit": "catalog:",
     "unist-util-visit-parents": "catalog:",
     "vfile": "catalog:",
