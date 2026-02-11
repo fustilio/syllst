@@ -98,6 +98,9 @@ importers:
       '@syllst/processor':
         specifier: workspace:*
         version: link:../packages/syllst-processor
+      '@syllst/xapi':
+        specifier: workspace:*
+        version: link:../packages/syllst-xapi
     devDependencies:
       '@types/mdast':
         specifier: 'catalog:'

@@ -31,68 +31,211 @@ import { ExtensionsMapSchema } from './extensions.js';
 
 /**
  * Vocabulary item node schema
+ *
+ * Individual word or phrase with translation and metadata. Used for
+ * vocabulary learning in lessons. This is a leaf node (no children).
+ *
+ * @example
+ * ```typescript
+ * import { VocabularyItemNodeSchema } from '@syllst/core/schemas';
+ *
+ * const vocabItem = {
+ *   type: 'vocabularyItem',
+ *   id: 'vocab-hello',
+ *   word: 'สวัสดี',
+ *   transcription: 'sawatdee',
+ *   translation: 'Hello',
+ *   partOfSpeech: 'interjection',
+ *   value: 'สวัสดี'
+ * };
+ *
+ * const result = VocabularyItemNodeSchema.safeParse(vocabItem);
+ * if (result.success) {
+ *   console.log('Valid vocabulary item:', result.data);
+ * }
+ * ```
  */
 export const VocabularyItemNodeSchema = z.object({
   type: z.literal('vocabularyItem'),
+  /** Unique ID within the syllabus */
   id: z.string().min(1),
+  /** Word or phrase in target language */
   word: z.string().min(1),
+  /**
+   * Transcription/pronunciation
+   * Can be a simple string or object with multiple transcription systems
+   */
   transcription: TranscriptionSchema.optional(),
+  /** Translation in learner's language */
   translation: z.string().min(1),
+  /** Longer explanation or definition */
   definition: z.string().optional(),
+  /** Display text for cards/previews */
   preview: z.string().optional(),
+  /** Category for filtering (e.g., "greetings", "food") */
   category: z.string().optional(),
+  /** Tags for discovery and grouping */
   tags: z.array(z.string()).optional(),
+  /** Part of speech (e.g., "noun", "verb", "adjective") */
   partOfSpeech: z.string().optional(),
+  /** Usage notes or additional information */
   notes: z.string().optional(),
+  /** Example sentence using this word */
   example: z.string().optional(),
+  /** IDs of related vocabulary items */
   related: z.array(z.string()).optional(),
+  /** The value (same as word for Unist Literal compatibility) */
   value: z.string(),
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
   extensions: ExtensionsMapSchema.optional(),
+  /** Unist data (language-specific extensions go here) */
   data: DataSchema.optional(),
+  /** Position in source file */
   position: PositionSchema.optional(),
 });
 
 /**
  * Character item node schema
+ *
+ * Individual character or letter with pronunciation and metadata.
+ * Used for alphabet/script learning systems (Thai, Japanese, Korean,
+ * Georgian, Arabic, etc.). This is a leaf node (no children).
+ *
+ * @example
+ * ```typescript
+ * import { CharacterItemNodeSchema } from '@syllst/core/schemas';
+ *
+ * // Thai consonant example
+ * const thaiChar = {
+ *   type: 'characterItem',
+ *   id: 'th-ko-kai',
+ *   char: 'ก',
+ *   name: 'Ko Kai',
+ *   nativeName: 'กอไก่',
+ *   transcription: 'k',
+ *   charType: 'consonant',
+ *   canonicalRef: 'chicken',
+ *   value: 'ก'
+ * };
+ *
+ * const result = CharacterItemNodeSchema.safeParse(thaiChar);
+ * ```
+ *
+ * @example
+ * ```typescript
+ * // Japanese hiragana example
+ * const hiraganaChar = {
+ *   type: 'characterItem',
+ *   id: 'ja-hiragana-a',
+ *   char: 'あ',
+ *   name: 'a',
+ *   transcription: 'a',
+ *   charType: 'syllable-block',
+ *   mnemonic: 'Looks like an antenna',
+ *   value: 'あ'
+ * };
+ * ```
  */
 export const CharacterItemNodeSchema = z.object({
   type: z.literal('characterItem'),
+  /** Unique ID within the syllabus */
   id: z.string().min(1),
+  /** The character/letter itself (e.g., "ა", "ก", "あ") */
   char: z.string().min(1),
+  /** Name of the character (romanized, e.g., "Ani", "Ko Kai") */
   name: z.string().min(1),
+  /** Name in native script (e.g., "ანი", "กอไก่") */
   nativeName: z.string().optional(),
+  /**
+   * Transcription/pronunciation
+   * Can be a simple string or object with multiple transcription systems
+   */
   transcription: TranscriptionSchema.optional(),
+  /** Character type (consonant, vowel, tone-mark, etc.) */
   charType: CharacterTypeSchema,
+  /** Display text for cards/previews */
   preview: z.string().optional(),
+  /** Category for filtering (e.g., "mid-consonant", "short-vowel") */
   category: z.string().optional(),
+  /** Tags for discovery and grouping */
   tags: z.array(z.string()).optional(),
+  /** Memory aid/mnemonic (string or structured object) */
   mnemonic: z.union([CharacterMnemonicSchema, z.string()]).optional(),
+  /** Example words using this character */
   exampleWords: z.array(z.string()).optional(),
+  /** Historical/variant forms (e.g., Asomtavruli for Georgian) */
   variants: z.array(CharacterVariantSchema).optional(),
+  /** Usage notes or additional information */
   notes: z.string().optional(),
+  /** Audio file path for pronunciation */
   audioPath: z.string().optional(),
+  /**
+   * Reference to canonical character ID from @laeng packages.
+   * Enables cross-package linking between lesson content and character data.
+   * @example "chicken" (references @laeng/th canonical ID for ก)
+   */
   canonicalRef: z.string().optional(),
+  /** The value (same as char for Unist Literal compatibility) */
   value: z.string(),
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
   extensions: ExtensionsMapSchema.optional(),
+  /** Unist data (language-specific extensions go here) */
   data: DataSchema.optional(),
+  /** Position in source file */
   position: PositionSchema.optional(),
 });
 
 /**
  * Example node schema
+ *
+ * Example sentence demonstrating language usage. Used to illustrate
+ * grammar rules, vocabulary usage, or provide context for learning.
+ * This is a leaf node (no children).
+ *
+ * @example
+ * ```typescript
+ * import { ExampleNodeSchema } from '@syllst/core/schemas';
+ *
+ * const example = {
+ *   type: 'example',
+ *   id: 'ex-greeting',
+ *   text: 'สวัสดีครับ ผมชื่อจอห์น',
+ *   transcription: 'sawatdee khrap phom chue john',
+ *   translation: 'Hello, my name is John.',
+ *   literalTranslation: 'hello [polite-masculine] I name John',
+ *   illustrates: ['grammar-self-intro', 'vocab-greetings'],
+ *   value: 'สวัสดีครับ ผมชื่อจอห์น'
+ * };
+ *
+ * const result = ExampleNodeSchema.safeParse(example);
+ * ```
  */
 export const ExampleNodeSchema = z.object({
   type: z.literal('example'),
+  /** Unique ID within the syllabus */
   id: z.string().min(1),
+  /** Text in target language */
   text: z.string().min(1),
+  /**
+   * Transcription/pronunciation of the example
+   * Can be a simple string or object with multiple transcription systems
+   */
   transcription: TranscriptionSchema.optional(),
+  /** Translation in learner's language */
   translation: z.string().min(1),
+  /** Word-by-word gloss for morpheme-level understanding */
   literalTranslation: z.string().optional(),
+  /** Usage notes or additional context */
   notes: z.string().optional(),
+  /** IDs of grammar rules or concepts this example illustrates */
   illustrates: z.array(z.string()).optional(),
+  /** The value (same as text for Unist Literal compatibility) */
   value: z.string(),
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
   extensions: ExtensionsMapSchema.optional(),
+  /** Unist data */
   data: DataSchema.optional(),
+  /** Position in source file */
   position: PositionSchema.optional(),
 });
 
@@ -146,18 +289,62 @@ export const GenderVariantsSchema = z.object({
 
 /**
  * Dialogue turn node schema
+ *
+ * Represents a single speaker's utterance in a dialogue. Used for
+ * structured conversation practice. Can contain gender variants for
+ * languages with gendered particles (Thai ครับ/ค่ะ, Japanese です/ですわ).
+ * This is a leaf node (no children).
+ *
+ * @example
+ * ```typescript
+ * import { DialogueTurnNodeSchema } from '@syllst/core/schemas';
+ *
+ * // Thai dialogue with gender variants
+ * const turn = {
+ *   type: 'dialogueTurn',
+ *   speakerId: 'customer',
+ *   text: 'ขอโทษ{ครับ|ค่ะ} ห้องน้ำอยู่ที่ไหน{ครับ|ค่ะ}',
+ *   genderVariants: {
+ *     masculine: 'ขอโทษครับ ห้องน้ำอยู่ที่ไหนครับ',
+ *     feminine: 'ขอโทษค่ะ ห้องน้ำอยู่ที่ไหนค่ะ'
+ *   },
+ *   transcription: 'kho-thot khrap hong-nam yu thi-nai khrap',
+ *   translation: 'Excuse me, where is the bathroom?',
+ *   value: 'ขอโทษ{ครับ|ค่ะ} ห้องน้ำอยู่ที่ไหน{ครับ|ค่ะ}'
+ * };
+ *
+ * const result = DialogueTurnNodeSchema.safeParse(turn);
+ * ```
  */
 export const DialogueTurnNodeSchema = z.object({
   type: z.literal('dialogueTurn'),
+  /** Speaker ID (references DialogueParticipant.id) */
   speakerId: z.string().min(1),
+  /** Original text (may contain {masculine|feminine} syntax) */
   text: z.string().min(1),
+  /** Pre-parsed gender variants for languages with gendered particles */
   genderVariants: GenderVariantsSchema.optional(),
+  /**
+   * Transcription/pronunciation of the dialogue turn
+   * Can be a simple string or object with multiple transcription systems
+   */
   transcription: TranscriptionSchema.optional(),
+  /** Translation in learner's language */
   translation: z.string().min(1),
-  glostSentences: z.array(z.unknown()).optional(), // GLOST types in @syllst/processor
+  /**
+   * GLOST sentences for this turn (when using full GLOST integration)
+   * Type is unknown[] to avoid core dependency on GLOST types.
+   * Use @syllst/glost for type-safe GLOST integration.
+   * @see https://github.com/fustilio/glost
+   */
+  glostSentences: z.array(z.unknown()).optional(),
+  /** The value (same as text for Unist Literal compatibility) */
   value: z.string(),
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
   extensions: ExtensionsMapSchema.optional(),
+  /** Unist data */
   data: DataSchema.optional(),
+  /** Position in source file */
   position: PositionSchema.optional(),
 });
 

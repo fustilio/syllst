@@ -5,3 +5,4 @@
 
 export * from './remark-syllabus-directives.js';
 export * from './plugin-protocol.js';
+export * from './transformers/index.js';

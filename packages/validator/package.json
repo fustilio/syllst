@@ -1,6 +1,6 @@
 {
   "name": "@syllst/validator",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "CLI tool for validating Syllst MDX content",
   "license": "MIT",
   "type": "module",

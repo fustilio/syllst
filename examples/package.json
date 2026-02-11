@@ -1,6 +1,6 @@
 {
   "name": "@syllst/examples",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Example syllabi and pipeline demonstrations for syllst",
   "license": "MIT",
   "type": "module",
@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@syllst/core": "workspace:*",
-    "@syllst/processor": "workspace:*"
+    "@syllst/processor": "workspace:*",
+    "@syllst/xapi": "workspace:*"
   },
   "devDependencies": {
     "@types/mdast": "catalog:",
