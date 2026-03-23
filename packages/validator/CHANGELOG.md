@@ -1,5 +1,21 @@
 # @syllst/validator
 
+## 0.4.6
+
+### Patch Changes
+
+- Patch version bump for republishing
+- Updated dependencies
+  - @syllst/processor@0.5.3
+
+## 0.4.5
+
+### Patch Changes
+
+- Patch version bump for republishing
+- Updated dependencies
+  - @syllst/processor@0.5.2
+
 ## 0.4.3
 
 ### Patch Changes

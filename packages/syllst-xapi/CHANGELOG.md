@@ -1,5 +1,19 @@
 # @syllst/xapi
 
+## 0.4.4
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.5.2
+
+## 0.4.3
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.5.1
+
 ## 0.4.2
 
 ### Patch Changes

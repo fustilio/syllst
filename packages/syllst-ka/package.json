@@ -1,0 +1,94 @@
+{
+  "name": "@syllst/ka",
+  "version": "0.3.8",
+  "description": "Georgian SYLLST content - Georgian alphabet (Mkhedruli script), numbers, and essentials syllabi",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./alphabet": {
+      "types": "./dist/syllabi/alphabet/index.d.ts",
+      "import": "./dist/syllabi/alphabet/index.js",
+      "default": "./dist/syllabi/alphabet/index.js"
+    },
+    "./numbers": {
+      "types": "./dist/syllabi/numbers/index.d.ts",
+      "import": "./dist/syllabi/numbers/index.js",
+      "default": "./dist/syllabi/numbers/index.js"
+    },
+    "./essentials": {
+      "types": "./dist/syllabi/essentials/index.d.ts",
+      "import": "./dist/syllabi/essentials/index.js",
+      "default": "./dist/syllabi/essentials/index.js"
+    },
+    "./grammar": {
+      "types": "./dist/syllabi/grammar/index.d.ts",
+      "import": "./dist/syllabi/grammar/index.js",
+      "default": "./dist/syllabi/grammar/index.js"
+    },
+    "./dialogue": {
+      "types": "./dist/syllabi/dialogue/index.d.ts",
+      "import": "./dist/syllabi/dialogue/index.js",
+      "default": "./dist/syllabi/dialogue/index.js"
+    },
+    "./reading": {
+      "types": "./dist/syllabi/reading/index.d.ts",
+      "import": "./dist/syllabi/reading/index.js",
+      "default": "./dist/syllabi/reading/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/syllabi/**/*.mdx"
+  ],
+  "dependencies": {},
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "vite": "^7.3.1",
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^4.0.18",
+    "@laeng/ka": "^0.2.3",
+    "@mdx-js/rollup": "^3.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-mdx": "^3.0.0"
+  },
+  "peerDependencies": {
+    "@syllst/core": "^0.5.2",
+    "@syllst/processor": "^0.5.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "georgian",
+    "kartuli",
+    "language-learning",
+    "syllst",
+    "mdx",
+    "alphabet",
+    "mkhedruli",
+    "numbers",
+    "counting",
+    "essentials",
+    "phrases",
+    "greetings"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/polyglot-bundles",
+    "directory": "packages/ka/syllst"
+  },
+  "scripts": {
+    "build": "vite build",
+    "clean": "rm -rf dist",
+    "lint": "eslint src",
+    "test": "vitest run --passWithNoTests",
+    "validate": "tsx scripts/validate-ids.ts"
+  }
+}

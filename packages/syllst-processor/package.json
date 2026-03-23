@@ -1,6 +1,6 @@
 {
   "name": "@syllst/processor",
-  "version": "0.5.0",
+  "version": "0.5.6",
   "description": "MDX parsing and transformation pipeline for syllst",
   "license": "MIT",
   "type": "module",
@@ -31,44 +31,42 @@
       "types": "./dist/config/index.d.ts",
       "default": "./dist/config/index.js"
     },
+    "./loader": {
+      "types": "./dist/loader/index.d.ts",
+      "default": "./dist/loader/index.js"
+    },
     "./codemods": {
       "types": "./dist/codemods/index.d.ts",
       "default": "./dist/codemods/index.js"
     }
   },
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest"
-  },
   "peerDependencies": {
-    "@syllst/core": ">=0.4.0"
+    "@syllst/core": "workspace:*"
   },
   "dependencies": {
-    "@syllst/core": "workspace:*",
-    "mdast-util-gfm": "catalog:",
-    "mdast-util-to-markdown": "catalog:",
-    "mdast-util-to-string": "catalog:",
-    "remark": "catalog:",
-    "remark-directive": "catalog:",
-    "remark-frontmatter": "catalog:",
-    "remark-gfm": "catalog:",
-    "remark-mdx": "catalog:",
-    "remark-parse": "catalog:",
-    "unified": "catalog:",
-    "unist-util-map": "catalog:",
-    "unist-util-visit": "catalog:",
-    "unist-util-visit-parents": "catalog:",
-    "vfile": "catalog:",
-    "yaml": "catalog:",
-    "uuid": "catalog:",
-    "zod": "catalog:"
+    "mdast-util-gfm": "^3.1.0",
+    "mdast-util-to-markdown": "^2.1.2",
+    "mdast-util-to-string": "^4.0.0",
+    "remark": "^15.0.1",
+    "remark-directive": "^4.0.0",
+    "remark-frontmatter": "^5.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-mdx": "^3.1.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.5",
+    "unist-util-map": "^4.0.0",
+    "unist-util-visit": "^5.1.0",
+    "unist-util-visit-parents": "^6.0.2",
+    "vfile": "^6.0.3",
+    "yaml": "^2.8.2",
+    "uuid": "^13.0.0",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@types/mdast": "catalog:",
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/mdast": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "repository": {
     "type": "git",
@@ -88,5 +86,10 @@
     "processor",
     "language-learning",
     "curriculum"
-  ]
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest"
+  }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@syllst/glost",
-  "version": "0.4.2",
+  "version": "0.5.5",
   "description": "GLOST word-level annotation plugin for syllst",
   "license": "MIT",
   "type": "module",
@@ -20,33 +20,30 @@
       "default": "./dist/providers/index.js"
     }
   },
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:run": "vitest run"
-  },
   "dependencies": {
-    "@syllst/core": "workspace:*",
-    "unified": "catalog:",
-    "unist-util-visit": "catalog:",
-    "vfile": "catalog:"
+    "unified": "^11.0.5",
+    "unist-util-visit": "^5.1.0",
+    "vfile": "^6.0.3",
+    "@syllst/core": "0.5.2"
   },
   "peerDependencies": {
-    "@syllst/core": ">=0.4.0",
+    "@syllst/core": ">=0.5.2",
     "glost-core": ">=0.1.0",
     "glost-processor": ">=0.1.0"
   },
   "peerDependenciesMeta": {
+    "glost-core": {
+      "optional": true
+    },
     "glost-processor": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@types/mdast": "catalog:",
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/mdast": "^4.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "repository": {
     "type": "git",
@@ -66,5 +63,11 @@
     "plugin",
     "language-learning",
     "annotations"
-  ]
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  }
 }

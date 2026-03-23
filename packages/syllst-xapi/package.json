@@ -1,6 +1,6 @@
 {
   "name": "@syllst/xapi",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "description": "xAPI profile for language learning - verbs, activity types, extensions, and Zod schemas extending cmi5",
   "license": "MIT",
   "type": "module",
@@ -44,7 +44,7 @@
     "test:run": "vitest run"
   },
   "peerDependencies": {
-    "@syllst/core": ">=0.4.0"
+    "@syllst/core": ">=0.5.2"
   },
   "dependencies": {
     "@syllst/core": "workspace:*",

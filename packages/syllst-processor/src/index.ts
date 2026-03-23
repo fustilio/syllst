@@ -51,3 +51,6 @@ export * from './utils/index.js';
 
 // Export configuration
 export * from './config/index.js';
+
+// Export loader factory
+export * from './loader/index.js';

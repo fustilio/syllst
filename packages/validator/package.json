@@ -1,6 +1,6 @@
 {
   "name": "@syllst/validator",
-  "version": "0.4.3",
+  "version": "0.4.8",
   "description": "CLI tool for validating Syllst MDX content",
   "license": "MIT",
   "type": "module",
@@ -19,19 +19,13 @@
     "dist",
     "README.md"
   ],
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:run": "vitest run"
-  },
   "dependencies": {
-    "@syllst/processor": "workspace:*"
+    "@syllst/processor": "0.5.3"
   },
   "devDependencies": {
-    "@types/node": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "repository": {
     "type": "git",
@@ -44,5 +38,11 @@
     "cli",
     "mdx",
     "curriculum"
-  ]
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  }
 }

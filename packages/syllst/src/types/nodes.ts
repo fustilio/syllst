@@ -56,6 +56,29 @@ export type Transcription = string | TranscriptionObject;
 // ============================================================================
 
 /**
+ * Syllabus configuration
+ * Defines metadata for a syllabus collection
+ */
+export interface SyllabusConfig {
+  /** Unique syllabus identifier */
+  id: string;
+  /** Syllabus title */
+  title: string;
+  /** Syllabus description */
+  description?: string;
+  /** Language code (e.g., 'ja', 'ko', 'th') */
+  language: string;
+  /** Script/writing system (e.g., 'hiragana', 'hangul', 'khmer') */
+  script?: string;
+  /** Difficulty level */
+  difficulty?: DifficultyLevel;
+  /** CEFR level(s) covered */
+  cefrLevel?: CEFRLevel | CEFRLevel[];
+  /** Number of lessons in the syllabus */
+  lessonCount?: number;
+}
+
+/**
  * CEFR (Common European Framework of Reference) levels
  */
 export type CEFRLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';

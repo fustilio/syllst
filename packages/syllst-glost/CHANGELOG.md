@@ -1,5 +1,21 @@
 # @syllst/glost
 
+## 0.5.2
+
+### Patch Changes
+
+- Patch version bump for republishing
+- Updated dependencies
+  - @syllst/core@0.5.2
+
+## 0.5.1
+
+### Patch Changes
+
+- Patch version bump for republishing
+- Updated dependencies
+  - @syllst/core@0.5.1
+
 ## 0.4.2
 
 ### Patch Changes

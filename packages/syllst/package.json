@@ -1,6 +1,6 @@
 {
   "name": "@syllst/core",
-  "version": "0.4.2",
+  "version": "0.5.5",
   "description": "Syllabus Syntax Tree (syllst) - Unist-based type definitions and validation schemas for language learning syllabi",
   "license": "MIT",
   "type": "module",
@@ -25,19 +25,13 @@
     "url": "https://github.com/fustilio/syllst.git",
     "directory": "packages/syllst"
   },
-  "scripts": {
-    "build": "tsc -p tsconfig.build.json",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest",
-    "test:run": "vitest run"
-  },
   "dependencies": {
-    "@types/unist": "catalog:",
-    "zod": "catalog:"
+    "@types/unist": "^3.0.3",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "keywords": [
     "syllabus",
@@ -61,5 +55,11 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
   }
 }
