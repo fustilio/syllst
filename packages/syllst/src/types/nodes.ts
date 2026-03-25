@@ -428,6 +428,94 @@ export interface VocabularyItemNode extends UnistLiteral {
 }
 
 // ============================================================================
+// Word List Nodes (for external vocabulary imports)
+// ============================================================================
+
+/**
+ * Word list difficulty levels (CEFR-aligned)
+ * Distinct from DifficultyLevel for explicit naming
+ */
+export type WordListDifficulty = 'beginner' | 'intermediate' | 'advanced';
+
+/**
+ * CEFR exam grade levels
+ * Pre-A1 for absolute beginners before A1
+ */
+export type ExamGrade = 'Pre-A1' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
+/**
+ * Word list item node - flat vocabulary entry for external word lists
+ * Distinct from VocabularyItemNode which is for MDX syllabus content
+ */
+export interface WordListItemNode extends UnistLiteral {
+  type: 'wordListItem';
+  /** Unique identifier (e.g., "th:vocab:greetings:hello") */
+  id: string;
+  /** The word in target language script */
+  word: string;
+  /** English translation/meaning */
+  translation?: string;
+  /** Transcription/pronunciation (reuses Transcription type) */
+  transcription?: Transcription;
+  /** Part of speech */
+  partOfSpeech?: string;
+  /** Example sentence */
+  example?: string;
+  /** Usage notes */
+  notes?: string;
+  /** Difficulty level */
+  difficulty?: WordListDifficulty;
+  /** CEFR exam grade */
+  examGrade?: ExamGrade;
+  /** Thematic category */
+  category?: string;
+  /** Additional tags */
+  tags?: string[];
+  /** Frequency rank (lower = more common) */
+  frequency?: number;
+  /** External concept IDs (CILI, WordNet, etc.) */
+  externalIds?: Record<string, string>;
+  /** The value (same as word for compatibility) */
+  value: string;
+  /** Unist data */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+/**
+ * Word list set node - collection of word list items
+ * Distinct from VocabularySetNode which is for MDX syllabus content
+ */
+export interface WordListSetNode extends UnistParent {
+  type: 'wordListSet';
+  /** Unique identifier */
+  id: string;
+  /** Display name */
+  title?: string;
+  /** Description */
+  description?: string;
+  /** Source info (e.g., "CEFR A2", "NGSL") */
+  source?: string;
+  /** Overall difficulty */
+  difficulty?: WordListDifficulty;
+  /** CEFR exam grade */
+  examGrade?: ExamGrade;
+  /** Category */
+  category?: string;
+  /** Subcategory */
+  subcategory?: string;
+  /** Child word items */
+  children: WordListItemNode[];
+  /** External format extensions */
+  extensions?: ExtensionsMap;
+  /** Unist data */
+  data?: Data;
+  /** Position in source file */
+  position?: Position;
+}
+
+// ============================================================================
 // Character/Alphabet Nodes (for script learning)
 // ============================================================================
 

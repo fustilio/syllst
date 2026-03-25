@@ -73,8 +73,8 @@
     "remark-mdx": "^3.0.0"
   },
   "peerDependencies": {
-    "@syllst/core": "^0.5.2",
-    "@syllst/processor": "^0.5.3"
+    "@syllst/core": "workspace:*",
+    "@syllst/processor": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

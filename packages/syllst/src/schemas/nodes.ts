@@ -480,6 +480,132 @@ export const VocabularySetNodeSchema = z.object({
   position: PositionSchema.optional(),
 });
 
+// ============================================================================
+// Word List Node Schemas (for external word lists)
+// ============================================================================
+
+/**
+ * Word list item node schema
+ *
+ * Individual word entry for external word lists (e.g., CEFR lists, frequency
+ * corpora). Distinct from VocabularyItemNode which is for MDX syllabus content.
+ * This is a leaf node (no children).
+ *
+ * @example
+ * ```typescript
+ * import { WordListItemNodeSchema } from '@syllst/core/schemas';
+ *
+ * const wordItem = {
+ *   type: 'wordListItem',
+ *   id: 'th:vocab:greetings:hello',
+ *   word: 'สวัสดี',
+ *   transcription: {
+ *     'paiboon+': 'sà-wàt-dii',
+ *     'rtgs': 'sawatdi',
+ *     'ipa': '/sa˨˩.wat˨˩.diː˧/'
+ *   },
+ *   translation: 'Hello',
+ *   partOfSpeech: 'interjection',
+ *   difficulty: 'beginner',
+ *   examGrade: 'A1',
+ *   value: 'สวัสดี'
+ * };
+ *
+ * const result = WordListItemNodeSchema.safeParse(wordItem);
+ * ```
+ */
+export const WordListItemNodeSchema = z.object({
+  type: z.literal('wordListItem'),
+  /** Unique identifier (e.g., "th:vocab:greetings:hello") */
+  id: z.string().min(1),
+  /** The word in target language script */
+  word: z.string().min(1),
+  /** Translation in learner's language */
+  translation: z.string().optional(),
+  /** Transcription/pronunciation (supports multiple schemes) */
+  transcription: TranscriptionSchema.optional(),
+  /** Part of speech (e.g., "noun", "verb", "adjective") */
+  partOfSpeech: z.string().optional(),
+  /** Example sentence using this word */
+  example: z.string().optional(),
+  /** Usage notes or additional information */
+  notes: z.string().optional(),
+  /** Difficulty level */
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  /** CEFR exam grade */
+  examGrade: z.enum(['Pre-A1', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2']).optional(),
+  /** Thematic category */
+  category: z.string().optional(),
+  /** Tags for discovery and grouping */
+  tags: z.array(z.string()).optional(),
+  /** Frequency rank (lower = more common) */
+  frequency: z.number().optional(),
+  /** External concept IDs (CILI, WordNet, etc.) */
+  externalIds: z.record(z.string(), z.string()).optional(),
+  /** The value (same as word for Unist Literal compatibility) */
+  value: z.string(),
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
+  extensions: ExtensionsMapSchema.optional(),
+  /** Unist data */
+  data: DataSchema.optional(),
+  /** Position in source file */
+  position: PositionSchema.optional(),
+});
+
+/**
+ * Word list set node schema
+ *
+ * Collection of word list items. Distinct from VocabularySetNode which is
+ * for MDX syllabus content. This is a parent node containing WordListItemNode
+ * children.
+ *
+ * @example
+ * ```typescript
+ * import { WordListSetNodeSchema } from '@syllst/core/schemas';
+ *
+ * const wordList = {
+ *   type: 'wordListSet',
+ *   id: 'a1-greetings',
+ *   title: 'A1 Greetings',
+ *   description: 'Basic greeting vocabulary',
+ *   source: 'CEFR A1',
+ *   difficulty: 'beginner',
+ *   examGrade: 'A1',
+ *   category: 'greetings',
+ *   children: [...]
+ * };
+ *
+ * const result = WordListSetNodeSchema.safeParse(wordList);
+ * ```
+ */
+export const WordListSetNodeSchema = z.object({
+  type: z.literal('wordListSet'),
+  /** Unique identifier */
+  id: z.string().min(1),
+  /** Display name */
+  title: z.string().optional(),
+  /** Description */
+  description: z.string().optional(),
+  /** Source info (e.g., "CEFR A2", "NGSL") */
+  source: z.string().optional(),
+  /** Overall difficulty */
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  /** CEFR exam grade */
+  examGrade: z.enum(['Pre-A1', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2']).optional(),
+  /** Category */
+  category: z.string().optional(),
+  /** Subcategory */
+  subcategory: z.string().optional(),
+  /** Child word items */
+  children: z.array(WordListItemNodeSchema),
+  /** External format extensions (SCORM, xAPI, CMI5, etc.) */
+  extensions: ExtensionsMapSchema.optional(),
+  /** Unist data */
+  data: DataSchema.optional(),
+  /** Position in source file */
+  position: PositionSchema.optional(),
+});
+
 /**
  * Character set node schema
  */
@@ -836,6 +962,8 @@ export const SyllabusNodeSchema: z.ZodTypeAny = z.union([
   GrammarRuleNodeSchema,
   VocabularySetNodeSchema,
   VocabularyItemNodeSchema,
+  WordListSetNodeSchema,
+  WordListItemNodeSchema,
   CharacterSetNodeSchema,
   CharacterItemNodeSchema,
   ExampleSetNodeSchema,
@@ -862,6 +990,7 @@ export const SyllabusParentSchema: z.ZodTypeAny = z.union([
   LessonAstNodeSchema,
   GrammarRuleNodeSchema,
   VocabularySetNodeSchema,
+  WordListSetNodeSchema,
   CharacterSetNodeSchema,
   ExampleSetNodeSchema,
   ExerciseNodeSchema,
@@ -924,6 +1053,8 @@ export type ZodWritingPatternNode = z.infer<typeof WritingPatternNodeSchema>;
 export type ZodSyllabusNode = z.infer<typeof SyllabusNodeSchema>;
 export type ZodSyllabusParent = z.infer<typeof SyllabusParentSchema>;
 export type ZodSyllabusLeaf = z.infer<typeof SyllabusLeafSchema>;
+export type ZodWordListItemNode = z.infer<typeof WordListItemNodeSchema>;
+export type ZodWordListSetNode = z.infer<typeof WordListSetNodeSchema>;
 
 // ============================================================================
 // Course Bundle Schemas (v0.2.0)

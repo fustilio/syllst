@@ -20,7 +20,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@syllst/processor": "0.5.3"
+    "@syllst/processor": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
