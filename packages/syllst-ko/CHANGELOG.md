@@ -1,5 +1,23 @@
 # @syllst/ko
 
+## 0.2.11
+
+### Patch Changes
+
+- fix: use explicit imports + re-exports pattern for proper TypeScript type generation in .d.ts files
+
+## 0.2.10
+
+### Patch Changes
+
+- fix: use explicit imports + re-exports pattern for proper TypeScript type generation in .d.ts files
+
+## 0.2.9
+
+### Patch Changes
+
+- fix: use explicit imports + re-exports pattern for proper TypeScript type generation in .d.ts files
+
 ## 0.2.2
 
 ### Patch Changes

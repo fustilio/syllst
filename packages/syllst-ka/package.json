@@ -1,6 +1,6 @@
 {
   "name": "@syllst/ka",
-  "version": "0.3.8",
+  "version": "0.3.11",
   "description": "Georgian SYLLST content - Georgian alphabet (Mkhedruli script), numbers, and essentials syllabi",
   "type": "module",
   "main": "./dist/index.js",

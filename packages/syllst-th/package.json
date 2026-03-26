@@ -1,6 +1,6 @@
 {
   "name": "@syllst/th",
-  "version": "0.3.8",
+  "version": "0.3.11",
   "description": "Thai SYLLST content - all Thai language syllabi in one package",
   "type": "module",
   "main": "./dist/index.js",
