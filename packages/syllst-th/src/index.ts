@@ -4,16 +4,27 @@
  * Thai language learning content for the syllabus framework.
  */
 
-// Export syllabi with unique names
-export { config as alphabetConfig, loader as alphabetLoader } from './syllabi/alphabet';
-export { config as vowelsTonesConfig, loader as vowelsTonesLoader } from './syllabi/vowels-tones';
-export { config as numbersConfig, loader as numbersLoader } from './syllabi/numbers';
-export { config as essentialsConfig, loader as essentialsLoader } from './syllabi/essentials';
-export { config as foodConfig, loader as foodLoader } from './syllabi/food';
-export { config as travelConfig, loader as travelLoader } from './syllabi/travel';
-export { config as dialogueConfig, loader as dialogueLoader } from './syllabi/dialogue';
-export { config as grammarConfig, loader as grammarLoader } from './syllabi/grammar';
-export { config as readingConfig, loader as readingLoader } from './syllabi/reading';
+// Import syllabi with unique names
+import { config as alphabetConfig, loader as alphabetLoader } from './syllabi/alphabet';
+import { config as vowelsTonesConfig, loader as vowelsTonesLoader } from './syllabi/vowels-tones';
+import { config as numbersConfig, loader as numbersLoader } from './syllabi/numbers';
+import { config as essentialsConfig, loader as essentialsLoader } from './syllabi/essentials';
+import { config as foodConfig, loader as foodLoader } from './syllabi/food';
+import { config as travelConfig, loader as travelLoader } from './syllabi/travel';
+import { config as dialogueConfig, loader as dialogueLoader } from './syllabi/dialogue';
+import { config as grammarConfig, loader as grammarLoader } from './syllabi/grammar';
+import { config as readingConfig, loader as readingLoader } from './syllabi/reading';
+
+// Re-export configs and loaders
+export { alphabetConfig, alphabetLoader };
+export { vowelsTonesConfig, vowelsTonesLoader };
+export { numbersConfig, numbersLoader };
+export { essentialsConfig, essentialsLoader };
+export { foodConfig, foodLoader };
+export { travelConfig, travelLoader };
+export { dialogueConfig, dialogueLoader };
+export { grammarConfig, grammarLoader };
+export { readingConfig, readingLoader };
 
 // Helper function to get all configs
 export const allConfigs = [

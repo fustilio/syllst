@@ -4,10 +4,15 @@
  * Korean language learning content for the syllabus framework.
  */
 
-// Export syllabi with unique names
-export { config as alphabetConfig, loader as alphabetLoader } from './syllabi/alphabet';
-export { config as numbersConfig, loader as numbersLoader } from './syllabi/numbers';
-export { config as essentialsConfig, loader as essentialsLoader } from './syllabi/essentials';
+// Import syllabi with unique names
+import { config as alphabetConfig, loader as alphabetLoader } from './syllabi/alphabet';
+import { config as numbersConfig, loader as numbersLoader } from './syllabi/numbers';
+import { config as essentialsConfig, loader as essentialsLoader } from './syllabi/essentials';
+
+// Re-export configs and loaders
+export { alphabetConfig, alphabetLoader };
+export { numbersConfig, numbersLoader };
+export { essentialsConfig, essentialsLoader };
 
 // Helper function to get all configs
 export const allConfigs = [
