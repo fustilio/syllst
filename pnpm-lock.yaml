@@ -89,9 +89,6 @@ importers:
         specifier: workspace:*
         version: link:../syllst-processor
     devDependencies:
-      '@types/node':
-        specifier: ^25.1.0
-        version: 25.5.0
       typescript:
         specifier: ^5.4.0
         version: 5.9.3
@@ -338,6 +335,25 @@ importers:
       vitest:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.5.0)(tsx@4.21.0)(yaml@2.8.2)
+
+  packages/syllst-word-lists:
+    dependencies:
+      '@syllst/core':
+        specifier: workspace:*
+        version: link:../syllst
+      '@syllst/processor':
+        specifier: workspace:*
+        version: link:../syllst-processor
+    devDependencies:
+      '@types/node':
+        specifier: ^25.1.0
+        version: 25.5.0
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.0.0
+        version: 1.6.1(@types/node@25.5.0)
 
   packages/syllst-xapi:
     dependencies:

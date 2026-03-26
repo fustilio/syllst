@@ -1,0 +1,57 @@
+{
+  "name": "@syllst/word-lists",
+  "version": "0.2.0",
+  "description": "Word list types, loaders, and utilities for syllst",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/word-lists.d.ts",
+      "import": "./dist/types/word-lists.js"
+    },
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "import": "./dist/utils/index.js"
+    },
+    "./node-loader": {
+      "types": "./dist/utils/word-lists-loader.d.ts",
+      "import": "./dist/utils/word-lists-loader.js"
+    },
+    "./browser-loader": {
+      "types": "./dist/utils/word-lists-browser-loader.d.ts",
+      "import": "./dist/utils/word-lists-browser-loader.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "lint": "eslint src",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@syllst/core": "workspace:*",
+    "@syllst/processor": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.1.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst",
+    "directory": "packages/syllst-word-lists"
+  }
+}
