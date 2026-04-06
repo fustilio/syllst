@@ -71,7 +71,7 @@ This document describes the relationship between syllst and related projects in 
 - `SyllabusRoot` - Course-level container
 - `ChapterNode`, `SectionNode`, `LessonAstNode` - Hierarchical structure
 - `VocabularySetNode`, `GrammarRuleNode`, `DialogueNode` - Learning content
-- `CharacterSetNode`, `CharacterItemNode` - Alphabet/script learning with @laeng integration
+- `CharacterSetNode`, `CharacterItemNode` - Alphabet/script learning with polyglot-bundles integration
 - `ExerciseNode` - Practice activities with skill/objective tracking
 - `PhonologicalRuleNode`, `RuleConditionNode` - Phonological rules (tone, sound change, sandhi)
 - `SyllablePatternNode`, `PatternExampleNode` - Syllable structure patterns

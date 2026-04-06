@@ -53,11 +53,11 @@ const processor = createMDXParser()
 const result = await processor.process(mdxContent);
 ```
 
-### With @laeng Language Packages
+### With polyglot-bundles Language Packages
 
 ```typescript
 import { remarkSyllstGlost } from '@syllst/glost';
-import { createThaiTranscriptionProvider } from '@laeng/th';
+import { createThaiTranscriptionProvider } from '@polyglot-bundles/th-lang';
 
 const processor = createMDXParser()
   .use(remarkSyllabusDirectives)

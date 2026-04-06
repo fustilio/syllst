@@ -170,9 +170,10 @@ export const CharacterItemNodeSchema = z.object({
   /** Audio file path for pronunciation */
   audioPath: z.string().optional(),
   /**
-   * Reference to canonical character ID from @laeng packages.
+   * Reference to canonical character ID from polyglot-bundles language foundation packages
+   * (e.g., @polyglot-bundles/th-lang, @polyglot-bundles/ja-lang, etc.).
    * Enables cross-package linking between lesson content and character data.
-   * @example "chicken" (references @laeng/th canonical ID for ก)
+   * @example "chicken" (references @polyglot-bundles/th-lang canonical ID for ก)
    */
   canonicalRef: z.string().optional(),
   /** The value (same as char for Unist Literal compatibility) */

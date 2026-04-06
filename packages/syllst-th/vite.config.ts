@@ -10,7 +10,7 @@ export default defineConfig({
       fileName: 'index',
     },
     rollupOptions: {
-      external: ['@syllst/core', '@syllst/processor', '@laeng/th'],
+      external: ['@syllst/core', '@syllst/processor', '@polyglot-bundles/th-lang'],
       output: {
         globals: {
           '@syllst/core': 'syllstCore',

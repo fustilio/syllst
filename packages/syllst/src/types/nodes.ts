@@ -132,7 +132,7 @@ export interface LearningObjective {
   isPrimary?: boolean;
   /** Skill category this objective targets (e.g., 'character-recognition', 'tone-rule-application') */
   skill?: string;
-  /** References to specific trackable items (canonical IDs from @laeng packages, grammar rule IDs, etc.) */
+  /** References to specific trackable items (canonical IDs from polyglot-bundles, grammar rule IDs, etc.) */
   references?: string[];
 }
 
@@ -648,9 +648,10 @@ export interface CharacterItemNode extends UnistLiteral {
   /** Audio file path for pronunciation */
   audioPath?: string;
   /**
-   * Reference to canonical character ID from @laeng packages.
+   * Reference to canonical character ID from polyglot-bundles language foundation packages
+   * (e.g., @polyglot-bundles/th-lang, @polyglot-bundles/ja-lang, etc.).
    * Enables cross-package linking between lesson content and character data.
-   * @example "chicken" (references @laeng/th canonical ID for ก)
+   * @example "chicken" (references @polyglot-bundles/th-lang canonical ID for ก)
    */
   canonicalRef?: string;
   /** The value (same as char for Unist Literal compatibility) */

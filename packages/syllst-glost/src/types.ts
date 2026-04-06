@@ -13,7 +13,7 @@ import type { Plugin } from 'unified';
 export interface LanguageProviderConfig {
   /** Language code (e.g., 'th', 'ja', 'ko') */
   lang: string;
-  /** Transcription provider instance (from glost-common or @laeng packages) */
+  /** Transcription provider instance (from polyglot-bundles language foundation packages or glost-common) */
   transcriptionProvider?: TranscriptionProvider;
   /** Default transcription scheme to use */
   defaultScheme?: string;
