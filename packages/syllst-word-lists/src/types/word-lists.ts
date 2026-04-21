@@ -6,7 +6,7 @@
  * exam grades, and categorical organization.
  */
 
-import type { Transcription } from '@syllst/processor';
+import type { Transcription } from '@syllst/core/types';
 
 /**
  * Word list difficulty levels
@@ -43,7 +43,7 @@ export type WordListItem = {
   transliteration?: string;
   /**
    * Transcription/pronunciation (supports multiple schemes)
-   * Uses Transcription type from @syllst/processor
+   * Uses Transcription type from @syllst/core
    */
   transcription?: Transcription;
   /** IPA pronunciation (deprecated, use transcription instead) */

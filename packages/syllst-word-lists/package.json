@@ -37,8 +37,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@syllst/core": "workspace:*",
-    "@syllst/processor": "workspace:*"
+    "@syllst/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.1.0",
