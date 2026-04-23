@@ -1,5 +1,11 @@
 # @syllst/processor
 
+## 0.6.0
+
+### Minor Changes
+
+- update transformers
+
 ## 0.5.3
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @syllst/content-shared
 
+## 1.0.1
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/processor@0.6.0
+
 ## 1.0.0
 
 ### Major Changes

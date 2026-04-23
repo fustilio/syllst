@@ -8,6 +8,22 @@ import { visit, SKIP } from 'unist-util-visit';
 import { toMarkdown } from 'mdast-util-to-markdown';
 import { gfmToMarkdown } from 'mdast-util-gfm';
 import type { Root as MdastRoot } from 'mdast';
+
+/**
+ * Remove inline textDirective nodes from a tree before serializing to markdown.
+ * These are unsupported by mdast-util-to-markdown and would otherwise throw.
+ */
+function stripTextDirectives(tree: MdastRoot): void {
+  visit(tree, 'textDirective', (node: any, index, parent: any) => {
+    if (parent && typeof index === 'number') {
+      // Replace textDirective with its plain-text children
+      const text = node.children?.map((c: any) => c.value || '').join('') || '';
+      parent.children.splice(index, 1, { type: 'text', value: text });
+      return index;
+    }
+  });
+}
+
 import type {
   SyllabusRoot,
   LessonAstNode,
@@ -51,6 +67,7 @@ export function transformToLessonAstNode(
     'grammarRule', 'vocabularySet', 'characterSet',
     'exampleSet', 'exercise', 'dialogue',
     'phonologicalRule', 'syllablePattern', 'writingPattern',
+    'vocabularyItem', 'character',
   ]);
 
   // Types that contain nested content we should skip
@@ -58,7 +75,7 @@ export function transformToLessonAstNode(
     'grammarRule', 'vocabularySet', 'characterSet',
     'exampleSet', 'exercise', 'dialogue',
     'phonologicalRule', 'syllablePattern', 'writingPattern',
-    'list', 'listItem',
+    'list', 'listItem', 'vocabularyItem',
   ]);
 
   // Traverse tree and collect directive nodes
@@ -80,13 +97,13 @@ export function transformToLessonAstNode(
         return; // Skip this node, it's nested inside a list/directive
       }
 
+      const contentRoot = { type: 'root', children: [node] } as MdastRoot;
+      stripTextDirectives(contentRoot);
+
       children.push({
         type: 'content',
         format: 'markdown',
-        value: toMarkdown(
-          { type: 'root', children: [node] } as MdastRoot,
-          { bullet: '-', extensions: [gfmToMarkdown()] }
-        ).trim(),
+        value: toMarkdown(contentRoot, { bullet: '-', extensions: [gfmToMarkdown()] }).trim(),
       } as ContentNode);
 
       // For lists and tables, skip visiting children since we've already extracted the markdown

@@ -19,6 +19,7 @@ import {
 function transformVocabularyItem(
   directive: DirectiveNode
 ): Partial<VocabularyItemNode> {
+  const attrs = directive.attributes || {};
   const {
     id = `vocab-${Math.random().toString(36).substr(2, 9)}`,
     word = "",
@@ -31,7 +32,11 @@ function transformVocabularyItem(
     partOfSpeech,
     notes,
     example,
-  } = directive.attributes || {};
+  } = attrs;
+
+  // Support alias attributes used by ::vocab-item
+  const effectiveTranscription = transcription || attrs.pronunciation;
+  const effectiveTranslation = translation || attrs.meaning;
 
   const dataAttrs = extractDataAttributes(directive.attributes);
 
@@ -39,8 +44,8 @@ function transformVocabularyItem(
     type: "vocabularyItem",
     id,
     word,
-    transcription: parseTranscription(transcription),
-    translation,
+    transcription: parseTranscription(effectiveTranscription),
+    translation: effectiveTranslation,
     definition,
     preview,
     category,
@@ -65,7 +70,7 @@ function transformVocabularySet(
     for (const child of directive.children) {
       if (
         child.type === "leafDirective" &&
-        child.name === "vocab"
+        (child.name === "vocab" || child.name === "vocab-item")
       ) {
         children.push(
           transformVocabularyItem(child) as VocabularyItemNode
@@ -85,10 +90,10 @@ function transformVocabularySet(
 
 export const vocabularyTransformer: DirectiveTransformer = {
   name: "vocabulary",
-  directives: ["vocabulary-set", "vocab"],
+  directives: ["vocabulary-set", "vocab", "vocab-item"],
 
   canHandle(name: string): boolean {
-    return name === "vocabulary-set" || name === "vocab";
+    return name === "vocabulary-set" || name === "vocab" || name === "vocab-item";
   },
 
   transform(directive: DirectiveNode) {
