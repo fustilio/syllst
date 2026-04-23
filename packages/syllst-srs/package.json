@@ -1,0 +1,65 @@
+{
+  "name": "@syllst/srs",
+  "version": "0.1.0",
+  "description": "SRS card generation from syllst syllabi — convert lessons, vocabulary, grammar, and exercises into spaced-repetition cards",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    },
+    "./generators": {
+      "types": "./dist/generators/index.d.ts",
+      "default": "./dist/generators/index.js"
+    },
+    "./fidelity": {
+      "types": "./dist/fidelity/index.d.ts",
+      "default": "./dist/fidelity/index.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "packages/syllst-srs"
+  },
+  "peerDependencies": {
+    "@syllst/core": "workspace:*"
+  },
+  "dependencies": {
+    "@types/unist": "catalog:",
+    "unist-util-visit": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "syllabus",
+    "srs",
+    "spaced-repetition",
+    "flashcards",
+    "language-learning",
+    "anki"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  }
+}

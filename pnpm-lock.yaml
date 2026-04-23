@@ -15,9 +15,15 @@ catalogs:
     '@types/node':
       specifier: ^22.0.0
       version: 22.19.7
+    '@types/unist':
+      specifier: ^3.0.3
+      version: 3.0.3
     typescript:
       specifier: ^5.9.3
       version: 5.9.3
+    unist-util-visit:
+      specifier: ^5.1.0
+      version: 5.1.0
     vitest:
       specifier: ^4.0.18
       version: 4.0.18
@@ -80,14 +86,33 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.5.0)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/syllst-compare:
+    dependencies:
+      '@syllst/core':
+        specifier: workspace:*
+        version: link:../syllst
+      '@types/unist':
+        specifier: 'catalog:'
+        version: 3.0.3
+      unist-util-visit:
+        specifier: 'catalog:'
+        version: 5.1.0
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.0.18(@types/node@25.5.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/syllst-content-shared:
     dependencies:
       '@syllst/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: workspace:*
+        version: link:../syllst
       '@syllst/processor':
-        specifier: ^0.5.0
-        version: 0.5.6(@syllst/core@0.6.0)
+        specifier: workspace:*
+        version: link:../syllst-processor
     devDependencies:
       typescript:
         specifier: ^5.4.0
@@ -200,6 +225,25 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@22.19.7)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/syllst-srs:
+    dependencies:
+      '@syllst/core':
+        specifier: workspace:*
+        version: link:../syllst
+      '@types/unist':
+        specifier: 'catalog:'
+        version: 3.0.3
+      unist-util-visit:
+        specifier: 'catalog:'
+        version: 5.1.0
+    devDependencies:
+      typescript:
+        specifier: 'catalog:'
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 4.0.18(@types/node@25.5.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/syllst-word-lists:
     dependencies:
       '@syllst/core':
@@ -219,8 +263,8 @@ importers:
   packages/syllst-xapi:
     dependencies:
       '@syllst/core':
-        specifier: ^0.6.0
-        version: 0.6.0
+        specifier: workspace:*
+        version: link:../syllst
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -770,14 +814,6 @@ packages:
 
   '@syllst/core@0.5.2':
     resolution: {integrity: sha512-WqCw9KpTqaAKq0Me7TWppQkN7i8/ZrfTPUbWRq4B+oe+JzN98Zy/fN52PkIpuLMvANAvyxwihMcXro/XxI+bpg==}
-
-  '@syllst/core@0.6.0':
-    resolution: {integrity: sha512-iCLnLCs5RUox7YXWRNpHwtF3xEHl/7F6YnqsSPC1w/gtbLVcVRUFz8zpXjC+QqusUKTAM86j+RfZvkTFPxy7tw==}
-
-  '@syllst/processor@0.5.6':
-    resolution: {integrity: sha512-DNghYUsIZ0ty62wunyz92FCMOyi0yiLmiY6DYZjXfMpuPsEqS8wTgdgDo6Q0bk5X1tK5/rCW6Pqz73kDjDBTNA==}
-    peerDependencies:
-      '@syllst/core': '>=0.5.2'
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -2342,34 +2378,6 @@ snapshots:
     dependencies:
       '@types/unist': 3.0.3
       zod: 4.3.6
-
-  '@syllst/core@0.6.0':
-    dependencies:
-      '@types/unist': 3.0.3
-      zod: 4.3.6
-
-  '@syllst/processor@0.5.6(@syllst/core@0.6.0)':
-    dependencies:
-      '@syllst/core': 0.6.0
-      mdast-util-gfm: 3.1.0
-      mdast-util-to-markdown: 2.1.2
-      mdast-util-to-string: 4.0.0
-      remark: 15.0.1
-      remark-directive: 4.0.0
-      remark-frontmatter: 5.0.0
-      remark-gfm: 4.0.1
-      remark-mdx: 3.1.1
-      remark-parse: 11.0.0
-      unified: 11.0.5
-      unist-util-map: 4.0.0
-      unist-util-visit: 5.1.0
-      unist-util-visit-parents: 6.0.2
-      uuid: 13.0.0
-      vfile: 6.0.3
-      yaml: 2.8.2
-      zod: 4.3.6
-    transitivePeerDependencies:
-      - supports-color
 
   '@types/chai@5.2.3':
     dependencies:

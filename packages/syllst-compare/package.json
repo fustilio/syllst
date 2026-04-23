@@ -1,0 +1,57 @@
+{
+  "name": "@syllst/compare",
+  "version": "0.1.0",
+  "description": "Syllabi comparison framework — compare coverage, overlap, structure, and resources across syllst syllabi",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "packages/syllst-compare"
+  },
+  "peerDependencies": {
+    "@syllst/core": "workspace:*"
+  },
+  "dependencies": {
+    "@types/unist": "catalog:",
+    "unist-util-visit": "catalog:"
+  },
+  "devDependencies": {
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "syllabus",
+    "comparison",
+    "coverage",
+    "diff",
+    "language-learning",
+    "curriculum"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  }
+}
