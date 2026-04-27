@@ -164,6 +164,35 @@ export interface ResourceComparisonReport {
 }
 
 // ============================================================================
+// Pluggable Comparison Strategies
+// ============================================================================
+
+export interface ComparableItem {
+  id: string;
+  text: string;
+  translation?: string;
+}
+
+export interface StrategyMatchedPair {
+  itemA: ComparableItem;
+  itemB: ComparableItem;
+  similarity: number;
+}
+
+export interface StrategyMatchResult {
+  matched: number;
+  onlyInA: number;
+  onlyInB: number;
+  score: number;
+  details: StrategyMatchedPair[];
+}
+
+export interface MatchStrategy {
+  name: string;
+  match(setA: ComparableItem[], setB: ComparableItem[]): Promise<StrategyMatchResult> | StrategyMatchResult;
+}
+
+// ============================================================================
 // Overall Report
 // ============================================================================
 

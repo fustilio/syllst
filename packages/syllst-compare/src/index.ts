@@ -20,7 +20,13 @@ export type {
   LessonDiff,
   ResourceComparisonReport,
   LessonResourceMetrics,
+  ComparableItem,
+  StrategyMatchedPair,
+  StrategyMatchResult,
+  MatchStrategy,
 } from './types.js';
+export { SyllabiIndex } from './indexer.js';
+export type { IndexedNode } from './indexer.js';
 
 export { compareTopicCoverage } from './topic-coverage.js';
 export { compareContentOverlap } from './content-overlap.js';

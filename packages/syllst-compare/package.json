@@ -1,6 +1,6 @@
 {
   "name": "@syllst/compare",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Syllabi comparison framework — compare coverage, overlap, structure, and resources across syllst syllabi",
   "license": "MIT",
   "type": "module",

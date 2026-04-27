@@ -1,0 +1,54 @@
+{
+  "name": "@syllst/ja",
+  "version": "0.2.0",
+  "description": "Japanese-specific extensions for the Syllst syllabus ecosystem",
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./compare": {
+      "types": "./dist/compare/index.d.ts",
+      "default": "./dist/compare/index.js"
+    },
+    "./normalize": {
+      "types": "./dist/normalize.d.ts",
+      "default": "./dist/normalize.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@syllst/compare": "workspace:*",
+    "@syllst/core": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.0",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "@syllst/core": "0.6.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "syllst",
+    "japanese",
+    "ja",
+    "syllabus",
+    "language-learning",
+    "jlpt",
+    "kana"
+  ]
+}
