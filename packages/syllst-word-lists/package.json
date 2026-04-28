@@ -1,6 +1,6 @@
 {
   "name": "@syllst/word-lists",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Word list types, loaders, and utilities for syllst",
   "type": "module",
   "main": "./dist/index.js",
@@ -37,12 +37,12 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@syllst/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^25.1.0",
-    "typescript": "^5.4.0",
-    "vitest": "^1.0.0"
+    "@syllst/core": "workspace:*",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

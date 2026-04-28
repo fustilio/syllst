@@ -5,3 +5,4 @@ export * from './word-list-ingestion';
 export * from './word-lists-loader';
 export * from './word-lists-utils';
 export * from './word-lists-browser-loader';
+export * from './word-list-catalog';

@@ -19,3 +19,10 @@ export {
   type BrowserWordListLoaderConfig,
   type NodeWordListLoaderConfig,
 } from './utils/word-lists-browser-loader';
+
+// Catalog (new descriptor-based lazy loading)
+export {
+  createWordListCatalog,
+  type WordListCatalog,
+  type WordListSetDescriptor,
+} from './utils/word-list-catalog';
