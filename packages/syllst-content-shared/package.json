@@ -1,6 +1,6 @@
 {
   "name": "@syllst/content-shared",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Shared utilities for SYLLST content packages",
   "type": "module",
   "main": "./dist/index.js",
@@ -15,18 +15,22 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "vite build",
     "clean": "rm -rf dist",
     "lint": "eslint src",
     "test": "vitest run"
   },
   "dependencies": {
-    "@syllst/core": "workspace:*",
     "@syllst/processor": "workspace:*"
   },
+  "peerDependencies": {
+    "@syllst/core": "workspace:*"
+  },
   "devDependencies": {
-    "typescript": "^5.4.0",
-    "vitest": "^1.0.0"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@syllst/validator",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "CLI tool for validating Syllst MDX content",
   "license": "MIT",
   "type": "module",
@@ -25,7 +25,9 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "repository": {
     "type": "git",
@@ -40,7 +42,7 @@
     "curriculum"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build && node -e \"const fs=require('fs'); const content=fs.readFileSync('dist/cli.js','utf-8'); if(!content.startsWith('#!')) fs.writeFileSync('dist/cli.js','#!/usr/bin/env node\\n'+content);\"",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"

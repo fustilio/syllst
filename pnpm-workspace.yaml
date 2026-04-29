@@ -25,4 +25,6 @@ catalog:
   vfile: ^6.0.3
   yaml: ^2.8.2
   uuid: ^13.0.0
+  vite: ^6.3.0
+  vite-plugin-dts: ^4.5.0
   '@changesets/cli': ^2.29.8

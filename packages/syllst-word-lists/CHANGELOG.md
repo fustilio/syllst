@@ -1,5 +1,13 @@
 # @syllst/word-lists
 
+## 0.3.1
+
+### Patch Changes
+
+- update config
+- Updated dependencies
+  - @syllst/core@0.6.1
+
 ## 0.3.0
 
 ### Minor Changes

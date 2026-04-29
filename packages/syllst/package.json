@@ -1,6 +1,6 @@
 {
   "name": "@syllst/core",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Syllabus Syntax Tree (syllst) - Unist-based type definitions and validation schemas for language learning syllabi",
   "license": "MIT",
   "type": "module",
@@ -30,8 +30,10 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "keywords": [
     "syllabus",
@@ -57,7 +59,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"

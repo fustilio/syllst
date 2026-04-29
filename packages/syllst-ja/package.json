@@ -1,6 +1,6 @@
 {
   "name": "@syllst/ja",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Japanese-specific extensions for the Syllst syllabus ecosystem",
   "license": "MIT",
   "type": "module",
@@ -21,23 +21,24 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@syllst/compare": "workspace:*",
-    "@syllst/core": "workspace:*"
+    "@syllst/compare": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.6.0",
     "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@syllst/core": "0.6.0"
+    "@syllst/core": "0.6.1"
   },
   "publishConfig": {
     "access": "public"

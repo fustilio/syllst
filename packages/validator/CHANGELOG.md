@@ -1,5 +1,13 @@
 # @syllst/validator
 
+## 0.4.10
+
+### Patch Changes
+
+- update config
+- Updated dependencies
+  - @syllst/processor@0.6.1
+
 ## 0.4.9
 
 ### Patch Changes

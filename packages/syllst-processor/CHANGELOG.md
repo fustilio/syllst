@@ -1,5 +1,13 @@
 # @syllst/processor
 
+## 0.6.1
+
+### Patch Changes
+
+- update config
+- Updated dependencies
+  - @syllst/core@0.6.1
+
 ## 0.6.0
 
 ### Minor Changes

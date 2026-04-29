@@ -19,7 +19,9 @@
   "devDependencies": {
     "@changesets/cli": "catalog:",
     "typescript": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:"
   },
   "engines": {
     "node": ">=18.0.0",

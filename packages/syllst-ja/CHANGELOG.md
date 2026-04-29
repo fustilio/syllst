@@ -1,5 +1,14 @@
 # @syllst/ja
 
+## 0.2.1
+
+### Patch Changes
+
+- update config
+- Updated dependencies
+  - @syllst/compare@0.2.1
+  - @syllst/core@0.6.1
+
 ## 0.2.0
 
 ### Minor Changes

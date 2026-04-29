@@ -1,6 +1,6 @@
 {
   "name": "@syllst/compare",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Syllabi comparison framework — compare coverage, overlap, structure, and resources across syllst syllabi",
   "license": "MIT",
   "type": "module",
@@ -30,6 +30,8 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   },
   "files": [
@@ -49,7 +51,7 @@
     "curriculum"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"

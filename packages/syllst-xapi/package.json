@@ -1,6 +1,6 @@
 {
   "name": "@syllst/xapi",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "xAPI profile for language learning - verbs, activity types, extensions, and Zod schemas extending cmi5",
   "license": "MIT",
   "type": "module",
@@ -38,20 +38,21 @@
     "directory": "packages/syllst-xapi"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"
   },
   "peerDependencies": {
-    "@syllst/core": ">=0.5.2"
+    "@syllst/core": ">=0.6.1"
   },
   "dependencies": {
-    "@syllst/core": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
     "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   },
   "keywords": [

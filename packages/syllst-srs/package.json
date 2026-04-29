@@ -1,6 +1,6 @@
 {
   "name": "@syllst/srs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SRS card generation from syllst syllabi — convert lessons, vocabulary, grammar, and exercises into spaced-repetition cards",
   "license": "MIT",
   "type": "module",
@@ -38,6 +38,8 @@
   },
   "devDependencies": {
     "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
     "vitest": "catalog:"
   },
   "files": [
@@ -57,7 +59,7 @@
     "anki"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"

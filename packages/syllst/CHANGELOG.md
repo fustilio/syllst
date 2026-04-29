@@ -1,5 +1,11 @@
 # @syllst/core
 
+## 0.6.1
+
+### Patch Changes
+
+- update config
+
 ## 0.5.2
 
 ### Patch Changes

@@ -1,6 +1,6 @@
 {
   "name": "@syllst/glost",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "GLOST word-level annotation plugin for syllst",
   "license": "MIT",
   "type": "module",
@@ -23,11 +23,10 @@
   "dependencies": {
     "unified": "^11.0.5",
     "unist-util-visit": "^5.1.0",
-    "vfile": "^6.0.3",
-    "@syllst/core": "0.5.2"
+    "vfile": "^6.0.3"
   },
   "peerDependencies": {
-    "@syllst/core": ">=0.5.2",
+    "@syllst/core": ">=0.6.1",
     "glost-core": ">=0.1.0",
     "glost-processor": ">=0.1.0"
   },
@@ -42,8 +41,10 @@
   "devDependencies": {
     "@types/mdast": "^4.0.0",
     "@types/node": "^22.0.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "repository": {
     "type": "git",
@@ -65,7 +66,7 @@
     "annotations"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run"

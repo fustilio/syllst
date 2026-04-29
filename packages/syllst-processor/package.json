@@ -1,6 +1,6 @@
 {
   "name": "@syllst/processor",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "MDX parsing and transformation pipeline for syllst",
   "license": "MIT",
   "type": "module",
@@ -65,8 +65,10 @@
   "devDependencies": {
     "@types/mdast": "^4.0.0",
     "@types/node": "^22.0.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.18"
+    "typescript": "catalog:",
+    "vite": "catalog:",
+    "vite-plugin-dts": "catalog:",
+    "vitest": "catalog:"
   },
   "repository": {
     "type": "git",
@@ -88,7 +90,7 @@
     "curriculum"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest"
   }
