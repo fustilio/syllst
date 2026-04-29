@@ -16,7 +16,7 @@ import type {
   WordListDifficulty,
   WordListSet,
 } from '../types/word-lists';
-import { expandWordListJson } from './word-lists';
+import { expandWordListJson, type CompactWordListJson } from './word-lists';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -151,7 +151,7 @@ export function createWordListCatalog(
  * Creates a WordListSetDescriptor that loads its payload from a JSON file.
  *
  * @param meta - Descriptor metadata (all fields except `load`)
- * @param jsonPath - Path to the JSON module to import
+ * @param loader - Function that imports the JSON module (e.g. `() => import("./json/...")`)
  * @returns A WordListSetDescriptor with a lazy `load()` function
  *
  * @example
@@ -164,19 +164,19 @@ export function createWordListCatalog(
  *     category: "greetings",
  *     itemCount: 10,
  *   },
- *   "./json/a1/greetings.json",
+ *   () => import("./json/a1/greetings.json"),
  * );
  * ```
  */
 export function jsonDescriptor(
   meta: Omit<WordListSetDescriptor, "load"> & { source?: WordListSource },
-  jsonPath: string,
+  loader: () => Promise<{ default: unknown }>,
 ): WordListSetDescriptor {
   return {
     ...meta,
     load: async () => {
-      const data = await import(jsonPath);
-      return expandWordListJson(data.default);
+      const data = await loader();
+      return expandWordListJson(data.default as CompactWordListJson);
     },
   };
 }

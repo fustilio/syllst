@@ -1,5 +1,15 @@
 # @syllst/word-lists
 
+## 0.5.0
+
+### Minor Changes
+
+- Change `jsonDescriptor` signature to accept a loader function instead of a string path.
+
+  **Breaking change:** The second argument is now `() => Promise<{ default: unknown }>` instead of `string`. Consumers must pass `() => import("./json/...")` rather than the raw path string.
+
+  This fixes module resolution: the `import()` call is now lexically in the consumer's module, so it resolves relative to the consumer's package instead of `@syllst/word-lists`.
+
 ## 0.4.0
 
 ### Minor Changes
