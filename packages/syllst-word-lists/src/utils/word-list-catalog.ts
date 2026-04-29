@@ -16,8 +16,23 @@ import type {
   WordListDifficulty,
   WordListSet,
 } from '../types/word-lists';
+import { expandWordListJson } from './word-lists';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
+
+/**
+ * Source metadata for a word list set.
+ */
+export type WordListSource = {
+  /** Human-readable source name */
+  readonly name: string;
+  /** URL where the data was obtained */
+  readonly url?: string;
+  /** License identifier or URL */
+  readonly license?: string;
+  /** ISO date string when the source was accessed */
+  readonly accessedAt?: string;
+};
 
 /**
  * A descriptor for a single word list set.
@@ -33,6 +48,7 @@ import type {
  *   examGrade: "A1",
  *   category: "greetings",
  *   itemCount: 10,
+ *   source: { name: "Wiktionary", url: "https://en.wiktionary.org" },
  *   load: async () => {
  *     const data = await import("./json/a1/basic-greetings.json");
  *     return expandWordListJson(data.default);
@@ -57,6 +73,8 @@ export type WordListSetDescriptor = {
   readonly difficulty?: WordListDifficulty;
   /** Known word count (for UI previews) */
   readonly itemCount?: number;
+  /** Source metadata */
+  readonly source?: WordListSource;
   /** Lazy loader — returns the full WordListSet */
   readonly load: () => Promise<WordListSet>;
 };
@@ -123,6 +141,42 @@ export function createWordListCatalog(
         if (d.category) categories.add(d.category);
       });
       return Array.from(categories).sort();
+    },
+  };
+}
+
+// ─── JSON Descriptor Factory ─────────────────────────────────────────────────
+
+/**
+ * Creates a WordListSetDescriptor that loads its payload from a JSON file.
+ *
+ * @param meta - Descriptor metadata (all fields except `load`)
+ * @param jsonPath - Path to the JSON module to import
+ * @returns A WordListSetDescriptor with a lazy `load()` function
+ *
+ * @example
+ * ```ts
+ * jsonDescriptor(
+ *   {
+ *     id: "a1-greetings",
+ *     name: "Basic Greetings",
+ *     examGrade: "A1",
+ *     category: "greetings",
+ *     itemCount: 10,
+ *   },
+ *   "./json/a1/greetings.json",
+ * );
+ * ```
+ */
+export function jsonDescriptor(
+  meta: Omit<WordListSetDescriptor, "load"> & { source?: WordListSource },
+  jsonPath: string,
+): WordListSetDescriptor {
+  return {
+    ...meta,
+    load: async () => {
+      const data = await import(jsonPath);
+      return expandWordListJson(data.default);
     },
   };
 }

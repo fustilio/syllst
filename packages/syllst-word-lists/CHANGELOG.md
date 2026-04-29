@@ -1,5 +1,11 @@
 # @syllst/word-lists
 
+## 0.4.0
+
+### Minor Changes
+
+- Add `jsonDescriptor` factory function and `WordListSource` type to `word-list-catalog`. The `jsonDescriptor` helper creates a `WordListSetDescriptor` that lazily loads and expands a JSON word list file. `WordListSource` provides structured metadata (name, url, license, accessedAt) for tracking where word list data originates.
+
 ## 0.3.1
 
 ### Patch Changes

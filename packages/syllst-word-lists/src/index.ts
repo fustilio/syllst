@@ -23,6 +23,8 @@ export {
 // Catalog (new descriptor-based lazy loading)
 export {
   createWordListCatalog,
+  jsonDescriptor,
   type WordListCatalog,
   type WordListSetDescriptor,
+  type WordListSource,
 } from './utils/word-list-catalog';
