@@ -48,6 +48,13 @@ export type WordListItem = {
   transcription?: Transcription;
   /** IPA pronunciation (deprecated, use transcription instead) */
   ipa?: string;
+  /**
+   * Script-internal reading — how the word is rendered in another script the
+   * language owns. Distinct from `transcription` (which targets a notation
+   * scheme). Used primarily for CJK: e.g. `{ hiragana: "あたま", romaji: "atama" }`
+   * for JA `頭`. A bare string is shorthand when the target script is implicit.
+   */
+  reading?: string | Record<string, string>;
   /** Part of speech (noun, verb, adjective, etc.) */
   partOfSpeech?: string;
   /** Example sentence using the word */
@@ -109,6 +116,13 @@ export type WordListSet = {
   category?: string;
   /** Subcategory within the category */
   subcategory?: string;
+  /**
+   * Default part of speech for items in this set. When an item omits
+   * `partOfSpeech`, it inherits this value at *resolution* time (see
+   * `resolveItemPartOfSpeech`). Parsed JSON is faithful to source — inheritance
+   * is not applied at parse time.
+   */
+  partOfSpeech?: string;
   /** Words in this set */
   words: WordListItem[];
 };

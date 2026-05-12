@@ -17,6 +17,7 @@ import type {
   WordListSet,
 } from '../types/word-lists';
 import { expandWordListJson, type CompactWordListJson } from './word-lists';
+import { parseWordListSet } from './parse-word-list';
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -177,6 +178,28 @@ export function jsonDescriptor(
     load: async () => {
       const data = await loader();
       return expandWordListJson(data.default as CompactWordListJson);
+    },
+  };
+}
+
+/**
+ * Like {@link jsonDescriptor}, but routes the loaded JSON through
+ * {@link parseWordListSet} — the tolerant parser that normalizes legacy
+ * shapes (`transcriptions` plural, `{primary, ipa, ...}`, set-level `pos`,
+ * etc.) into canonical `WordListSet`.
+ *
+ * Prefer this for new word-list JSON files; reserve `jsonDescriptor` for
+ * already-canonical compact JSON.
+ */
+export function parsedJsonDescriptor(
+  meta: Omit<WordListSetDescriptor, "load"> & { source?: WordListSource },
+  loader: () => Promise<{ default: unknown }>,
+): WordListSetDescriptor {
+  return {
+    ...meta,
+    load: async () => {
+      const data = await loader();
+      return parseWordListSet(data.default);
     },
   };
 }

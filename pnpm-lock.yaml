@@ -154,8 +154,8 @@ importers:
   packages/syllst-glost:
     dependencies:
       '@syllst/core':
-        specifier: '>=0.5.2'
-        version: 0.5.2
+        specifier: '>=0.6.1'
+        version: 0.7.0
       glost-core:
         specifier: '>=0.1.0'
         version: 0.5.0
@@ -197,8 +197,8 @@ importers:
         specifier: workspace:*
         version: link:../syllst-compare
       '@syllst/core':
-        specifier: 0.6.0
-        version: 0.6.0
+        specifier: 0.6.1
+        version: 0.6.1
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -342,8 +342,8 @@ importers:
   packages/syllst-xapi:
     dependencies:
       '@syllst/core':
-        specifier: '>=0.5.2'
-        version: 0.5.2
+        specifier: '>=0.6.1'
+        version: 0.7.0
       zod:
         specifier: 'catalog:'
         version: 4.3.6
@@ -983,11 +983,11 @@ packages:
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
-  '@syllst/core@0.5.2':
-    resolution: {integrity: sha512-WqCw9KpTqaAKq0Me7TWppQkN7i8/ZrfTPUbWRq4B+oe+JzN98Zy/fN52PkIpuLMvANAvyxwihMcXro/XxI+bpg==}
+  '@syllst/core@0.6.1':
+    resolution: {integrity: sha512-RWKuY5RnuSBIxIdw2rxwS+nyonQ1p0t+iTdqfUEAj7M3Vfaf+9key55lYX6oeSPfYz5szHZLex+szRLw+WGoxw==}
 
-  '@syllst/core@0.6.0':
-    resolution: {integrity: sha512-iCLnLCs5RUox7YXWRNpHwtF3xEHl/7F6YnqsSPC1w/gtbLVcVRUFz8zpXjC+QqusUKTAM86j+RfZvkTFPxy7tw==}
+  '@syllst/core@0.7.0':
+    resolution: {integrity: sha512-seofYNdLjLXUKg9V0GLBp/U5xdDwOBIfi5p4winqlnR7sWwIvmyow7E4lBIvKTHVqyfI8nEpfTWz2O7rIXA8tA==}
 
   '@types/argparse@1.0.38':
     resolution: {integrity: sha512-ebDJ9b0e702Yr7pWgB0jzm+CX4Srzz8RcXtLJDJB+BSccqMa36uyH/zUsSYao5+BD1ytv3k3rPYCq4mAE1hsXA==}
@@ -2762,12 +2762,12 @@ snapshots:
 
   '@standard-schema/spec@1.1.0': {}
 
-  '@syllst/core@0.5.2':
+  '@syllst/core@0.6.1':
     dependencies:
       '@types/unist': 3.0.3
       zod: 4.3.6
 
-  '@syllst/core@0.6.0':
+  '@syllst/core@0.7.0':
     dependencies:
       '@types/unist': 3.0.3
       zod: 4.3.6

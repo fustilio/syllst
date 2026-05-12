@@ -38,14 +38,39 @@ export const DataSchema = z.record(z.string(), z.unknown());
 // ============================================================================
 
 /**
- * Transcription object schema - for multiple transcription systems
+ * Legacy transcription object schema — `primary` holds a value, additional
+ * schemes are top-level keys. @deprecated — kept for read compatibility.
  */
-export const TranscriptionObjectSchema = z
+export const LegacyTranscriptionObjectSchema = z
   .object({
     primary: z.string().min(1),
     ipa: z.string().optional(),
   })
   .catchall(z.string().optional());
+
+/**
+ * Canonical transcription object schema — `{ schemes, primary? }` where
+ * `primary` is a key into `schemes`. Strict-primary rule enforced via refine.
+ */
+export const CanonicalTranscriptionObjectSchema = z
+  .object({
+    schemes: z.record(z.string(), z.string()),
+    primary: z.string().min(1).optional(),
+  })
+  .refine(
+    (t) => t.primary === undefined || t.primary in t.schemes,
+    { message: 'primary must be a key of schemes' },
+  );
+
+/**
+ * Transcription object schema — union of canonical and legacy shapes during
+ * the transition window. Canonical is tried first so well-formed data is
+ * validated against the strict shape.
+ */
+export const TranscriptionObjectSchema = z.union([
+  CanonicalTranscriptionObjectSchema,
+  LegacyTranscriptionObjectSchema,
+]);
 
 /**
  * Transcription schema - simple string or object with multiple systems

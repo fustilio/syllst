@@ -1,5 +1,12 @@
 # @syllst/examples
 
+## 0.4.8
+
+### Patch Changes
+
+- Updated dependencies
+  - @syllst/core@0.7.0
+
 ## 0.4.7
 
 ### Patch Changes

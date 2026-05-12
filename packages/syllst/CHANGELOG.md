@@ -1,5 +1,13 @@
 # @syllst/core
 
+## 0.7.0
+
+### Minor Changes
+
+- Add canonical `TranscriptionObject` shape `{ schemes: Record<string, string>, primary?: string }` where `primary` is a key into `schemes`. Ships as a transitional union alongside the legacy shape — existing producers keep working, new producers should emit the canonical form. Adds `normalizeTranscription`, `isValidTranscription`, `isCanonicalTranscriptionObject`, and `isLegacyTranscriptionObject` helpers. The strict-primary rule (`primary` must be a key of `schemes`) is enforced at runtime by the helpers and by the Zod schema, not in the TypeScript type.
+
+  See `docs/adr/0001-transcription-object-shape.md`. Legacy union arm will be removed in 2.0.
+
 ## 0.6.1
 
 ### Patch Changes

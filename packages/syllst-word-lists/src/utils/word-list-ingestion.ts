@@ -12,6 +12,7 @@
  */
 
 import type { WordListItem, WordListSet, ExamGrade, WordListDifficulty } from '../types/word-lists';
+import { isCanonicalTranscriptionObject } from '@syllst/core';
 
 /**
  * Generic row parser for tabular data (CSV, TSV, spreadsheets)
@@ -81,12 +82,16 @@ export function convertTabularRowsToWordList(
     }
     // Backward compatibility: support legacy ipa field
     if (columnMap['ipa'] && row[columnMap['ipa']]) {
-      if (typeof item.transcription === 'string') {
-        item.transcription = { primary: item.transcription, ipa: row[columnMap['ipa']] };
-      } else if (!item.transcription) {
-        item.transcription = { primary: '', ipa: row[columnMap['ipa']] };
+      const ipa = row[columnMap['ipa']];
+      const current = item.transcription;
+      if (typeof current === 'string') {
+        item.transcription = { schemes: { default: current, ipa }, primary: 'default' };
+      } else if (!current) {
+        item.transcription = { schemes: { ipa } };
+      } else if (isCanonicalTranscriptionObject(current)) {
+        item.transcription = { ...current, schemes: { ...current.schemes, ipa } };
       } else {
-        item.transcription.ipa = row[columnMap['ipa']];
+        current.ipa = ipa;
       }
     }
     if (columnMap['example'] && row[columnMap['example']]) {
@@ -190,12 +195,16 @@ export function convertAnkiCardsToWordList(
       }
       // Backward compatibility: legacy ipa field
       if (card.fields['ipa']) {
-        if (typeof item.transcription === 'string') {
-          item.transcription = { primary: item.transcription, ipa: card.fields['ipa'] };
-        } else if (!item.transcription) {
-          item.transcription = { primary: '', ipa: card.fields['ipa'] };
+        const ipa = card.fields['ipa'];
+        const current = item.transcription;
+        if (typeof current === 'string') {
+          item.transcription = { schemes: { default: current, ipa }, primary: 'default' };
+        } else if (!current) {
+          item.transcription = { schemes: { ipa } };
+        } else if (isCanonicalTranscriptionObject(current)) {
+          item.transcription = { ...current, schemes: { ...current.schemes, ipa } };
         } else {
-          item.transcription.ipa = card.fields['ipa'];
+          current.ipa = ipa;
         }
       }
       if (card.fields['example']) item.example = card.fields['example'];

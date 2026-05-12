@@ -30,3 +30,11 @@
 
 // Export all types
 export * from './types/index.js';
+
+// Runtime helpers
+export {
+  isCanonicalTranscriptionObject,
+  isLegacyTranscriptionObject,
+  isValidTranscription,
+  normalizeTranscription,
+} from './utils/transcription.js';

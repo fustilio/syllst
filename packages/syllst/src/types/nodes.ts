@@ -22,29 +22,50 @@ export type { ExtensionsMap, NodeExtension } from './extensions.js';
 // ============================================================================
 
 /**
- * Transcription object for multiple transcription systems
+ * Legacy transcription object shape.
+ *
+ * `primary` holds a *value* (not a scheme key), additional schemes live as
+ * top-level keys. See ADR-0001 for why this shape is being retired.
+ *
+ * @deprecated Use {@link CanonicalTranscriptionObject}. Retained for read
+ * compatibility until `@syllst/core` 2.0.
+ */
+export interface LegacyTranscriptionObject {
+  primary: string;
+  ipa?: string;
+  [system: string]: string | undefined;
+}
+
+/**
+ * Canonical transcription object — schemes as a map, `primary` as a pointer.
+ *
+ * `primary`, if present, MUST be a key of `schemes`. This is enforced at runtime
+ * by {@link normalizeTranscription} / {@link isValidTranscription}; it is not
+ * expressible in the TypeScript type without making the interface generic over
+ * its schemes record.
  *
  * @example
  * ```typescript
- * // Simple string
- * transcription: "khâao"
- *
- * // Multiple systems
  * transcription: {
- *   primary: "khâao",
- *   ipa: "/kʰâːw/",
- *   rtgs: "khao"
+ *   schemes: { paiboon: "khâao", ipa: "/kʰâːw/", rtgs: "khao" },
+ *   primary: "paiboon",
  * }
  * ```
  */
-export interface TranscriptionObject {
-  /** Primary/default transcription */
-  primary: string;
-  /** IPA (International Phonetic Alphabet) */
-  ipa?: string;
-  /** Additional transcription systems (rtgs, paiboon, pinyin, hepburn, etc.) */
-  [system: string]: string | undefined;
+export interface CanonicalTranscriptionObject {
+  /** Scheme-keyed renderings (e.g. `paiboon`, `ipa`, `pinyin`, `hiragana`). */
+  schemes: Record<string, string>;
+  /** Key into `schemes` identifying the default rendering. */
+  primary?: string;
 }
+
+/**
+ * Transcription object — union of legacy and canonical shapes during transition.
+ *
+ * New producers should emit {@link CanonicalTranscriptionObject}. The legacy
+ * arm is removed in the next major.
+ */
+export type TranscriptionObject = LegacyTranscriptionObject | CanonicalTranscriptionObject;
 
 /**
  * Transcription type - simple string or object with multiple systems

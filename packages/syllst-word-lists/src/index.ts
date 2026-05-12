@@ -8,6 +8,8 @@
 export * from './types/word-lists';
 
 // Utils
+export * from './utils/parse-word-list';
+export * from './utils/resolve';
 export * from './utils/word-lists';
 export * from './utils/word-ids';
 export * from './utils/word-list-ingestion';
@@ -24,6 +26,7 @@ export {
 export {
   createWordListCatalog,
   jsonDescriptor,
+  parsedJsonDescriptor,
   type WordListCatalog,
   type WordListSetDescriptor,
   type WordListSource,

@@ -9,13 +9,16 @@ import type {
   VocabularyItemNode,
   Transcription,
 } from '@syllst/core';
-import { isVocabularyItemNode } from '@syllst/core';
+import { isVocabularyItemNode, isCanonicalTranscriptionObject } from '@syllst/core';
 import type { Node as UnistNode } from 'unist';
 import type { SrsCard, ActivityType, GeneratorOptions } from '../types.js';
 
 function formatTranscription(t: Transcription | undefined): string | undefined {
   if (!t) return undefined;
   if (typeof t === 'string') return t;
+  if (isCanonicalTranscriptionObject(t)) {
+    return (t.primary ? t.schemes[t.primary] : undefined) ?? t.schemes.ipa ?? t.schemes.default;
+  }
   return t.primary ?? t.ipa;
 }
 
