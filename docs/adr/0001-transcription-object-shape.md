@@ -21,7 +21,7 @@ Adopt the canonical shape upstream as `CanonicalTranscriptionObject`. Ship it vi
 export type TranscriptionObject = LegacyTranscriptionObject | CanonicalTranscriptionObject;
 ```
 
-This keeps the change additive (no required-field removal), so it ships as a **minor** on `@syllst/core`. Legacy is `@deprecated`. Provide `normalizeTranscription(t): CanonicalTranscriptionObject` so consumers can collapse to canonical in one call. Drop the legacy arm in the next major.
+This keeps the change additive (no required-field removal), so it ships as a **minor** on `@syllst/core`. Legacy is `@deprecated`. Provide `normalizeTranscription(t): string | CanonicalTranscriptionObject` so consumers can collapse legacy objects to canonical in one call (bare strings pass through unchanged). Drop the legacy arm in the next major.
 
 ## Alternatives considered
 

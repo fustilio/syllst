@@ -12,9 +12,11 @@ A rendering of a word's pronunciation in some script or notation. Distinct from 
 
 Legacy shape `{ primary: string, ipa?: string, [scheme]: string }` (where `primary` held a value, not a key) is deprecated — see [ADR-0001](docs/adr/0001-transcription-object-shape.md).
 
-## Reading *(planned)*
+## Reading
 
 A script-internal rendering of how a word is read in its own writing system — distinct from a phonetic transcription. Used for CJK languages where a word in one script (e.g. kanji `頭`) needs to be presented in another script of the same language (hiragana `あたま`, romaji `atama`).
+
+**Status.** Implemented in `@syllst/word-lists` as the `WordListItem.reading` field (`string | Record<scheme, value>`), normalized by `parseWordListSet`. Not yet carried on `@syllst/core` syllabus nodes (`VocabularyItemNode` / `CharacterItemNode`).
 
 **Overlap with transcription.** Romanizations (romaji, pinyin, revised romanization) are dual-use: they function as *readings* when the author treats them as a script the language owns (signage, input methods, native usage) and as *transcriptions* when they're meant as a phonetic approximation for learners. The discriminator is authoring intent, not the string value. A field's name (`reading` vs `transcription`) records that intent.
 
