@@ -11,22 +11,8 @@
 import { readdirSync, readFileSync, statSync } from 'fs';
 import { extname, join } from 'path';
 
-import type { WordListItem, WordListSet } from '../types/word-lists';
-
-/**
- * Compact JSON format type
- */
-type CompactWordListJson = {
-  id: string;
-  name: string;
-  desc?: string;
-  level?: string; // CEFR level (A1, A2, etc.)
-  cat?: string; // top-level category (e.g., "A1", "Adverbs of Time and Place")
-  subcat?: string; // subcategory within category (e.g., "Adverbs of Time", "Adverbs of Frequency")
-  pos?: string; // part of speech (applies to all words)
-  difficulty?: string;
-  words: string[] | WordListItem[]; // Can be simple strings or full objects
-};
+import type { WordListSet } from '../types/word-lists';
+import { expandWordListJson, type CompactWordListJson } from './word-lists';
 
 /**
  * Load a word list from a JSON file and expand to full WordListSet format
@@ -42,37 +28,7 @@ export function loadWordListFromJson(filePath: string): WordListSet {
     );
   }
 
-  // Expand compact format to full WordListSet
-  const examGrade = data.level as any;
-  const difficulty = data.difficulty as any;
-  const category = data.cat;
-  const subcategory = data.subcat;
-
-  // If words are strings, expand them with inherited metadata
-  const expandedWords: WordListItem[] = data.words.map((word) => {
-    if (typeof word === 'string') {
-      return {
-        word,
-        partOfSpeech: data.pos,
-        difficulty,
-        examGrade,
-        category,
-      };
-    }
-    // Already a WordListItem, use as-is
-    return word;
-  });
-
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.desc,
-    difficulty,
-    examGrade,
-    category,
-    subcategory,
-    words: expandedWords,
-  };
+  return expandWordListJson(data);
 }
 
 /**

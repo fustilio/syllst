@@ -1,0 +1,101 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+  id-token: write # OIDC trusted publishing to npm (tokenless)
+
+jobs:
+  # Cheap pre-check so the typical push (no changeset, not a Version-PR
+  # merge) exits in seconds instead of installing + building the whole
+  # workspace just to have changesets/action exit no-op.
+  detect:
+    name: Detect release work
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      work: ${{ steps.check.outputs.work }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: check
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "Manual dispatch → run release job."
+            echo "work=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ls .changeset/*.md 2>/dev/null | grep -v README.md | grep -q .; then
+            echo "Pending changesets found → run release job."
+            echo "work=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          MSG=$(git log -1 --format=%s)
+          # Squash-merging the Version PR produces "chore: version packages (#N)";
+          # changesets/action's own commit produces "chore: version packages".
+          case "$MSG" in
+            "chore: version packages"|"chore: version packages "*)
+              echo "Version-PR merge commit → run release job."
+              echo "work=true" >> "$GITHUB_OUTPUT"
+              exit 0
+              ;;
+          esac
+          echo "No changesets and not a Version-PR merge → skipping release."
+          echo "work=false" >> "$GITHUB_OUTPUT"
+
+  release:
+    name: Version or publish packages
+    needs: detect
+    if: needs.detect.outputs.work == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          run_install: false
+          # pnpm version comes from package.json's `packageManager` pin (pnpm 10,
+          # required for npm OIDC trusted publishing — 9.x lacks it, 11.x 404s on
+          # OIDC publish). A `version:` input here would conflict with the pin and
+          # make action-setup@v4 fail ("Multiple versions of pnpm specified").
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          # Node 24 ships npm >= 11.5.1, required for the OIDC publish handshake
+          # (Node 22 / npm 10 fails the handshake and the registry returns a
+          # misleading 404).
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Version or publish
+        uses: changesets/action@v1
+        with:
+          version: pnpm changeset:version
+          # changeset:release = pnpm build && pnpm lint:publish && changeset publish
+          publish: pnpm changeset:release
+          commit: "chore: version packages"
+          title: "chore: version packages"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No NPM_TOKEN: publishing authenticates via OIDC trusted publishing.
+          # Each @syllst/* package must have a trusted publisher configured on
+          # npmjs.com for repo fustilio/syllst, workflow release.yml. Provenance
+          # attestations are generated automatically under OIDC.

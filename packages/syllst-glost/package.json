@@ -27,14 +27,14 @@
   },
   "peerDependencies": {
     "@syllst/core": ">=0.6.1",
-    "glost-core": ">=0.1.0",
-    "glost-processor": ">=0.1.0"
+    "@glotblocks/glost-core": ">=0.6.0",
+    "@glotblocks/glost-processor": ">=1.0.0"
   },
   "peerDependenciesMeta": {
-    "glost-core": {
+    "@glotblocks/glost-core": {
       "optional": true
     },
-    "glost-processor": {
+    "@glotblocks/glost-processor": {
       "optional": true
     }
   },

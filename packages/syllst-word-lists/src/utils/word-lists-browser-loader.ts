@@ -7,7 +7,7 @@
  *
  * @example
  * ```ts
- * import { createBrowserWordListLoader } from "@syllst/content-shared";
+ * import { createBrowserWordListLoader } from "@syllst/word-lists/browser-loader";
  *
  * const {
  *   wordListSets,
@@ -22,7 +22,7 @@
 
 import type { WordListItem, WordListSet, WordListDifficulty, ExamGrade } from '../types/word-lists';
 import { createWordListUtils } from './word-lists-utils';
-import type { CompactWordListJson } from './word-lists';
+import { expandWordListJson, type CompactWordListJson } from './word-lists';
 
 /**
  * Configuration for creating browser word list loaders
@@ -31,40 +31,6 @@ export type BrowserWordListLoaderConfig = {
   /** Array of word list JSON data (imported in browser) */
   wordLists: CompactWordListJson[];
 };
-
-/**
- * Expands compact JSON format to full WordListSet
- */
-function expandWordListJson(data: CompactWordListJson): WordListSet {
-  const examGrade = data.level as any;
-  const difficulty = data.difficulty as any;
-  const category = data.cat;
-  const subcategory = data.subcat;
-
-  const expandedWords: WordListItem[] = (data.words || []).map((word) => {
-    if (typeof word === 'string') {
-      return {
-        word,
-        partOfSpeech: data.pos,
-        difficulty,
-        examGrade,
-        category,
-      };
-    }
-    return word as WordListItem;
-  });
-
-  return {
-    id: data.id,
-    name: data.name,
-    description: data.desc,
-    difficulty,
-    examGrade,
-    category,
-    subcategory,
-    words: expandedWords,
-  };
-}
 
 /**
  * Creates a browser word list loader
@@ -122,7 +88,7 @@ export function createBrowserWordListLoader(config: BrowserWordListLoaderConfig)
  *
  * @example
  * ```ts
- * import { createNodeWordListLoader } from "@syllst/content-shared";
+ * import { createNodeWordListLoader } from "@syllst/word-lists/browser-loader";
  *
  * const {
  *   wordListSets,

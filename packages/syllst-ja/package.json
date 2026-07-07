@@ -38,7 +38,7 @@
     "vitest": "catalog:"
   },
   "peerDependencies": {
-    "@syllst/core": "0.6.1"
+    "@syllst/core": ">=0.6.1"
   },
   "publishConfig": {
     "access": "public"

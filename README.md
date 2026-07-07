@@ -4,43 +4,50 @@
 
 ## Packages
 
+Versions are not listed here — `package.json` in each package directory and the
+[npm registry](https://www.npmjs.com/org/syllst) are the source of truth.
+
 ### Core
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| `[@syllst/core](./packages/syllst/)` | 0.6.0 | Unist-based type definitions and Zod validation schemas |
-| `[@syllst/processor](./packages/syllst-processor/)` | 0.5.6 | MDX parsing and transformation pipeline |
-| `[@syllst/glost](./packages/syllst-glost/)` | 0.5.5 | GLOST word-level annotation plugin for syllst |
+| Package | Description |
+|---------|-------------|
+| [`@syllst/core`](./packages/syllst/) | Unist-based type definitions and Zod validation schemas |
+| [`@syllst/processor`](./packages/syllst-processor/) | MDX parsing and transformation pipeline |
+| [`@syllst/glost`](./packages/syllst-glost/) | GLOST word-level annotation plugin for syllst |
 
-### Language Packages
+### Content Packages
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| `[@syllst/word-lists](./packages/syllst-word-lists/)` | 0.2.0 | Word list types, loaders, and utilities |
+| Package | Description |
+|---------|-------------|
+| [`@syllst/word-lists`](./packages/syllst-word-lists/) | Word list types, loaders, and utilities |
 
 > **Language content** has moved to [polyglot-bundles](../polyglot-bundles/): `@polyglot-bundles/{ja,ka,ko,th}-syllabi`. `syllst` is now engine-only.
 
 ### Supporting Packages
 
-| Package | Version | Description |
-|---------|---------|-------------|
-| `[@syllst/xapi](./packages/syllst-xapi/)` | 0.4.4 | xAPI profile for language learning — verbs, activity types, extensions, and Zod schemas |
-| `[@syllst/content-shared](./packages/syllst-content-shared/)` | 1.0.0 | Shared utilities for SYLLST content packages |
-| `[@syllst/validator](./packages/validator/)` | — | CLI tool for validating Syllst MDX content |
+| Package | Description |
+|---------|-------------|
+| [`@syllst/xapi`](./packages/syllst-xapi/) | xAPI profile for language learning — verbs, activity types, extensions, and Zod schemas |
+| [`@syllst/content-shared`](./packages/syllst-content-shared/) | Shared utilities for SYLLST content packages |
+| [`@syllst/validator`](./packages/validator/) | CLI tool (`syllst-validate`) for validating Syllst MDX content |
+| [`@syllst/compare`](./packages/syllst-compare/) | Answer-comparison strategies for exercises |
+| [`@syllst/srs`](./packages/syllst-srs/) | Spaced-repetition card generation |
+| [`@syllst/ja`](./packages/syllst-ja/) | Japanese-specific comparison and normalization helpers |
 
 ## Dependency Graph
 
 ```
-@syllst/core (0.6.0)
+@syllst/core
   ├── @syllst/processor ──────────► @syllst/core
-  ├── @syllst/glost ──────────────► @syllst/core
+  ├── @syllst/glost ──────────────► @syllst/core   (+ optional @glotblocks/glost peers)
   ├── @syllst/xapi ───────────────► @syllst/core
-  ├── @syllst/content-shared ─────► @syllst/core
-  │                                 @syllst/processor
-  └── @syllst/word-lists ─────────► @syllst/core
+  ├── @syllst/content-shared ─────► @syllst/core, @syllst/processor
+  ├── @syllst/word-lists ─────────► @syllst/core
+  ├── @syllst/compare ────────────► @syllst/core
+  ├── @syllst/srs ────────────────► @syllst/core
+  └── @syllst/ja ─────────────────► @syllst/core, @syllst/compare
 
-@syllst/processor (0.5.6)
-  └── @syllst/core (0.6.0)
+@syllst/validator ────────────────► @syllst/processor
 ```
 
 ## Development
@@ -58,40 +65,49 @@ pnpm test
 # Type check all packages
 pnpm typecheck
 
+# Check publish health (exports, files, types)
+pnpm lint:publish
+
 # Clean all dist outputs
 pnpm clean
-
-# Version and publish (requires 2FA)
-pnpm changeset
-pnpm changeset version
-pnpm changeset publish
 ```
 
 ## Publishing
 
-Each package is independently versioned. Use [changesets](https://github.com/changesets/changesets):
+Each package is independently versioned with
+[changesets](https://github.com/changesets/changesets), and releases are
+automated by GitHub Actions (`.github/workflows/release.yml`) — nobody
+publishes from a laptop.
 
-```bash
-# Select packages to publish
-pnpm changeset
+1. **In your PR**, add a changeset describing the change and bump type:
 
-# Bump versions
-pnpm changeset version
+   ```bash
+   pnpm changeset
+   ```
 
-# Build and publish
-pnpm build
-pnpm changeset publish
-```
+   Commit the generated `.changeset/*.md` file with your change.
 
-> **Note:** npm publishing requires 2FA. Run `pnpm changeset publish` manually.
+2. **On merge to `main`**, the release workflow opens (or refreshes) a
+   **"chore: version packages"** Version PR that applies all pending
+   changesets: version bumps + `CHANGELOG.md` entries.
 
-## Adding a Language Package
+3. **Merging the Version PR publishes to npm.** The workflow builds, runs the
+   publint gate, and runs `changeset publish` using npm **OIDC trusted
+   publishing** — there is no `NPM_TOKEN` secret and no 2FA prompt.
 
-1. Create `packages/syllst-{lang}/` with `package.json`, `vite.config.ts`, and `src/`
-2. Add to `pnpm-workspace.yaml`
-3. Run `pnpm install` to link
-4. Add a `README.md` using `pnpm generate:readme {lang}`
-5. Add changeset before publishing
+### One-time setup per package
+
+Each `@syllst/*` package needs a trusted publisher configured on npmjs.com
+(package → Settings → Trusted publisher): repository `fustilio/syllst`,
+workflow `release.yml`. A brand-new package must be published once manually
+(`npm publish --access public` with OTP) before OIDC can take over.
+
+## Adding a Package
+
+1. Create `packages/syllst-{name}/` with `package.json`, `vite.config.ts`, and `src/`
+2. Run `pnpm install` to link (the workspace glob `packages/*` picks it up)
+3. Add it to the Packages table and dependency graph above
+4. Add a changeset; configure its trusted publisher after the first manual publish
 
 ## License
 
