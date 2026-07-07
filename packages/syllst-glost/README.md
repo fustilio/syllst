@@ -13,7 +13,7 @@ pnpm add @syllst/glost
 For full GLOST integration, install the glost packages:
 
 ```bash
-pnpm add glost-core glost-processor
+pnpm add @glotblocks/glost-core @glotblocks/glost-processor
 ```
 
 ## Usage
