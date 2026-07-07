@@ -44,6 +44,9 @@ importers:
       '@changesets/cli':
         specifier: 'catalog:'
         version: 2.29.8(@types/node@25.6.0)
+      publint:
+        specifier: ^0.3.0
+        version: 0.3.21
       typescript:
         specifier: 'catalog:'
         version: 5.9.3
@@ -153,15 +156,15 @@ importers:
 
   packages/syllst-glost:
     dependencies:
+      '@glotblocks/glost-core':
+        specifier: '>=0.6.0'
+        version: 0.6.2
+      '@glotblocks/glost-processor':
+        specifier: '>=1.0.0'
+        version: 1.0.2(@glotblocks/glost-core@0.6.2)
       '@syllst/core':
         specifier: '>=0.6.1'
         version: 0.7.0
-      glost-core:
-        specifier: '>=0.1.0'
-        version: 0.5.0
-      glost-processor:
-        specifier: '>=0.1.0'
-        version: 0.5.0(glost-core@0.5.0)
       unified:
         specifier: ^11.0.5
         version: 11.0.5
@@ -197,8 +200,8 @@ importers:
         specifier: workspace:*
         version: link:../syllst-compare
       '@syllst/core':
-        specifier: 0.6.1
-        version: 0.6.1
+        specifier: '>=0.6.1'
+        version: 0.7.0
     devDependencies:
       '@types/node':
         specifier: ^25.6.0
@@ -773,6 +776,21 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@glotblocks/glost-common@0.4.2':
+    resolution: {integrity: sha512-5c9ufGe7Vi6XvWhSRuAT/Ojs24rDvxcrDG/1Nm5lKlsCZqu4OOTK8Hnbnr5vJiUL7gCDhK10D2mVxiQX/WPleg==}
+
+  '@glotblocks/glost-core@0.6.2':
+    resolution: {integrity: sha512-Srw9ZH4/mDHwi4EAOEx6C5iKWYKuXMC1DkPwFDr/r0FHkzwQfR0U2hWN4kZDMi27Zs3OVK/qVn0cmz5DxlUdxw==}
+    hasBin: true
+
+  '@glotblocks/glost-extensions@0.6.2':
+    resolution: {integrity: sha512-EN0xhb0+1GNcJJsq12p6rUiMYLgjExiPtZ4BfS3MTdsk2BygIWnljylNFd1L/ABePhTWPPTH2lct1hOd8YScjg==}
+
+  '@glotblocks/glost-processor@1.0.2':
+    resolution: {integrity: sha512-/7P1WwfpqaUFGLubSDgMRmUgnCMIWlvQiooIZXKQwX9kJMSA+H/qB+6V3cgrH7kEeQgS4jfRYkihc5JDhsQYzQ==}
+    peerDependencies:
+      '@glotblocks/glost-core': 0.6.2
+
   '@inquirer/external-editor@1.0.3':
     resolution: {integrity: sha512-RWbSrDiYmO4LbejWY7ttpxczuwQyZLBUyygsA9Nsv95hpzUWwnNTVQmAq3xuh7vNwCp07UTmE5i11XAEExx4RA==}
     engines: {node: '>=18'}
@@ -815,6 +833,10 @@ packages:
   '@nodelib/fs.walk@1.2.8':
     resolution: {integrity: sha512-oGB+UxlgWcgQkgwo8GcEGwemoTFt3FIO9ababBmaGwXIoBKZ+GTy0pP185beGg7Llih/NSHSV2XAs1lnznocSg==}
     engines: {node: '>= 8'}
+
+  '@publint/pack@0.1.5':
+    resolution: {integrity: sha512-edgyN2pP07uXiP4tJs0s8KVmU8M8i60YPbbI0/WDeok1mIJHRXz+CgD8I0nelwDkoCh3EWL/G5kGfbuHjsdbvw==}
+    engines: {node: '>=18'}
 
   '@rollup/pluginutils@5.3.0':
     resolution: {integrity: sha512-5EdhGZtnu3V88ces7s53hhfK5KSASnJZv8Lulpc04cWO3REESroJXg73DFsOmgbU2BhwV0E20bu2IDZb3VKW4Q==}
@@ -859,66 +881,79 @@ packages:
     resolution: {integrity: sha512-E8jKK87uOvLrrLN28jnAAAChNq5LeCd2mGgZF+fGF5D507WlG/Noct3lP/QzQ6MrqJ5BCKNwI9ipADB6jyiq2A==}
     cpu: [arm]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm-musleabihf@4.56.0':
     resolution: {integrity: sha512-jQosa5FMYF5Z6prEpTCCmzCXz6eKr/tCBssSmQGEeozA9tkRUty/5Vx06ibaOP9RCrW1Pvb8yp3gvZhHwTDsJw==}
     cpu: [arm]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-arm64-gnu@4.56.0':
     resolution: {integrity: sha512-uQVoKkrC1KGEV6udrdVahASIsaF8h7iLG0U0W+Xn14ucFwi6uS539PsAr24IEF9/FoDtzMeeJXJIBo5RkbNWvQ==}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-arm64-musl@4.56.0':
     resolution: {integrity: sha512-vLZ1yJKLxhQLFKTs42RwTwa6zkGln+bnXc8ueFGMYmBTLfNu58sl5/eXyxRa2RarTkJbXl8TKPgfS6V5ijNqEA==}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-loong64-gnu@4.56.0':
     resolution: {integrity: sha512-FWfHOCub564kSE3xJQLLIC/hbKqHSVxy8vY75/YHHzWvbJL7aYJkdgwD/xGfUlL5UV2SB7otapLrcCj2xnF1dg==}
     cpu: [loong64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-loong64-musl@4.56.0':
     resolution: {integrity: sha512-z1EkujxIh7nbrKL1lmIpqFTc/sr0u8Uk0zK/qIEFldbt6EDKWFk/pxFq3gYj4Bjn3aa9eEhYRlL3H8ZbPT1xvA==}
     cpu: [loong64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-ppc64-gnu@4.56.0':
     resolution: {integrity: sha512-iNFTluqgdoQC7AIE8Q34R3AuPrJGJirj5wMUErxj22deOcY7XwZRaqYmB6ZKFHoVGqRcRd0mqO+845jAibKCkw==}
     cpu: [ppc64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-ppc64-musl@4.56.0':
     resolution: {integrity: sha512-MtMeFVlD2LIKjp2sE2xM2slq3Zxf9zwVuw0jemsxvh1QOpHSsSzfNOTH9uYW9i1MXFxUSMmLpeVeUzoNOKBaWg==}
     cpu: [ppc64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-riscv64-gnu@4.56.0':
     resolution: {integrity: sha512-in+v6wiHdzzVhYKXIk5U74dEZHdKN9KH0Q4ANHOTvyXPG41bajYRsy7a8TPKbYPl34hU7PP7hMVHRvv/5aCSew==}
     cpu: [riscv64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-riscv64-musl@4.56.0':
     resolution: {integrity: sha512-yni2raKHB8m9NQpI9fPVwN754mn6dHQSbDTwxdr9SE0ks38DTjLMMBjrwvB5+mXrX+C0npX0CVeCUcvvvD8CNQ==}
     cpu: [riscv64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-linux-s390x-gnu@4.56.0':
     resolution: {integrity: sha512-zhLLJx9nQPu7wezbxt2ut+CI4YlXi68ndEve16tPc/iwoylWS9B3FxpLS2PkmfYgDQtosah07Mj9E0khc3Y+vQ==}
     cpu: [s390x]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-gnu@4.56.0':
     resolution: {integrity: sha512-MVC6UDp16ZSH7x4rtuJPAEoE1RwS8N4oK9DLHy3FTEdFoUTCFVzMfJl/BVJ330C+hx8FfprA5Wqx4FhZXkj2Kw==}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@rollup/rollup-linux-x64-musl@4.56.0':
     resolution: {integrity: sha512-ZhGH1eA4Qv0lxaV00azCIS1ChedK0V32952Md3FtnxSqZTBTd6tgil4nZT5cU8B+SIw3PFYkvyR4FKo2oyZIHA==}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   '@rollup/rollup-openbsd-x64@4.56.0':
     resolution: {integrity: sha512-O16XcmyDeFI9879pEcmtWvD/2nyxR9mF7Gs44lf1vGGx8Vg2DRNx11aVXBEqOQhWb92WN4z7fW/q4+2NYzCbBA==}
@@ -982,9 +1017,6 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
-
-  '@syllst/core@0.6.1':
-    resolution: {integrity: sha512-RWKuY5RnuSBIxIdw2rxwS+nyonQ1p0t+iTdqfUEAj7M3Vfaf+9key55lYX6oeSPfYz5szHZLex+szRLw+WGoxw==}
 
   '@syllst/core@0.7.0':
     resolution: {integrity: sha512-seofYNdLjLXUKg9V0GLBp/U5xdDwOBIfi5p4winqlnR7sWwIvmyow7E4lBIvKTHVqyfI8nEpfTWz2O7rIXA8tA==}
@@ -1382,25 +1414,6 @@ packages:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
 
-  glost-common@0.2.0:
-    resolution: {integrity: sha512-dTod+NPwzPs9oWIK3u9U7gvThUhgJBvO1OyRlkqMjYHqHpvT+M58COcdTosISVckn8BLNI0KOWNSm4sM1+kfKQ==}
-
-  glost-core@0.5.0:
-    resolution: {integrity: sha512-dP4dlgLr4qq1lE78lelHOpr6Yn2hAi0QmUvkbUIsJYGEChMaNDRVYLb0Ajy2BIzsZMoWXh9iKQ/EEupP87VDUg==}
-    hasBin: true
-
-  glost-extensions@0.4.0:
-    resolution: {integrity: sha512-xqMZt9vOIncRk4v8NQIsoYD3VoorSaMiihPpgmV0UQPcC+TF+/j4AS/1fkafJprDNLDNiLuFn1kM1geTj6JpvQ==}
-
-  glost-processor@0.5.0:
-    resolution: {integrity: sha512-0McPWeEWGOhlmS1QMTdtEjX6bYNRJXKIu7ziO1UwaWQBxbBenw2lAg1/75ekt7MJhupt3u1LqniHLl7GKp7l5w==}
-    peerDependencies:
-      glost-core: ^0.5.0
-
-  glost@0.4.0:
-    resolution: {integrity: sha512-srnZhZe6NsioRyZmtjaoOc1EtsuOjtH7d9dlM94/LY+WAyre5vGGVyZnxXNXudxApAAPLsB/O0kfDtVWgnTRvA==}
-    hasBin: true
-
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
 
@@ -1749,6 +1762,9 @@ packages:
   package-manager-detector@0.2.11:
     resolution: {integrity: sha512-BEnLolu+yuz22S56CU1SUKq3XC3PkwD5wv4ikR4MfGvnRVcmzXR9DwSlW2fEamyTPyXHomBJRzgapeuBvRNzJQ==}
 
+  package-manager-detector@1.7.0:
+    resolution: {integrity: sha512-xg1eHpwYL/D/HEdWw2goFZP6vV0FH7W+PZ5rFkGjdIDLtxq7EkzBUeT3m+lndYCt8wKbmofUu1MUdMCXkCk9ZQ==}
+
   parse-entities@4.0.2:
     resolution: {integrity: sha512-GG2AQYWoLgL877gQIKeRPGO1xF9+eG1ujIb5soS5gPvLQ1y2o8FL90w2QWNdf9I361Mpp7726c+lj3U0qK1uGw==}
 
@@ -1801,6 +1817,11 @@ packages:
   prettier@2.8.8:
     resolution: {integrity: sha512-tdN8qQGvNjw4CHbY+XXk0JgCXn9QiF21a55rBe5LJAU+kDyC4WQn4+awm2Xfk2lQMk5fKup9XgzTZtGkjBdP9Q==}
     engines: {node: '>=10.13.0'}
+    hasBin: true
+
+  publint@0.3.21:
+    resolution: {integrity: sha512-OqejcnMV6E9zel2oCrUOJEiiFkGiAAni0A6ibfQNh1k9Gu5z4F+Yso8lllam7AzmV6Do0vp7u3UpZNRBwuXaHQ==}
+    engines: {node: '>=18'}
     hasBin: true
 
   quansync@0.2.11:
@@ -1861,6 +1882,10 @@ packages:
 
   run-parallel@1.2.0:
     resolution: {integrity: sha512-5l4VyZR86LZ/lDxZTR6jqL8AFE2S0IFLMP26AbjsLVADxHdhB/c0GUsH+y39UfCi3dzz8OlQuPmnaJOMoDHQBA==}
+
+  sade@1.8.1:
+    resolution: {integrity: sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==}
+    engines: {node: '>=6'}
 
   safer-buffer@2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
@@ -1946,6 +1971,10 @@ packages:
 
   tinyexec@1.0.2:
     resolution: {integrity: sha512-W/KYk+NFhkmsYpuHq5JykngiOCnxeVL8v8dFnqxSD8qEEdRfXk1SDM6JzNqcERbcGYj9tMrDQBYV9cjgnunFIg==}
+    engines: {node: '>=18'}
+
+  tinyexec@1.2.4:
+    resolution: {integrity: sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg==}
     engines: {node: '>=18'}
 
   tinyglobby@0.2.15:
@@ -2506,6 +2535,35 @@ snapshots:
   '@esbuild/win32-x64@0.27.2':
     optional: true
 
+  '@glotblocks/glost-common@0.4.2':
+    dependencies:
+      zod: 3.25.76
+
+  '@glotblocks/glost-core@0.6.2':
+    dependencies:
+      '@glotblocks/glost-common': 0.4.2
+      unist-util-filter: 5.0.1
+      unist-util-find: 3.0.0
+      unist-util-flatmap: 1.0.0
+      unist-util-is: 6.0.1
+      unist-util-map: 4.0.0
+      unist-util-modify-children: 4.0.0
+      unist-util-remove: 4.0.0
+      unist-util-select: 5.1.0
+      unist-util-visit: 5.1.0
+      zod: 3.25.76
+
+  '@glotblocks/glost-extensions@0.6.2':
+    dependencies:
+      '@glotblocks/glost-common': 0.4.2
+      '@glotblocks/glost-core': 0.6.2
+      unist-util-visit: 5.1.0
+
+  '@glotblocks/glost-processor@1.0.2(@glotblocks/glost-core@0.6.2)':
+    dependencies:
+      '@glotblocks/glost-core': 0.6.2
+      '@glotblocks/glost-extensions': 0.6.2
+
   '@inquirer/external-editor@1.0.3(@types/node@25.6.0)':
     dependencies:
       chardet: 2.1.1
@@ -2603,6 +2661,10 @@ snapshots:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.20.1
+
+  '@publint/pack@0.1.5':
+    dependencies:
+      tinyexec: 1.2.4
 
   '@rollup/pluginutils@5.3.0(rollup@4.56.0)':
     dependencies:
@@ -2761,11 +2823,6 @@ snapshots:
       - '@types/node'
 
   '@standard-schema/spec@1.1.0': {}
-
-  '@syllst/core@0.6.1':
-    dependencies:
-      '@types/unist': 3.0.3
-      zod: 4.3.6
 
   '@syllst/core@0.7.0':
     dependencies:
@@ -3195,49 +3252,6 @@ snapshots:
       ignore: 5.3.2
       merge2: 1.4.1
       slash: 3.0.0
-
-  glost-common@0.2.0:
-    dependencies:
-      zod: 3.25.76
-
-  glost-core@0.5.0:
-    dependencies:
-      glost-common: 0.2.0
-      unist-util-filter: 5.0.1
-      unist-util-find: 3.0.0
-      unist-util-flatmap: 1.0.0
-      unist-util-is: 6.0.1
-      unist-util-map: 4.0.0
-      unist-util-modify-children: 4.0.0
-      unist-util-remove: 4.0.0
-      unist-util-select: 5.1.0
-      unist-util-visit: 5.1.0
-      zod: 3.25.76
-
-  glost-extensions@0.4.0:
-    dependencies:
-      glost: 0.4.0
-      glost-common: 0.2.0
-      unist-util-visit: 5.1.0
-
-  glost-processor@0.5.0(glost-core@0.5.0):
-    dependencies:
-      glost-core: 0.5.0
-      glost-extensions: 0.4.0
-
-  glost@0.4.0:
-    dependencies:
-      glost-common: 0.2.0
-      unist-util-filter: 5.0.1
-      unist-util-find: 3.0.0
-      unist-util-flatmap: 1.0.0
-      unist-util-is: 6.0.1
-      unist-util-map: 4.0.0
-      unist-util-modify-children: 4.0.0
-      unist-util-remove: 4.0.0
-      unist-util-select: 5.1.0
-      unist-util-visit: 5.1.0
-      zod: 3.25.76
 
   graceful-fs@4.2.11: {}
 
@@ -3854,6 +3868,8 @@ snapshots:
     dependencies:
       quansync: 0.2.11
 
+  package-manager-detector@1.7.0: {}
+
   parse-entities@4.0.2:
     dependencies:
       '@types/unist': 2.0.11
@@ -3903,6 +3919,13 @@ snapshots:
       source-map-js: 1.2.1
 
   prettier@2.8.8: {}
+
+  publint@0.3.21:
+    dependencies:
+      '@publint/pack': 0.1.5
+      package-manager-detector: 1.7.0
+      picocolors: 1.1.1
+      sade: 1.8.1
 
   quansync@0.2.11: {}
 
@@ -4026,6 +4049,10 @@ snapshots:
     dependencies:
       queue-microtask: 1.2.3
 
+  sade@1.8.1:
+    dependencies:
+      mri: 1.2.0
+
   safer-buffer@2.1.2: {}
 
   semver@7.7.3: {}
@@ -4083,6 +4110,8 @@ snapshots:
   tinybench@2.9.0: {}
 
   tinyexec@1.0.2: {}
+
+  tinyexec@1.2.4: {}
 
   tinyglobby@0.2.15:
     dependencies:

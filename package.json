@@ -13,19 +13,20 @@
     "clean": "pnpm -r clean && rm -rf node_modules",
     "changeset": "changeset",
     "changeset:version": "changeset version",
-    "changeset:release": "pnpm build && changeset publish",
-    "generate:readme": "tsx scripts/generate-readme.ts"
+    "changeset:release": "pnpm build && pnpm lint:publish && changeset publish",
+    "lint:publish": "pnpm --filter \"./packages/**\" exec publint"
   },
   "devDependencies": {
     "@changesets/cli": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-dts": "catalog:"
+    "vite-plugin-dts": "catalog:",
+    "publint": "^0.3.0"
   },
   "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "node": ">=20.0.0",
+    "pnpm": ">=10.0.0"
   },
-  "packageManager": "pnpm@9.5.0"
+  "packageManager": "pnpm@10.34.4"
 }
