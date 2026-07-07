@@ -1,6 +1,6 @@
 {
   "name": "@syllst/word-lists",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Word list types, loaders, and utilities for syllst",
   "type": "module",
   "main": "./dist/index.js",
