@@ -1,5 +1,11 @@
 # @syllst/glost
 
+## 0.5.7
+
+### Patch Changes
+
+- fc7e388: Optional peer dependencies now point at the maintained `@glotblocks/glost-core` / `@glotblocks/glost-processor` packages instead of the deprecated unscoped `glost-core` / `glost-processor` names.
+
 ## 0.5.6
 
 ### Patch Changes
