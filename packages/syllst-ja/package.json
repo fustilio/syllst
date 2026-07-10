@@ -3,6 +3,11 @@
   "version": "0.2.2",
   "description": "Japanese-specific extensions for the Syllst syllabus ecosystem",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fustilio/syllst.git",
+    "directory": "packages/syllst-ja"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
